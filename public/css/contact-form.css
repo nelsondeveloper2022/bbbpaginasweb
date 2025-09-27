@@ -1,0 +1,150 @@
+/* 
+ * BBB Contact Form Styles
+ * Global stylesheet for contact forms across all pages
+ */
+
+/* Contact Section */
+.contact-section {
+    padding: 5rem 0;
+    background: var(--dark-bg);
+    color: white;
+}
+
+.contact-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 3rem;
+    color: white;
+}
+
+/* Contact Form Container */
+.contact-form,
+.contact-form-extended {
+    background: white;
+    padding: 3rem;
+    border-radius: 15px;
+    border-top: 5px solid var(--primary-gold);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* Form Labels */
+.contact-form .form-label,
+.contact-form-extended .form-label {
+    color: var(--primary-red);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Form Inputs and Selects */
+.contact-form .form-control,
+.contact-form .form-select,
+.contact-form-extended .form-control,
+.contact-form-extended .form-select {
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Form Focus States */
+.contact-form .form-control:focus,
+.contact-form .form-select:focus,
+.contact-form-extended .form-control:focus,
+.contact-form-extended .form-select:focus {
+    border-color: var(--primary-gold);
+    box-shadow: 0 0 0 0.2rem rgba(240, 172, 33, 0.25);
+    outline: none;
+}
+
+/* Textarea Specific */
+.contact-form textarea,
+.contact-form-extended textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Submit Button */
+.submit-btn {
+    background: var(--primary-gold);
+    border: none;
+    color: var(--dark-bg);
+    font-weight: 600;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 2rem auto 0;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background: #e09a1d;
+    color: var(--dark-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(240, 172, 33, 0.4);
+}
+
+/* Error Messages */
+.text-danger {
+    color: #dc3545 !important;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Floating Labels Support (for contact page) */
+.form-floating .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    padding: 1rem 0.75rem;
+}
+
+.form-floating .form-control:focus {
+    border-color: var(--primary-gold);
+    box-shadow: 0 0 0 0.2rem rgba(240, 172, 33, 0.25);
+}
+
+.form-floating label {
+    color: var(--medium-gray);
+}
+
+/* Success Alerts */
+.alert-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .contact-form,
+    .contact-form-extended {
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .contact-title {
+        font-size: 2rem;
+    }
+    
+    .submit-btn {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .contact-form,
+    .contact-form-extended {
+        padding: 1.5rem;
+    }
+    
+    .contact-title {
+        font-size: 1.8rem;
+    }
+}

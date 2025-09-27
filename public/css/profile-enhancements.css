@@ -1,0 +1,303 @@
+/* Profile Management Styles */
+
+/* Progress Ring Animation */
+.progress-ring circle {
+    transition: stroke-dashoffset 0.35s;
+    transform-origin: 50% 50%;
+}
+
+/* Form Enhancements */
+.form-floating > .form-control.border-0.bg-light {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.form-floating > .form-control.border-0.bg-light:focus {
+    background-color: #fff !important;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15) !important;
+    border: 2px solid #FFD700 !important;
+}
+
+/* Website URL Mask */
+.form-floating.position-relative {
+    overflow: visible;
+}
+
+.website-prefix {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 0.9rem;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 5;
+    transition: all 0.3s ease;
+    background: transparent;
+    padding: 0 4px;
+}
+
+.form-floating.position-relative .form-control[data-mask="website"] {
+    padding-left: 70px !important;
+}
+
+.form-floating.position-relative .form-control[data-mask="website"]:focus {
+    padding-left: 75px !important;
+}
+
+.form-floating.position-relative .form-control[data-mask="website"]:focus ~ .website-prefix {
+    color: #FFD700;
+    opacity: 1;
+    font-weight: 600;
+}
+
+/* Website input styling */
+input[data-mask="website"]::placeholder {
+    padding-left: 0;
+    opacity: 0.7;
+}
+
+/* Website validation indicators */
+.form-floating.valid-input .form-control {
+    border-color: #28a745 !important;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15) !important;
+}
+
+.form-floating.valid-input .website-prefix {
+    color: #28a745 !important;
+}
+
+.form-floating.invalid-input .form-control {
+    border-color: #dc3545 !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15) !important;
+}
+
+.form-floating.invalid-input .website-prefix {
+    color: #dc3545 !important;
+}
+
+/* Small text styling */
+.form-floating + small.text-muted {
+    margin-top: 5px;
+    font-size: 0.75rem;
+    display: block;
+}
+
+/* Section Headers */
+.section-header {
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.section-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    border-radius: 1px;
+}
+
+/* Social Media Icons Enhancement */
+input[name*="facebook"]:focus + label i {
+    color: #1877f2 !important;
+}
+
+input[name*="instagram"]:focus + label i {
+    color: #e4405f !important;
+}
+
+input[name*="linkedin"]:focus + label i {
+    color: #0077b5 !important;
+}
+
+input[name*="twitter"]:focus + label i {
+    color: #1da1f2 !important;
+}
+
+input[name*="tiktok"]:focus + label i {
+    color: #ff0050 !important;
+}
+
+input[name*="youtube"]:focus + label i {
+    color: #ff0000 !important;
+}
+
+input[name*="whatsapp"]:focus + label i {
+    color: #25d366 !important;
+}
+
+input[name*="website"]:focus + label i {
+    color: #007bff !important;
+}
+
+/* Profile Avatar Enhancement */
+.user-avatar {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+}
+
+/* Card Enhancements */
+.card.border-0.shadow-sm {
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.card.border-0.shadow-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+/* Upgrade CTA Animation */
+.upgrade-cta {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.upgrade-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.upgrade-cta:hover::before {
+    left: 100%;
+}
+
+.upgrade-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+}
+
+/* Button Enhancements */
+.btn-primary-gold {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.btn-primary-gold:hover {
+    background: linear-gradient(135deg, #FFA500, #FF8C00);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
+    color: white;
+}
+
+.btn-warning {
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+}
+
+/* Alert Enhancements */
+.alert {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #155724;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #721c24;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+}
+
+/* Badge Enhancements */
+.badge {
+    border-radius: 20px;
+    font-weight: 500;
+    padding: 8px 16px;
+}
+
+/* Textarea Character Counter */
+.form-floating textarea + small {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Loading Animation */
+.btn.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .user-avatar {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 1.8rem !important;
+    }
+    
+    .card.border-0.shadow-sm:hover {
+        transform: none;
+    }
+    
+    .upgrade-cta:hover {
+        transform: none;
+    }
+}
+
+/* Dark mode support (if needed later) */
+@media (prefers-color-scheme: dark) {
+    .form-control.border-0.bg-light {
+        color: rgb(50, 69, 89);
+    }
+    
+    .card {
+        color: rgb(50, 69, 89);
+    }
+}
