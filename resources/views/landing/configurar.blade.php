@@ -60,13 +60,21 @@
                                 Ver Landing
                             </a> --}}
                         @else
-                            <a href="{{ route('landing.preview') }}" class="btn btn-outline-secondary" target="_blank">
+                            <a href="{{ route('admin.landing.preview') }}" class="btn btn-outline-secondary" target="_blank">
                                 <i class="bi bi-eye me-1"></i>
                                 Previsualizar
                             </a>
                         @endif
                     @endif
-                    <button type="submit" form="landing-form" class="btn btn-primary" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }}>
+                    {{-- <button type="button" id="revisar-campos-btn" class="btn btn-outline-info btn-sm" onclick="mostrarAlertaCamposFaltantes('Revisar progreso del formulario', 'info')" title="Ver qué campos faltan por completar">
+                        <i class="bi bi-list-check me-1"></i>
+                        Revisar Campos
+                    </button> --}}
+                    <button type="button" id="limpiar-autoguardado-btn" class="btn btn-outline-warning btn-sm" onclick="confirmarLimpiarAutoguardado()" style="display: none;" title="Limpiar datos guardados automáticamente">
+                        <i class="bi bi-trash3 me-1"></i>
+                        Limpiar Borradores
+                    </button>
+                    <button type="submit" form="landing-form" class="btn btn-primary" id="guardar-btn" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }}>
                         <i class="bi bi-save me-1"></i>
                         {{ ($estadoLanding === 'publicada') ? 'Guardar Info. Empresarial' : 'Guardar' }}
                     </button>
@@ -118,7 +126,7 @@
                             <div class="alert alert-info mt-4 p-3 border-0">
                                 <i class="bi bi-building me-2"></i>
                                 <strong>Recuerda:</strong> La información empresarial siempre estará disponible para ser modificada.  
-                                Podrás actualizar en cualquier momento datos clave como tu <strong>logo</strong>,  
+                                Podrás actualizar en cualquier momento datos clave como tu información empresarial,  
                                 <strong>información de contacto</strong> y <strong>redes sociales</strong>.
                             </div>
 
@@ -193,6 +201,38 @@
                 </div>
             @endif
 
+            <!-- Alerta para formulario completo -->
+            <div id="formulario-completo-alert" class="alert alert-info border-0 shadow-sm mb-4" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" role="alert">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-rocket-takeoff display-6 text-white"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="alert-heading mb-2 text-white">
+                            <i class="bi bi-check-circle me-2"></i>
+                            ¡Tu formulario está completo!
+                        </h4>
+                        <p class="mb-2">
+                            Has completado todos los campos necesarios para tu landing page. 
+                            <strong>Es muy importante que ahora hagas clic en "Publicar"</strong> para que tu landing esté disponible.
+                        </p>
+                        <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <small class="text-white-50">
+                                    <i class="bi bi-lightbulb me-1"></i>
+                                    Una vez publicada, tu landing estará lista en 24 horas máximo
+                                </small>
+                            </div>
+                            <button type="button" class="btn btn-light btn-sm" onclick="scrollToPublishButton()">
+                                <i class="bi bi-arrow-up me-1"></i>
+                                Ir a Publicar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @if(!$profileComplete)
                 <!-- Bloqueo por perfil incompleto -->
                 <div class="alert alert-warning border-0 shadow-sm mb-4" style="position: relative;">
@@ -246,7 +286,7 @@
                             </div>
                         </div>
                         <div class="col-md-4 text-md-end">
-                            <a href="{{ route('profile.edit') }}" class="btn btn-warning btn-lg">
+                            <a href="{{ route('admin.profile.edit') }}" class="btn btn-warning btn-lg">
                                 <i class="bi bi-person-gear me-2"></i>
                                 Completar Perfil
                             </a>
@@ -266,7 +306,7 @@
                 <div class="profile-lock-overlay" style="position: relative; pointer-events: none; opacity: 0.6; padding: 20px;">
             @endif
 
-            <form id="landing-form" action="{{ route('landing.guardar') }}" method="POST" enctype="multipart/form-data" {{ !$profileComplete ? 'style=pointer-events:none;' : '' }}>
+            <form id="landing-form" action="{{ route('admin.landing.guardar') }}" method="POST" enctype="multipart/form-data" {{ !$profileComplete ? 'style=pointer-events:none;' : '' }}>
                 @csrf
 
                 <!-- Navigation Tabs -->
@@ -484,43 +524,51 @@
                                     </div>
                                 </div>
 
-                                <!-- Sección: Imágenes Adicionales -->
-                                <div class="card mb-4 {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'form-disabled-overlay' : '' }}">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">
-                                            <i class="bi bi-images text-primary me-2"></i>
-                                            Imágenes Adicionales
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div class="upload-zone border-2 border-dashed border-secondary rounded p-4 text-center {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}" 
-                                                id="media-upload-zone"
-                                                ondrop="{{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? '' : 'handleDrop(event)' }}" 
-                                                ondragover="{{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? '' : 'handleDragOver(event)' }}"
-                                                ondragleave="{{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? '' : 'handleDragLeave(event)' }}">
-                                                <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
-                                                <p class="mb-2">{{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'Subida de imágenes deshabilitada durante la construcción/publicación' : 'Arrastra y suelta imágenes aquí o' }}</p>
-                                                @if(!($landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada')))
-                                                    <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('media-input').click()">
-                                                        Seleccionar Archivos
-                                                    </button>
-                                                    <input type="file" id="media-input" class="d-none" multiple accept="image/*" onchange="handleFileSelect(event)">
-                                                    <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF, SVG (Max: 2MB por imagen)</small>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <!-- Gallery de imágenes subidas -->
-                                        <div id="media-gallery" class="row g-3">
-                                            <!-- Las imágenes se cargarán aquí dinámicamente -->
-                                        </div>
-                                    </div>
-                                </div>
+                                <!-- Sección de Imágenes Adicionales movida a Información Empresarial -->
                             </div>
 
                             <!-- Columna Lateral -->
                             <div class="col-lg-4">
+                                <!-- CSS para fuentes de Google y estilos de vista previa -->
+                                <style>
+                                    /* Importar Google Fonts */
+                                    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
+                                    
+                                    /* Estilos para la vista previa de tipografía */
+                                    #typography-preview-container {
+                                        transition: all 0.3s ease;
+                                    }
+                                    
+                                    #typography-preview-container h3,
+                                    #typography-preview-container p,
+                                    #typography-preview-container small {
+                                        transition: font-family 0.2s ease;
+                                        word-wrap: break-word;
+                                        overflow-wrap: break-word;
+                                    }
+
+                                    /* Animación sutil al cambiar tipografía */
+                                    .typography-preview {
+                                        animation: fadeIn 0.3s ease;
+                                    }
+
+                                    @keyframes fadeIn {
+                                        from { opacity: 0.7; }
+                                        to { opacity: 1; }
+                                    }
+
+                                    /* Estilo para el input de texto de prueba */
+                                    #typography-test-text {
+                                        border: 2px solid #e9ecef;
+                                        transition: border-color 0.2s ease;
+                                    }
+
+                                    #typography-test-text:focus {
+                                        border-color: #007bff;
+                                        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+                                    }
+                                </style>
+
                                 <!-- Script para actualizar dinámicamente -->
                                 <script>
                                     document.addEventListener("DOMContentLoaded", function () {
@@ -538,43 +586,53 @@
 
                                         // inicializar al cargar la página
                                         updatePreviews();
+
+                                        // Sistema de vista previa de tipografía
+                                        const typographySelect = document.getElementById("tipografia");
+                                        const testTextInput = document.getElementById("typography-test-text");
+                                        const previewTitle = document.getElementById("preview-title");
+                                        const previewParagraph = document.getElementById("preview-paragraph");
+                                        const previewSmall = document.getElementById("preview-small");
+
+                                        function updateTypographyPreview() {
+                                            const selectedFont = typographySelect.value;
+                                            const testText = testTextInput.value.trim() || "¡Bienvenidos a nuestra empresa!";
+
+                                            // Aplicar la fuente seleccionada directamente
+                                            if (selectedFont) {
+                                                previewTitle.style.fontFamily = selectedFont;
+                                                previewParagraph.style.fontFamily = selectedFont;
+                                                previewSmall.style.fontFamily = selectedFont;
+                                            } else {
+                                                // Resetear a fuente por defecto
+                                                previewTitle.style.fontFamily = '';
+                                                previewParagraph.style.fontFamily = '';
+                                                previewSmall.style.fontFamily = '';
+                                            }
+
+                                            // Actualizar el texto en todos los elementos de vista previa
+                                            previewTitle.textContent = testText;
+                                            previewParagraph.textContent = testText;
+                                            previewSmall.textContent = testText;
+                                        }
+
+                                        // Event listeners para actualización en tiempo real
+                                        if (typographySelect) {
+                                            typographySelect.addEventListener("change", updateTypographyPreview);
+                                        }
+                                        
+                                        if (testTextInput) {
+                                            testTextInput.addEventListener("input", updateTypographyPreview);
+                                            // También actualizar mientras el usuario escribe
+                                            testTextInput.addEventListener("keyup", updateTypographyPreview);
+                                        }
+
+                                        // Inicializar vista previa al cargar la página
+                                        updateTypographyPreview();
                                     });
                                 </script>
 
-                                <!-- Sección: Logo -->
-                                <div class="card mb-4 {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'form-disabled-overlay' : '' }}">
-                                    <div class="card-header">
-                                        <h5 class="card-title mb-0">
-                                            <i class="bi bi-image text-primary me-2"></i>
-                                            Logo
-                                        </h5>
-                                    </div>
-                                    <div class="card-body text-center">
-                                        <div class="logo-preview mb-3" id="logo-preview">
-                                            @if($landing->logo_url)
-                                                <img src="{{ $landing->logo_full_url }}" alt="Logo actual" class="img-fluid rounded" style="max-height: 150px;">
-                                            @else
-                                                <div class="logo-placeholder bg-light border-2 border-dashed border-secondary rounded d-flex align-items-center justify-content-center" style="height: 150px;">
-                                                    <div class="text-center">
-                                                        <i class="bi bi-image display-4 text-muted"></i>
-                                                        <p class="text-muted mt-2 mb-0">Sin logo</p>
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <input type="file" 
-                                            class="form-control @error('logo') is-invalid @enderror" 
-                                            id="logo" 
-                                            name="logo" 
-                                            accept="image/*"
-                                            onchange="previewLogo(event)"
-                                            {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
-                                        @error('logo')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <small class="text-muted">Recomendado: PNG transparente, 300x100px</small>
-                                    </div>
-                                </div>
+                                <!-- Sección de Logo movida a Información Empresarial -->
 
                                 <!-- Sección: Branding -->
                                 <div class="card mb-4 {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'form-disabled-overlay' : '' }}">
@@ -644,6 +702,24 @@
                                             <label for="tipografia" class="form-label fw-bold">Tipografía</label>
                                             <select class="form-select @error('tipografia') is-invalid @enderror" id="tipografia" name="tipografia" {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
                                                 <option value="">Selecciona una tipografía</option>
+                                                <option value="Arial, sans-serif">Arial</option>
+                                                <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+                                                <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                                                <option value="Georgia, serif">Georgia</option>
+                                                <option value="'Courier New', Courier, monospace">Courier New</option>
+                                                <option value="Verdana, sans-serif">Verdana</option>
+                                                <option value="Tahoma, sans-serif">Tahoma</option>
+                                                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                                                <option value="Impact, sans-serif">Impact</option>
+                                                <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                                                <option value="'Roboto', sans-serif">Roboto (Google Font)</option>
+                                                <option value="'Open Sans', sans-serif">Open Sans (Google Font)</option>
+                                                <option value="'Montserrat', sans-serif">Montserrat (Google Font)</option>
+                                                <option value="'Lato', sans-serif">Lato (Google Font)</option>
+                                                <option value="'Poppins', sans-serif">Poppins (Google Font)</option>
+                                                <option value="'Playfair Display', serif">Playfair Display (Google Font)</option>
+                                                <option value="'Merriweather', serif">Merriweather (Google Font)</option>
+                                                <option value="'Source Sans Pro', sans-serif">Source Sans Pro (Google Font)</option>
                                                 @foreach($tipografiaOptions as $key => $value)
                                                     <option value="{{ $key }}" {{ old('tipografia', $landing->tipografia) == $key ? 'selected' : '' }}>
                                                         {{ $value }}
@@ -653,6 +729,55 @@
                                             @error('tipografia')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
+                                            
+                                            <!-- Vista previa de tipografía -->
+                                            <div class="mt-3">
+                                                <label class="form-label fw-bold text-muted small">
+                                                    <i class="bi bi-eye me-1"></i>Vista previa de tipografía
+                                                </label>
+                                                <div class="card border-light bg-light" style="min-height: 200px;">
+                                                    <div class="card-body p-3">
+                                                        <!-- Campo de texto personalizable -->
+                                                        <div class="mb-3">
+                                                            <input type="text" 
+                                                                class="form-control" 
+                                                                id="typography-test-text" 
+                                                                placeholder="Escribe aquí tu texto de prueba..."
+                                                                value="¡Bienvenidos a nuestra empresa!"
+                                                                maxlength="100"
+                                                                {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
+                                                            <small class="text-muted">Escribe hasta 100 caracteres para probar la tipografía</small>
+                                                        </div>
+
+                                                        <!-- Vista previa con diferentes tamaños -->
+                                                        <div class="typography-preview p-3 border rounded bg-white" id="typography-preview-container" style="min-height: 120px;">
+                                                            <!-- Título grande -->
+                                                            <div class="mb-2">
+                                                                <h3 class="mb-1" id="preview-title" style="font-size: 1.75rem; font-weight: 600; line-height: 1.2;">
+                                                                    ¡Bienvenidos a nuestra empresa!
+                                                                </h3>
+                                                                <small class="text-muted">Título principal</small>
+                                                            </div>
+                                                            
+                                                            <!-- Texto párrafo -->
+                                                            <div class="mb-2">
+                                                                <p class="mb-1" id="preview-paragraph" style="font-size: 1rem; line-height: 1.5;">
+                                                                    ¡Bienvenidos a nuestra empresa!
+                                                                </p>
+                                                                <small class="text-muted">Texto de párrafo</small>
+                                                            </div>
+
+                                                            <!-- Texto pequeño -->
+                                                            <div>
+                                                                <small id="preview-small" style="font-size: 0.85rem; line-height: 1.4;">
+                                                                    ¡Bienvenidos a nuestra empresa!
+                                                                </small>
+                                                                <br><small class="text-muted">Texto pequeño</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -796,6 +921,72 @@
                                             </div>
                                         </div>
 
+                                        <!-- Logo de la Empresa -->
+                                        <div class="card mb-4">
+                                            <div class="card-header">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-image text-primary me-2"></i>
+                                                    Logo de la Empresa
+                                                </h5>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <div class="logo-preview mb-3" id="logo-preview">
+                                                    @if($landing->logo_url)
+                                                        <img src="{{ $landing->logo_full_url }}" alt="Logo actual" class="img-fluid rounded" style="max-height: 150px;">
+                                                    @else
+                                                        <div class="logo-placeholder bg-light border-2 border-dashed border-secondary rounded d-flex align-items-center justify-content-center" style="height: 150px;">
+                                                            <div class="text-center">
+                                                                <i class="bi bi-image display-4 text-muted"></i>
+                                                                <p class="text-muted mt-2 mb-0">Sin logo</p>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <input type="file" 
+                                                    class="form-control @error('logo') is-invalid @enderror" 
+                                                    id="logo" 
+                                                    name="logo" 
+                                                    accept="image/*"
+                                                    onchange="previewLogo(event)">
+                                                @error('logo')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                                <small class="text-muted">Recomendado: PNG transparente, 300x100px</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Imágenes Adicionales -->
+                                        <div class="card mb-4">
+                                            <div class="card-header">
+                                                <h5 class="card-title mb-0">
+                                                    <i class="bi bi-images text-primary me-2"></i>
+                                                    Imágenes Adicionales
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <div class="upload-zone border-2 border-dashed border-secondary rounded p-4 text-center" 
+                                                        id="media-upload-zone"
+                                                        ondrop="handleDrop(event)" 
+                                                        ondragover="handleDragOver(event)"
+                                                        ondragleave="handleDragLeave(event)">
+                                                        <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+                                                        <p class="mb-2">Arrastra y suelta imágenes aquí o</p>
+                                                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('media-input').click()">
+                                                            Seleccionar Archivos
+                                                        </button>
+                                                        <input type="file" id="media-input" class="d-none" multiple accept="image/*" onchange="handleFileSelect(event)">
+                                                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF, SVG (Max: 2MB por imagen)</small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Gallery de imágenes subidas -->
+                                                <div id="media-gallery" class="row g-3">
+                                                    <!-- Las imágenes se cargarán aquí dinámicamente -->
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <!-- Redes Sociales -->
                                         <div class="card mb-4">
                                             <div class="card-header">
@@ -928,17 +1119,16 @@
                                                             Crear una base
                                                         </button>
                                                     </div>
-                                                    <textarea class="form-control @error('terminos_condiciones') is-invalid @enderror" 
+                                                    <div id="terminos_condiciones_editor" style="height: 200px;"></div>
+                                                    <textarea class="d-none @error('terminos_condiciones') is-invalid @enderror" 
                                                             id="terminos_condiciones" 
-                                                            name="terminos_condiciones" 
-                                                            rows="6"
-                                                            placeholder="Define los términos y condiciones de uso de tus servicios...">{{ old('terminos_condiciones', $empresa->terminos_condiciones ?? '') }}</textarea>
+                                                            name="terminos_condiciones">{{ old('terminos_condiciones', $empresa->terminos_condiciones ?? '') }}</textarea>
                                                     @error('terminos_condiciones')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                     <div class="form-text">
                                                         <i class="bi bi-info-circle me-1"></i>
-                                                        Puedes usar formato de texto, listas, negritas y más para organizar tus términos y condiciones.
+                                                        Usa el editor de texto para formatear tus términos y condiciones con negritas, listas, títulos y más.
                                                         <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
                                                     </div>
                                                 </div>
@@ -956,17 +1146,16 @@
                                                             Crear una base
                                                         </button>
                                                     </div>
-                                                    <textarea class="form-control @error('politica_privacidad') is-invalid @enderror" 
+                                                    <div id="politica_privacidad_editor" style="height: 200px;"></div>
+                                                    <textarea class="d-none @error('politica_privacidad') is-invalid @enderror" 
                                                             id="politica_privacidad" 
-                                                            name="politica_privacidad" 
-                                                            rows="6"
-                                                            placeholder="Define cómo manejas los datos personales de tus clientes...">{{ old('politica_privacidad', $empresa->politica_privacidad ?? '') }}</textarea>
+                                                            name="politica_privacidad">{{ old('politica_privacidad', $empresa->politica_privacidad ?? '') }}</textarea>
                                                     @error('politica_privacidad')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                     <div class="form-text">
                                                         <i class="bi bi-info-circle me-1"></i>
-                                                        Define cómo manejas los datos personales de tus clientes con formato profesional.
+                                                        Usa el editor de texto para formatear tu política de privacidad con títulos, listas y formato profesional.
                                                         <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
                                                     </div>
                                                 </div>
@@ -984,17 +1173,16 @@
                                                             Crear una base
                                                         </button>
                                                     </div>
-                                                    <textarea class="form-control @error('politica_cookies') is-invalid @enderror" 
+                                                    <div id="politica_cookies_editor" style="height: 200px;"></div>
+                                                    <textarea class="d-none @error('politica_cookies') is-invalid @enderror" 
                                                             id="politica_cookies" 
-                                                            name="politica_cookies" 
-                                                            rows="6"
-                                                            placeholder="Explica el uso de cookies en tu sitio web...">{{ old('politica_cookies', $empresa->politica_cookies ?? '') }}</textarea>
+                                                            name="politica_cookies">{{ old('politica_cookies', $empresa->politica_cookies ?? '') }}</textarea>
                                                     @error('politica_cookies')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                     <div class="form-text">
                                                         <i class="bi bi-info-circle me-1"></i>
-                                                        Explica el uso de cookies en tu sitio web con todas las opciones de formato disponibles.
+                                                        Usa el editor de texto para explicar el uso de cookies con formato claro y profesional.
                                                         <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
                                                     </div>
                                                 </div>
@@ -1018,6 +1206,11 @@
 </div>
 
 @push('styles')
+<!-- Quill Editor CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<!-- Animate.css for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
 <style>
     /* Estilos para los tabs */
     .nav-tabs .nav-link {
@@ -1098,6 +1291,28 @@
     
     .logo-placeholder {
         transition: all 0.3s ease;
+    }
+    
+    /* Estilos para editores Quill */
+    .ql-editor {
+        min-height: 150px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    .ql-toolbar {
+        border-top: 1px solid #ccc;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+    
+    .ql-container {
+        border-bottom: 1px solid #ccc;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        border-radius: 0 0 0.375rem 0.375rem;
+    }
     }
     
     .media-item {
@@ -1266,13 +1481,263 @@
         .text-muted {
             font-size: 0.875rem !important;
         }
+        
+        /* Botones de utilidad en móvil */
+        #limpiar-autoguardado-btn,
+        #revisar-campos-btn {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        /* Ajustar gap entre botones en móvil */
+        .d-flex.gap-2 {
+            gap: 0.5rem !important;
+        }
+    }
+    
+    /* Estilos para campos resaltados */
+    .campo-resaltado {
+        animation: pulso-suave 2s ease-in-out;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25) !important;
+        border-color: #007bff !important;
+    }
+    
+    @keyframes pulso-suave {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        50% { 
+            transform: scale(1.02);
+            box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.15);
+        }
     }
 </style>
 @endpush
 
 @push('scripts')
+<!-- Quill Editor JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
 <script>
+// Variables globales para los editores Quill
+let terminosEditor, privacidadEditor, cookiesEditor;
+
+// Sistema de Autoguardado Local
+const AUTOGUARDADO_KEY = 'landing_form_data';
+const AUTOGUARDADO_TIMESTAMP_KEY = 'landing_form_timestamp';
+let autoguardadoTimeout = null;
+
+// Función para verificar campos faltantes
+function verificarCamposFaltantes() {
+    const campos = [
+        { id: 'empresa_nombre', nombre: 'Nombre de la Empresa', obligatorio: true, tab: 'empresa' },
+        { id: 'whatsapp', nombre: 'WhatsApp', obligatorio: true, tab: 'empresa' },
+        { id: 'logo', nombre: 'Logo de la Empresa', obligatorio: false, esArchivo: true, tab: 'contenido' },
+        { id: 'color_principal', nombre: 'Color Principal', obligatorio: false, tab: 'contenido' },
+        { id: 'color_secundario', nombre: 'Color Secundario', obligatorio: false, tab: 'contenido' },
+        { id: 'tipografia', nombre: 'Tipografía', obligatorio: false, tab: 'contenido' },
+        { id: 'estilo', nombre: 'Estilo de Diseño', obligatorio: false, tab: 'contenido' },
+        { id: 'objetivo', nombre: 'Objetivo del Negocio', obligatorio: false, tab: 'contenido' },
+        { id: 'descripcion_objetivo', nombre: 'Descripción del Objetivo', obligatorio: false, tab: 'contenido' },
+        { id: 'audiencia_descripcion', nombre: 'Descripción de la Audiencia', obligatorio: false, tab: 'contenido' },
+        { id: 'audiencia_problemas', nombre: 'Problemas de la Audiencia', obligatorio: false, tab: 'contenido' },
+        { id: 'audiencia_beneficios', nombre: 'Beneficios para la Audiencia', obligatorio: false, tab: 'contenido' },
+        { id: 'titulo_principal', nombre: 'Título Principal', obligatorio: false, tab: 'contenido' },
+        { id: 'subtitulo', nombre: 'Subtítulo', obligatorio: false, tab: 'contenido' },
+        { id: 'descripcion', nombre: 'Descripción', obligatorio: false, tab: 'contenido' }
+    ];
+    
+    const faltantes = [];
+    
+    campos.forEach(campo => {
+        const elemento = document.getElementById(campo.id);
+        let valor = '';
+        
+        if (campo.esArchivo) {
+            const tieneArchivo = elemento?.files?.length > 0;
+            const tieneImagenExistente = document.querySelector('#logo-preview img[src*="storage"]') !== null;
+            valor = tieneArchivo || tieneImagenExistente;
+        } else {
+            valor = elemento?.value?.trim() || '';
+        }
+        
+        if (!valor) {
+            faltantes.push({
+                id: campo.id,
+                nombre: campo.nombre,
+                obligatorio: campo.obligatorio,
+                tab: campo.tab,
+                elemento: elemento
+            });
+        }
+    });
+    
+    return faltantes;
+}
+
+// Función para mostrar alerta interactiva de campos faltantes
+function mostrarAlertaCamposFaltantes(titulo = 'Campos por completar', icono = 'info') {
+    const camposFaltantes = verificarCamposFaltantes();
+    
+    if (camposFaltantes.length === 0) {
+        Swal.fire({
+            title: '¡Formulario completo! 🎉',
+            text: 'Todos los campos están completados correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Excelente',
+            timer: 2000,
+            timerProgressBar: true
+        });
+        return;
+    }
+    
+    const obligatorios = camposFaltantes.filter(c => c.obligatorio);
+    const opcionales = camposFaltantes.filter(c => !c.obligatorio);
+    
+    let mensaje = '<div class="text-start">';
+    
+    if (obligatorios.length > 0) {
+        mensaje += '<div class="mb-3"><strong class="text-danger fs-6">🚨 Campos obligatorios faltantes:</strong>';
+        mensaje += '<div class="mt-2">';
+        obligatorios.forEach((campo, index) => {
+            mensaje += `
+                <button type="button" class="btn btn-outline-danger btn-sm w-100 mb-1 text-start" onclick="irACampo('${campo.id}', '${campo.nombre}')">
+                    <i class="bi bi-exclamation-triangle me-2"></i><strong>${campo.nombre}</strong>
+                    <small class="text-muted d-block mt-1">
+                        <i class="bi bi-cursor me-1"></i>Clic para ir al campo
+                    </small>
+                </button>
+            `;
+        });
+        mensaje += '</div></div>';
+    }
+    
+    if (opcionales.length > 0) {
+        mensaje += '<div class="mb-3"><strong class="text-warning fs-6">📝 Campos opcionales pendientes:</strong>';
+        mensaje += '<div class="mt-2">';
+        
+        // Mostrar máximo 5 campos opcionales para no saturar
+        const opcionalesMostrar = opcionales.slice(0, 5);
+        opcionalesMostrar.forEach((campo, index) => {
+            mensaje += `
+                <button type="button" class="btn btn-outline-warning btn-sm w-100 mb-1 text-start" onclick="irACampo('${campo.id}', '${campo.nombre}')">
+                    <i class="bi bi-pencil me-2"></i>${campo.nombre}
+                    <small class="text-muted d-block mt-1">
+                        <i class="bi bi-cursor me-1"></i>Clic para ir al campo
+                    </small>
+                </button>
+            `;
+        });
+        
+        if (opcionales.length > 5) {
+            mensaje += `<small class="text-muted">... y ${opcionales.length - 5} campos más</small>`;
+        }
+        
+        mensaje += '</div></div>';
+    }
+    
+    mensaje += `
+        <div class="alert alert-info border-0 mb-0">
+            <i class="bi bi-lightbulb me-2"></i>
+            <strong>Tip:</strong> Haz clic en cualquier campo de arriba para ir directamente a él y completarlo.
+        </div>
+    `;
+    
+    mensaje += '</div>';
+    
+    Swal.fire({
+        title: titulo,
+        html: mensaje,
+        icon: icono,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: obligatorios.length > 0 ? '#dc3545' : '#3085d6',
+        width: '700px',
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+        }
+    });
+}
+
+// Función para ir a un campo específico
+function irACampo(campoId, nombreCampo) {
+    if (!campoId) {
+        console.warn('ID de campo no válido:', campoId);
+        return;
+    }
+    
+    // Cerrar el SweetAlert primero
+    Swal.close();
+    
+    // Buscar en qué tab está el campo
+    const campoInfo = {
+        'logo': 'contenido', 'color_principal': 'contenido', 'color_secundario': 'contenido',
+        'tipografia': 'contenido', 'estilo': 'contenido', 'objetivo': 'contenido',
+        'descripcion_objetivo': 'contenido', 'audiencia_descripcion': 'contenido',
+        'audiencia_problemas': 'contenido', 'audiencia_beneficios': 'contenido',
+        'titulo_principal': 'contenido', 'subtitulo': 'contenido', 'descripcion': 'contenido',
+        'empresa_nombre': 'empresa', 'empresa_email': 'empresa', 'whatsapp': 'empresa',
+        'empresa_movil': 'empresa', 'empresa_direccion': 'empresa', 'website': 'empresa',
+        'facebook': 'empresa', 'instagram': 'empresa', 'linkedin': 'empresa',
+        'twitter': 'empresa', 'tiktok': 'empresa', 'youtube': 'empresa'
+    };
+    
+    const tabRequerido = campoInfo[campoId];
+    
+    // Activar el tab correcto si es necesario
+    if (tabRequerido) {
+        const tabButton = document.getElementById(tabRequerido + '-tab');
+        if (tabButton && !tabButton.classList.contains('active')) {
+            const tabTrigger = new bootstrap.Tab(tabButton);
+            tabTrigger.show();
+        }
+    }
+    
+    // Esperar a que se active el tab y luego buscar el campo
+    setTimeout(() => {
+        const elemento = document.getElementById(campoId);
+        if (elemento) {
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                elemento.focus();
+                elemento.style.boxShadow = '0 0 0 3px rgba(0, 123, 255, 0.25)';
+                elemento.style.borderColor = '#007bff';
+                setTimeout(() => {
+                    elemento.style.boxShadow = '';
+                    elemento.style.borderColor = '';
+                }, 2000);
+            }, 500);
+        }
+    }, tabRequerido ? 300 : 0);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar editores Quill para documentos legales
+    initializeQuillEditors();
+    
+    // Sincronizar editores con campos ocultos antes de enviar formulario
+    const form = document.getElementById('landing-form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            syncQuillEditorsWithHiddenFields();
+            
+            // Almacenar el estado de los campos para mostrar alerta después del guardado
+            const camposFaltantes = verificarCamposFaltantes();
+            
+            // Guardar el estado en sessionStorage para usar después del redirect
+            if (camposFaltantes.length > 0) {
+                sessionStorage.setItem('mostrarAlertaCamposFaltantes', JSON.stringify(camposFaltantes));
+            } else {
+                sessionStorage.setItem('mostrarAlertaFormularioCompleto', 'true');
+            }
+            
+            // Marcar que el formulario se está enviando para limpiar autoguardado después
+            sessionStorage.setItem('formulario_enviado', 'true');
+            
+            // Permitir que el formulario se envíe normalmente
+            // Las alertas se mostrarán después del guardado exitoso
+        });
+    }
     // Sincronizar color pickers con inputs de texto
     const colorInputs = document.querySelectorAll('input[type="color"]');
     colorInputs.forEach(colorInput => {
@@ -1286,106 +1751,160 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cargar medios existentes
     loadExistingMedia();
     
-    // Validación del slug en tiempo real
+    // Agregar listeners para validación en tiempo real
+    const campos = [
+        'empresa_nombre',
+        'whatsapp', 
+        'logo',
+        'color_principal',
+        'color_secundario',
+        'tipografia',
+        'estilo'
+    ];
+    
+    // Agregar listeners a todos los campos requeridos
+    campos.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            if (campo.type === 'file') {
+                campo.addEventListener('change', validarCamposRequeridos);
+            } else {
+                campo.addEventListener('input', validarCamposRequeridos);
+                campo.addEventListener('change', validarCamposRequeridos);
+                campo.addEventListener('blur', validarCamposRequeridos);
+            }
+        }
+    });
+    
+    // Validar al cargar la página
+    validarCamposRequeridos();
+    
+    // Mostrar alertas después del guardado si existen en sessionStorage
+    mostrarAlertasPostGuardado();
+    
+    // Inicializar sistema de autoguardado
+    inicializarAutoguardado();
+    
+    // Restaurar datos guardados automáticamente
+    restaurarDatosGuardados();
+    
+    // JavaScript para validar slug en tiempo real
     const slugInput = document.getElementById('slug');
     if (slugInput) {
-        slugInput.addEventListener('input', function() {
-            let value = this.value;
+        slugInput.addEventListener('input', function(e) {
+            let value = e.target.value;
             
-            // Convertir a minúsculas y reemplazar caracteres no válidos
-            value = value.toLowerCase()
-                        .replace(/[^a-z0-9\-]/g, '') // Solo letras, números y guiones
-                        .replace(/--+/g, '-') // Evitar múltiples guiones consecutivos
-                        .replace(/^-|-$/g, ''); // Eliminar guiones al inicio o final
+            // Convertir a minúsculas y reemplazar espacios con guiones
+            value = value.toLowerCase().replace(/\s+/g, '-');
             
-            this.value = value;
+            // Eliminar caracteres no válidos
+            value = value.replace(/[^a-z0-9\-]/g, '');
             
-            // Actualizar la vista previa de la URL
-            const previewUrl = document.querySelector('.alert-info strong');
-            if (previewUrl) {
-                previewUrl.textContent = '{{ config('app.url') }}/' + value;
-            }
-        });
-        
-        // Validar al salir del campo
-        slugInput.addEventListener('blur', function() {
-            if (this.value.length > 0 && this.value.length < 3) {
-                this.setCustomValidity('El slug debe tener al menos 3 caracteres');
-            } else {
-                this.setCustomValidity('');
-            }
-        });
-    }
-    
-    // Inicializar tabs de Bootstrap - método simple y confiable
-    const triggerTabList = document.querySelectorAll('#landingTabs button[data-bs-toggle="tab"]');
-    
-    
-    // Usar el método nativo de Bootstrap sin interferencias
-    triggerTabList.forEach(triggerEl => {
-        triggerEl.addEventListener('shown.bs.tab', event => {
+            // Eliminar guiones múltiples
+            value = value.replace(/-+/g, '-');
             
-        });
-    });
-    
-    // Verificar que los tab-panes existan
-    const tabPanes = document.querySelectorAll('.tab-pane');
-    
-    tabPanes.forEach(pane => {
-        
-    });
-    
-    // Forzar mostrar el contenido del primer tab si hay problemas
-    setTimeout(() => {
-        const firstTabPane = document.querySelector('#contenido');
-        const secondTabPane = document.querySelector('#empresa');
-        if (firstTabPane && secondTabPane) {
+            // Eliminar guiones al inicio y final
+            value = value.replace(/^-+|-+$/g, '');
             
+            // Actualizar el valor del input
+            e.target.value = value;
             
-        }
-    }, 1000);
-    
-    // Proteger el aviso de construcción permanente
-    const constructionNotice = document.querySelector('[data-construction-notice="permanent"]');
-    if (constructionNotice) {
-        // Prevenir que se cierre por cualquier evento
-        constructionNotice.addEventListener('click', function(e) {
-            // Solo permitir clicks en enlaces y botones específicos
-            if (!e.target.matches('a, button, a *, button *')) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        });
-        
-        // Prevenir que Bootstrap u otros scripts lo oculten
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && 
-                    (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
-                    const target = mutation.target;
-                    if (target.hasAttribute('data-construction-notice') && 
-                        target.getAttribute('data-construction-notice') === 'permanent') {
-                        // Restaurar visibilidad si se intenta ocultar
-                        target.style.display = '';
-                        target.classList.remove('d-none', 'hidden');
-                    }
+            // Validar longitud mínima
+            if (value.length < 3 && value.length > 0) {
+                e.target.classList.add('is-invalid');
+                if (!e.target.nextElementSibling || !e.target.nextElementSibling.classList.contains('invalid-feedback')) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'El slug debe tener al menos 3 caracteres';
+                    e.target.parentNode.appendChild(feedback);
                 }
-            });
-        });
-        
-        observer.observe(constructionNotice, {
-            attributes: true,
-            attributeFilter: ['style', 'class']
-        });
-        
-        // Asegurar que permanezca visible
-        setInterval(function() {
-            if (constructionNotice && constructionNotice.style.display === 'none') {
-                constructionNotice.style.display = '';
+            } else {
+                e.target.classList.remove('is-invalid');
+                const feedback = e.target.parentNode.querySelector('.invalid-feedback');
+                if (feedback && feedback.textContent === 'El slug debe tener al menos 3 caracteres') {
+                    feedback.remove();
+                }
             }
-        }, 1000);
+        });
+        
+        // Evitar pegar contenido no válido
+        slugInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanPaste = paste.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+            e.target.value = cleanPaste;
+            e.target.dispatchEvent(new Event('input'));
+        });
     }
 });
+
+// Función para inicializar editores Quill
+function initializeQuillEditors() {
+    const toolbarOptions = [
+        ['bold', 'italic', 'underline'],
+        [{ 'header': [1, 2, 3, false] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['clean']
+    ];
+    
+    // Editor para Términos y Condiciones
+    if (document.getElementById('terminos_condiciones_editor')) {
+        terminosEditor = new Quill('#terminos_condiciones_editor', {
+            theme: 'snow',
+            modules: { toolbar: toolbarOptions },
+            placeholder: 'Define los términos y condiciones de uso de tus servicios...'
+        });
+        
+        // Cargar contenido existente
+        const terminosContent = document.getElementById('terminos_condiciones').value;
+        if (terminosContent) {
+            terminosEditor.root.innerHTML = terminosContent;
+        }
+    }
+    
+    // Editor para Política de Privacidad
+    if (document.getElementById('politica_privacidad_editor')) {
+        privacidadEditor = new Quill('#politica_privacidad_editor', {
+            theme: 'snow',
+            modules: { toolbar: toolbarOptions },
+            placeholder: 'Define cómo manejas los datos personales de tus clientes...'
+        });
+        
+        // Cargar contenido existente
+        const privacidadContent = document.getElementById('politica_privacidad').value;
+        if (privacidadContent) {
+            privacidadEditor.root.innerHTML = privacidadContent;
+        }
+    }
+    
+    // Editor para Política de Cookies
+    if (document.getElementById('politica_cookies_editor')) {
+        cookiesEditor = new Quill('#politica_cookies_editor', {
+            theme: 'snow',
+            modules: { toolbar: toolbarOptions },
+            placeholder: 'Explica el uso de cookies en tu sitio web...'
+        });
+        
+        // Cargar contenido existente
+        const cookiesContent = document.getElementById('politica_cookies').value;
+        if (cookiesContent) {
+            cookiesEditor.root.innerHTML = cookiesContent;
+        }
+    }
+}
+
+// Función para sincronizar editores con campos ocultos
+function syncQuillEditorsWithHiddenFields() {
+    if (terminosEditor) {
+        document.getElementById('terminos_condiciones').value = terminosEditor.root.innerHTML;
+    }
+    if (privacidadEditor) {
+        document.getElementById('politica_privacidad').value = privacidadEditor.root.innerHTML;
+    }
+    if (cookiesEditor) {
+        document.getElementById('politica_cookies').value = cookiesEditor.root.innerHTML;
+    }
+}
 
 // Previsualización del logo
 function previewLogo(event) {
@@ -1425,11 +1944,7 @@ function handleFileSelect(event) {
 }
 
 function handleFiles(files) {
-    // Verificar si estamos en estado de construcción
-    @if($landing->exists && $estadoLanding === 'en_construccion')
-        return; // No procesar archivos en construcción
-    @endif
-    
+    // Permitir subida de imágenes en todos los estados ya que se cargan dinámicamente
     Array.from(files).forEach(file => {
         if (file.type.startsWith('image/')) {
             uploadMedia(file);
@@ -1448,7 +1963,7 @@ function uploadMedia(file) {
     const loadingItem = createLoadingItem();
     gallery.appendChild(loadingItem);
     
-    fetch('{{ route("landing.media.subir") }}', {
+    fetch('{{ route("admin.landing.media.subir") }}', {
         method: 'POST',
         body: formData
     })
@@ -1502,11 +2017,9 @@ function addMediaToGallery(media) {
     col.innerHTML = `
         <div class="media-item border rounded overflow-hidden">
             <img src="${media.url}" alt="${media.descripcion || 'Imagen'}" class="img-fluid w-100" style="height: 150px; object-fit: cover;">
-            @if(!($landing->exists && $estadoLanding === 'en_construccion'))
-                <button type="button" class="delete-btn btn" onclick="deleteMedia(${media.id})">
-                    <i class="bi bi-trash"></i>
-                </button>
-            @endif
+            <button type="button" class="delete-btn btn" onclick="deleteMedia(${media.id})">
+                <i class="bi bi-trash"></i>
+            </button>
         </div>
     `;
     
@@ -1514,17 +2027,12 @@ function addMediaToGallery(media) {
 }
 
 function deleteMedia(mediaId) {
-    // Verificar si estamos en estado de construcción
-    @if($landing->exists && $estadoLanding === 'en_construccion')
-        alert('No puedes eliminar medios mientras tu landing está en construcción.');
-        return;
-    @endif
-    
+    // Permitir eliminación de imágenes en todos los estados ya que se cargan dinámicamente
     if (!confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
         return;
     }
     
-    fetch(`{{ url('landing/media/eliminar') }}/${mediaId}`, {
+    fetch(`{{ url('admin/landing/media/eliminar') }}/${mediaId}`, {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -1546,7 +2054,7 @@ function deleteMedia(mediaId) {
 }
 
 function loadExistingMedia() {
-    fetch('{{ route("landing.media.obtener") }}')
+    fetch('{{ route("admin.landing.media.obtener") }}')
         .then(response => response.json())
         .then(data => {
             if (data.success && data.media.length > 0) {
@@ -1560,8 +2068,8 @@ function loadExistingMedia() {
         });
 }
 
-// Validación adicional para perfil incompleto
 @if(!$profileComplete)
+// Validación adicional para perfil incompleto
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('landing-form');
     const submitBtn = form.querySelector('button[type="submit"]');
@@ -1623,10 +2131,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Función para cargar texto base en documentos legales
 function cargarTextoBase(tipoDocumento) {
-    const textarea = document.getElementById(tipoDocumento);
+    let editor;
     
-    if (!textarea) {
-        console.error('Textarea no encontrado para:', tipoDocumento);
+    // Obtener el editor correspondiente
+    switch(tipoDocumento) {
+        case 'terminos_condiciones':
+            editor = terminosEditor;
+            break;
+        case 'politica_privacidad':
+            editor = privacidadEditor;
+            break;
+        case 'politica_cookies':
+            editor = cookiesEditor;
+            break;
+        default:
+            console.error('Editor no encontrado para:', tipoDocumento);
+            return;
+    }
+    
+    if (!editor) {
+        console.error('Editor Quill no inicializado para:', tipoDocumento);
         return;
     }
     
@@ -1717,7 +2241,7 @@ function cargarTextoBase(tipoDocumento) {
     };
     
     // Verificar si ya hay contenido
-    const currentContent = textarea.value.trim();
+    const currentContent = editor.getText().trim();
     if (currentContent.length > 10) {
         if (!confirm('Ya tienes contenido escrito. ¿Quieres reemplazarlo con el texto base?')) {
             return;
@@ -1727,7 +2251,7 @@ function cargarTextoBase(tipoDocumento) {
     // Cargar el texto base
     const textoBase = documentosLegalesBase[tipoDocumento];
     if (textoBase) {
-        textarea.value = textoBase.trim();
+        editor.root.innerHTML = textoBase.trim();
         
         // Mostrar feedback visual
         const button = event.target.closest('button');
@@ -1750,13 +2274,549 @@ function cargarTextoBase(tipoDocumento) {
             }
         }, 2000);
         
-        // Scroll al textarea
-        textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Scroll al editor
+        editor.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// Sistema de Autoguardado Local (ya declarado anteriormente)
+
+// Función para inicializar el sistema de autoguardado
+function inicializarAutoguardado() {
+    const campos = [
+        // Información empresarial
+        'empresa_nombre', 'empresa_email', 'empresa_movil', 'whatsapp',
+        'empresa_direccion', 'website', 'facebook', 'instagram', 
+        'linkedin', 'twitter', 'tiktok', 'youtube',
+        
+        // Configuración de landing
+        'objetivo', 'descripcion_objetivo', 'audiencia_descripcion',
+        'audiencia_problemas', 'audiencia_beneficios', 'color_principal',
+        'color_secundario', 'tipografia', 'estilo', 'titulo_principal',
+        'subtitulo', 'descripcion', 'slug',
+        
+        // Documentos legales (campos ocultos)
+        'terminos_condiciones', 'politica_privacidad', 'politica_cookies'
+    ];
+    
+    // Agregar listeners a todos los campos
+    campos.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            // Para diferentes tipos de campos
+            if (campo.tagName === 'SELECT') {
+                campo.addEventListener('change', () => guardarCampoLocal(campoId, campo.value));
+            } else if (campo.type === 'color') {
+                campo.addEventListener('change', () => guardarCampoLocal(campoId, campo.value));
+            } else {
+                // Input text, textarea, etc.
+                campo.addEventListener('input', () => {
+                    clearTimeout(autoguardadoTimeout);
+                    autoguardadoTimeout = setTimeout(() => {
+                        guardarCampoLocal(campoId, campo.value);
+                    }, 500); // Esperar 500ms después de que pare de escribir
+                });
+            }
+        }
+    });
+    
+    // Agregar listener para editores Quill
+    setTimeout(() => {
+        if (terminosEditor) {
+            terminosEditor.on('text-change', () => {
+                clearTimeout(autoguardadoTimeout);
+                autoguardadoTimeout = setTimeout(() => {
+                    guardarCampoLocal('terminos_condiciones', terminosEditor.root.innerHTML);
+                }, 1000);
+            });
+        }
+        
+        if (privacidadEditor) {
+            privacidadEditor.on('text-change', () => {
+                clearTimeout(autoguardadoTimeout);
+                autoguardadoTimeout = setTimeout(() => {
+                    guardarCampoLocal('politica_privacidad', privacidadEditor.root.innerHTML);
+                }, 1000);
+            });
+        }
+        
+        if (cookiesEditor) {
+            cookiesEditor.on('text-change', () => {
+                clearTimeout(autoguardadoTimeout);
+                autoguardadoTimeout = setTimeout(() => {
+                    guardarCampoLocal('politica_cookies', cookiesEditor.root.innerHTML);
+                }, 1000);
+            });
+        }
+    }, 2000); // Esperar a que se inicialicen los editores Quill
+    
+    // Actualizar botón de limpiar borradores al inicializar
+    actualizarBotonLimpiarBorradores();
+    
+    console.log('✅ Sistema de autoguardado inicializado');
+}
+
+// Función para guardar un campo en localStorage
+function guardarCampoLocal(campoId, valor) {
+    try {
+        // Obtener datos existentes
+        let datosGuardados = JSON.parse(localStorage.getItem(AUTOGUARDADO_KEY) || '{}');
+        
+        // Actualizar el campo específico
+        datosGuardados[campoId] = valor;
+        datosGuardados._timestamp = new Date().getTime();
+        
+        // Guardar en localStorage
+        localStorage.setItem(AUTOGUARDADO_KEY, JSON.stringify(datosGuardados));
+        localStorage.setItem(AUTOGUARDADO_TIMESTAMP_KEY, new Date().getTime());
+        
+        // Mostrar indicador visual temporal
+        mostrarIndicadorAutoguardado();
+        
+        // Actualizar botón de limpiar borradores
+        actualizarBotonLimpiarBorradores();
+        
+    } catch (error) {
+        console.warn('Error guardando datos localmente:', error);
+    }
+}
+
+// Función para restaurar datos guardados
+function restaurarDatosGuardados() {
+    try {
+        const datosGuardados = JSON.parse(localStorage.getItem(AUTOGUARDADO_KEY) || '{}');
+        const timestamp = localStorage.getItem(AUTOGUARDADO_TIMESTAMP_KEY);
+        
+        // Verificar si los datos no son muy antiguos (7 días)
+        const ahora = new Date().getTime();
+        const sietesDias = 7 * 24 * 60 * 60 * 1000;
+        
+        if (!timestamp || (ahora - timestamp) > sietesDias) {
+            limpiarDatosGuardados();
+            return;
+        }
+        
+        let camposRestaurados = 0;
+        
+        // Restaurar cada campo
+        Object.keys(datosGuardados).forEach(campoId => {
+            if (campoId.startsWith('_')) return; // Ignorar metadatos
+            
+            const campo = document.getElementById(campoId);
+            const valor = datosGuardados[campoId];
+            
+            if (campo && valor && valor.trim() !== '') {
+                const valorActual = campo.value || '';
+                const placeholderValue = campo.getAttribute('placeholder') || '';
+                
+                // Solo restaurar si el campo está vacío actualmente (no sea placeholder ni valor por defecto)
+                if (valorActual.trim() === '' || 
+                    valorActual === placeholderValue ||
+                    (campo.type === 'color' && (valorActual === '#000000' || valorActual === '#007bff' || valorActual === '#6c757d'))) {
+                    
+                    campo.value = valor;
+                    camposRestaurados++;
+                    
+                    // Disparar evento change para que se actualicen las validaciones
+                    campo.dispatchEvent(new Event('change', { bubbles: true }));
+                    campo.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        });
+        
+        // Restaurar editores Quill después de un delay
+        setTimeout(() => {
+            if (terminosEditor && datosGuardados.terminos_condiciones && !terminosEditor.getText().trim()) {
+                terminosEditor.root.innerHTML = datosGuardados.terminos_condiciones;
+                camposRestaurados++;
+            }
+            if (privacidadEditor && datosGuardados.politica_privacidad && !privacidadEditor.getText().trim()) {
+                privacidadEditor.root.innerHTML = datosGuardados.politica_privacidad;
+                camposRestaurados++;
+            }
+            if (cookiesEditor && datosGuardados.politica_cookies && !cookiesEditor.getText().trim()) {
+                cookiesEditor.root.innerHTML = datosGuardados.politica_cookies;
+                camposRestaurados++;
+            }
+            
+            // Re-validar después de restaurar
+            validarCamposRequeridos();
+        }, 2000);
+        
+        // Mostrar mensaje si se restauraron campos
+        if (camposRestaurados > 0) {
+            mostrarMensajeRestauracion(camposRestaurados, timestamp);
+        }
+        
+        // Actualizar botón de limpiar borradores
+        actualizarBotonLimpiarBorradores();
+        
+    } catch (error) {
+        console.warn('Error restaurando datos guardados:', error);
+        limpiarDatosGuardados();
+    }
+}
+
+// Función para mostrar indicador de autoguardado
+function mostrarIndicadorAutoguardado() {
+    // Crear o actualizar indicador
+    let indicador = document.getElementById('autoguardado-indicator');
+    
+    if (!indicador) {
+        indicador = document.createElement('div');
+        indicador.id = 'autoguardado-indicator';
+        indicador.innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i>Guardado';
+        indicador.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #198754, #20c997);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+            backdrop-filter: blur(10px);
+        `;
+        document.body.appendChild(indicador);
+    }
+    
+    // Actualizar contenido con timestamp
+    const ahora = new Date();
+    const tiempo = ahora.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit' 
+    });
+    indicador.innerHTML = `<i class="bi bi-cloud-check-fill me-1"></i>Guardado ${tiempo}`;
+    
+    // Mostrar indicador con animación
+    indicador.style.opacity = '1';
+    indicador.style.transform = 'translateY(0)';
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+        indicador.style.opacity = '0';
+        indicador.style.transform = 'translateY(-10px)';
+    }, 3000);
+}
+
+// Función para mostrar mensaje de restauración
+function mostrarMensajeRestauracion(cantidad, timestamp) {
+    const fecha = new Date(parseInt(timestamp));
+    const fechaFormateada = fecha.toLocaleString('es-ES', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Crear alerta de restauración más elegante
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4';
+    alertDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <i class="bi bi-arrow-clockwise display-6 text-info"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5 class="alert-heading mb-1">
+                    <i class="bi bi-cloud-download me-2"></i>
+                    Datos restaurados automáticamente
+                </h5>
+                <p class="mb-2">
+                    Se recuperaron <strong>${cantidad} campos</strong> guardados el ${fechaFormateada}. 
+                    Puedes continuar desde donde lo dejaste.
+                </p>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Los datos se guardan automáticamente mientras escribes
+                    </small>
+                    <button type="button" class="btn btn-outline-info btn-sm" onclick="confirmarLimpiarAutoguardado(); this.closest('.alert').remove();">
+                        <i class="bi bi-trash3 me-1"></i>Limpiar Borradores
+                    </button>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    // Insertar al principio del contenido, después del encabezado
+    const contenidoPrincipal = document.querySelector('.container-fluid > .row > .col-12');
+    if (contenidoPrincipal) {
+        const primeraSeccion = contenidoPrincipal.querySelector('.d-flex.justify-content-between.align-items-center.mb-4');
+        if (primeraSeccion && primeraSeccion.nextSibling) {
+            contenidoPrincipal.insertBefore(alertDiv, primeraSeccion.nextSibling);
+        } else {
+            contenidoPrincipal.insertBefore(alertDiv, contenidoPrincipal.firstChild);
+        }
+        
+        // Auto-remover después de 10 segundos
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.classList.remove('show');
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 300);
+            }
+        }, 10000);
+    }
+}
+
+// Función para limpiar datos guardados
+function limpiarDatosGuardados() {
+    localStorage.removeItem(AUTOGUARDADO_KEY);
+    localStorage.removeItem(AUTOGUARDADO_TIMESTAMP_KEY);
+    actualizarBotonLimpiarBorradores();
+    console.log('🗑️ Datos de autoguardado limpiados');
+}
+
+// Función para confirmar limpieza de autoguardado
+function confirmarLimpiarAutoguardado() {
+    Swal.fire({
+        title: '¿Limpiar borradores guardados?',
+        text: 'Se eliminarán todos los datos guardados automáticamente. Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-trash3 me-1"></i>Sí, limpiar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            limpiarDatosGuardados();
+            
+            Swal.fire({
+                title: '¡Borradores limpiados!',
+                text: 'Los datos guardados automáticamente han sido eliminados.',
+                icon: 'success',
+                confirmButtonText: 'Entendido',
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+    });
+}
+
+// Función para actualizar la visibilidad del botón de limpiar borradores
+function actualizarBotonLimpiarBorradores() {
+    const boton = document.getElementById('limpiar-autoguardado-btn');
+    const hayDatos = localStorage.getItem(AUTOGUARDADO_KEY) !== null;
+    
+    if (boton) {
+        boton.style.display = hayDatos ? 'inline-block' : 'none';
+    }
+}
+
+// Función para mostrar alertas después del guardado
+function mostrarAlertasPostGuardado() {
+    // Solo mostrar alertas personalizadas si hay un mensaje de éxito del servidor
+    const hasServerSuccess = document.querySelector('.alert-success') !== null;
+    const formularioEnviado = sessionStorage.getItem('formulario_enviado');
+    
+    if (!hasServerSuccess) {
+        return; // No mostrar si no hubo guardado exitoso
+    }
+    
+    // Si el formulario fue enviado exitosamente, limpiar datos de autoguardado
+    if (formularioEnviado) {
+        sessionStorage.removeItem('formulario_enviado');
+        limpiarDatosGuardados();
+        console.log('✅ Formulario guardado exitosamente - Datos de autoguardado limpiados');
+    }
+    
+    // Verificar si hay alertas pendientes en sessionStorage
+    const alertaCamposFaltantes = sessionStorage.getItem('mostrarAlertaCamposFaltantes');
+    const alertaFormularioCompleto = sessionStorage.getItem('mostrarAlertaFormularioCompleto');
+    
+    if (alertaFormularioCompleto) {
+        sessionStorage.removeItem('mostrarAlertaFormularioCompleto');
+        // Esperar un poco para que se muestre primero la alerta del servidor
+        setTimeout(() => {
+            mostrarAlertaFormularioCompletoGuardado();
+        }, 1500);
+    } else if (alertaCamposFaltantes) {
+        const camposFaltantes = JSON.parse(alertaCamposFaltantes);
+        sessionStorage.removeItem('mostrarAlertaCamposFaltantes');
+        // Esperar un poco para que se muestre primero la alerta del servidor
+        setTimeout(() => {
+            mostrarAdvertenciaCamposFaltantesPostGuardado(camposFaltantes);
+        }, 1500);
+    }
+}
+
+// Función para mostrar alerta cuando el formulario está completo y fue guardado
+function mostrarAlertaFormularioCompletoGuardado() {
+    Swal.fire({
+        title: '¡Guardado exitoso! 🎉',
+        html: `
+            <div class="text-start">
+                <p class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Tu configuración se ha guardado correctamente.</p>
+                <div class="alert alert-success" role="alert">
+                    <h5 class="alert-heading"><i class="bi bi-rocket me-2"></i>¡Tu formulario está completo!</h5>
+                    <p class="mb-2">Has completado todos los campos necesarios para tu landing page.</p>
+                    <hr>
+                    <p class="mb-0"><strong>Es muy importante que ahora hagas clic en "Publicar"</strong> para que tu landing esté disponible en 24 horas.</p>
+                </div>
+            </div>
+        `,
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: '<i class="bi bi-rocket me-1"></i> Ir a Publicar',
+        cancelButtonText: 'Entendido',
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+        width: '600px',
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            scrollToPublishButton();
+        }
+    });
+}
+
+// Función para mostrar advertencia de campos faltantes después del guardado
+function mostrarAdvertenciaCamposFaltantesPostGuardado(camposFaltantes) {
+    const obligatorios = camposFaltantes.filter(c => c.obligatorio);
+    const opcionales = camposFaltantes.filter(c => !c.obligatorio);
+    
+    let mensaje = '<div class="text-start">';
+    
+    // Mensaje de guardado exitoso
+    mensaje += '<div class="alert alert-success mb-3" role="alert">';
+    mensaje += '<i class="bi bi-check-circle-fill me-2"></i><strong>¡Guardado exitoso!</strong><br>';
+    mensaje += 'Tu información se ha guardado correctamente. Puedes continuar completando los campos restantes.';
+    mensaje += '</div>';
+    
+    if (obligatorios.length > 0) {
+        mensaje += '<div class="mb-3"><strong class="text-danger">⚠️ Campos obligatorios por completar:</strong>';
+        mensaje += '<ul class="list-unstyled mt-2 mb-0">';
+        obligatorios.forEach((campo, index) => {
+            mensaje += `<li class="mb-1">
+                <button type="button" class="btn btn-sm btn-outline-danger w-100 text-start" onclick="irACampo('${campo.id}', '${campo.nombre}')">
+                    <i class="bi bi-arrow-right me-2"></i><strong>${campo.nombre}</strong>
+                    <small class="text-muted d-block">Hacer clic para ir al campo</small>
+                </button>
+            </li>`;
+        });
+        mensaje += '</ul></div>';
+    }
+    
+    if (opcionales.length > 0) {
+        mensaje += '<div><strong class="text-warning">📋 Campos opcionales sin completar:</strong>';
+        mensaje += '<ul class="list-unstyled mt-2 mb-0">';
+        opcionales.forEach((campo, index) => {
+            mensaje += `<li class="mb-1">
+                <button type="button" class="btn btn-sm btn-outline-warning w-100 text-start" onclick="irACampo('${campo.id}', '${campo.nombre}')">
+                    <i class="bi bi-arrow-right me-2"></i>${campo.nombre}
+                    <small class="text-muted d-block">Hacer clic para ir al campo</small>
+                </button>
+            </li>`;
+        });
+        mensaje += '</ul></div>';
+    }
+    
+    mensaje += '<hr class="my-3"><p class="text-info mb-0"><i class="bi bi-info-circle me-1"></i><strong>Tip:</strong> Haz clic en cualquier campo de arriba para ir directamente a él.</p></div>';
+    
+    Swal.fire({
+        title: 'Información guardada - Campos pendientes',
+        html: mensaje,
+        icon: 'info',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#3085d6',
+        width: '700px',
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+        }
+    });
+}
+
+// Función para mostrar tooltip informativo sobre el campo
+function mostrarTooltipCampo(elemento, nombreCampo) {
+    // Crear tooltip temporal
+    const tooltip = document.createElement('div');
+    tooltip.innerHTML = `<i class="bi bi-arrow-down me-1"></i>Completa: ${nombreCampo}`;
+    tooltip.style.cssText = `
+        position: absolute;
+        background: #007bff;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        pointer-events: none;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    `;
+    
+    // Posicionar el tooltip
+    const rect = elemento.getBoundingClientRect();
+    tooltip.style.left = rect.left + 'px';
+    tooltip.style.top = (rect.top - 35) + 'px';
+    
+    document.body.appendChild(tooltip);
+    
+    // Mostrar tooltip
+    setTimeout(() => {
+        tooltip.style.opacity = '1';
+        tooltip.style.transform = 'translateY(0)';
+    }, 100);
+    
+    // Ocultar y remover tooltip después de 3 segundos
+    setTimeout(() => {
+        tooltip.style.opacity = '0';
+        tooltip.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+            if (tooltip.parentNode) {
+                tooltip.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Función para desplazar a botón publicar
+function scrollToPublishButton() {
+    const publishBtn = document.getElementById('publicar-btn');
+    if (publishBtn) {
+        publishBtn.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+        });
+        
+        // Añadir efecto visual temporal
+        publishBtn.classList.add('animate__animated', 'animate__pulse');
+        setTimeout(() => {
+            publishBtn.classList.remove('animate__animated', 'animate__pulse');
+        }, 1000);
     }
 }
 
 // Función para publicar la landing page
 function publishLanding() {
+    // Verificar campos obligatorios antes de publicar
+    const camposFaltantes = verificarCamposFaltantes();
+    const obligatoriosFaltantes = camposFaltantes.filter(c => c.obligatorio);
+    
+    if (obligatoriosFaltantes.length > 0) {
+        mostrarAlertaCamposFaltantes('No se puede publicar - Campos obligatorios faltantes', 'error');
+        return;
+    }
+    
     Swal.fire({
         title: '¿Publicar Landing Page?',
         text: '¿Estás seguro de que quieres publicar tu landing page? Una vez publicada podrías ver los resultados en 24 horas.',
@@ -1771,7 +2831,7 @@ function publishLanding() {
             // Crear formulario temporal para enviar la solicitud POST
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '{{ route("landing.publicar") }}';
+            form.action = '{{ route("admin.landing.publicar") }}';
             form.style.display = 'none';
 
             // Agregar token CSRF
@@ -1796,36 +2856,15 @@ function publishLanding() {
     });
 }
 
-// Función para validar formulario antes de envío
+// Función para validar formulario antes de envío (mantenida para compatibilidad)
 function validarFormularioAntesDeEnvio() {
+    // Esta función ahora solo valida campos críticos para otros usos
     const empresaNombre = document.getElementById('empresa_nombre')?.value?.trim() || '';
     const whatsapp = document.getElementById('whatsapp')?.value?.trim() || '';
     
-    if (!empresaNombre || !whatsapp) {
-        // Cambiar al tab de empresa si hay campos faltantes
-        const empresaTab = document.getElementById('empresa-tab');
-        const empresaTabPane = document.getElementById('empresa');
-        
-        if (empresaTab && empresaTabPane) {
-            // Activar el tab de empresa
-            const tabTrigger = new bootstrap.Tab(empresaTab);
-            tabTrigger.show();
-        }
-        
-        // Mostrar alerta
-        Swal.fire({
-            title: 'Campos requeridos faltantes',
-            html: 'Para guardar la configuración necesitas completar:<br>' +
-                  (!empresaNombre ? '• <strong>Nombre de la Empresa</strong><br>' : '') +
-                  (!whatsapp ? '• <strong>WhatsApp</strong><br>' : ''),
-            icon: 'warning',
-            confirmButtonText: 'Entendido'
-        });
-        
-        return false;
-    }
-    
-    return true;
+    // Solo retorna false si realmente no se puede proceder
+    // Para el formulario principal, ahora usamos la nueva lógica en el event listener
+    return true; // Permitir envío siempre, las validaciones se manejan en el evento submit
 }
 
 // Función para validar campos requeridos y habilitar/deshabilitar botones
@@ -1840,7 +2879,8 @@ function validarCamposRequeridos() {
     const estilo = document.getElementById('estilo')?.value?.trim() || '';
     
     const publicarBtn = document.getElementById('publicar-btn');
-    const guardarBtn = document.querySelector('button[form="landing-form"]');
+    const guardarBtn = document.getElementById('guardar-btn');
+    const formularioCompletoAlert = document.getElementById('formulario-completo-alert');
     
     // Validar campos para publicar
     if (publicarBtn) {
@@ -1882,18 +2922,15 @@ function validarCamposRequeridos() {
         }
     }
     
-    // Validar campos para guardar
+    // Nueva lógica para el botón guardar - siempre habilitado excepto casos específicos
     if (guardarBtn) {
         const estadoLanding = '{{ $estadoLanding }}';
         const profileComplete = {{ $profileComplete ? 'true' : 'false' }};
         
-        // Campos requeridos para guardar configuración completa
-        const camposCompletosGuardar = empresaNombre && logo && colorPrincipal && colorSecundario && tipografia && estilo;
-        
+        // Solo deshabilitar en casos muy específicos
         const debeDeshabilitarseGuardar = (
             estadoLanding === 'en_construccion' || 
-            !profileComplete || 
-            !camposCompletosGuardar
+            !profileComplete
         );
         
         if (debeDeshabilitarseGuardar) {
@@ -1904,8 +2941,6 @@ function validarCamposRequeridos() {
                 guardarBtn.title = 'No se puede modificar mientras está en construcción';
             } else if (!profileComplete) {
                 guardarBtn.title = 'Completa tu perfil para continuar';
-            } else if (!camposCompletosGuardar) {
-                guardarBtn.title = 'Completa: logo, información, colores, fuente y estilo';
             }
         } else {
             guardarBtn.classList.remove('disabled');
@@ -1913,96 +2948,64 @@ function validarCamposRequeridos() {
             guardarBtn.title = '';
         }
     }
+    
+    // Mostrar/ocultar alerta de formulario completo
+    if (formularioCompletoAlert) {
+        const todoCompleto = empresaNombre && whatsapp && logo && colorPrincipal && 
+                            colorSecundario && tipografia && estilo;
+        const estadoLanding = '{{ $estadoLanding }}';
+        const profileComplete = {{ $profileComplete ? 'true' : 'false' }};
+        
+        // Mostrar alerta solo si todo está completo pero no ha sido publicado
+        if (todoCompleto && profileComplete && estadoLanding !== 'en_construccion' && estadoLanding !== 'publicada') {
+            formularioCompletoAlert.style.display = 'block';
+        } else {
+            formularioCompletoAlert.style.display = 'none';
+        }
+    }
+    
+    // Actualizar botón de revisar campos
+    actualizarBotonRevisarCampos();
 }
 
-// Agregar listeners para validación en tiempo real
-document.addEventListener('DOMContentLoaded', function() {
-    const campos = [
-        'empresa_nombre',
-        'whatsapp', 
-        'logo',
-        'color_principal',
-        'color_secundario',
-        'tipografia',
-        'estilo'
-    ];
+// Función para actualizar el botón de revisar campos
+function actualizarBotonRevisarCampos() {
+    const boton = document.getElementById('revisar-campos-btn');
+    if (!boton) return;
     
-    // Agregar listeners a todos los campos requeridos
-    campos.forEach(campoId => {
-        const campo = document.getElementById(campoId);
-        if (campo) {
-            if (campo.type === 'file') {
-                campo.addEventListener('change', validarCamposRequeridos);
-            } else {
-                campo.addEventListener('input', validarCamposRequeridos);
-                campo.addEventListener('change', validarCamposRequeridos);
-                campo.addEventListener('blur', validarCamposRequeridos);
-            }
-        }
-    });
+    const camposFaltantes = verificarCamposFaltantes();
+    const totalFaltantes = camposFaltantes.length;
+    const obligatoriosFaltantes = camposFaltantes.filter(c => c.obligatorio).length;
     
-    // Validar al cargar la página
-    validarCamposRequeridos();
-    
-    // Agregar validación al formulario antes del submit
-    const landingForm = document.getElementById('landing-form');
-    if (landingForm) {
-        landingForm.addEventListener('submit', function(e) {
-            if (!validarFormularioAntesDeEnvio()) {
-                e.preventDefault();
-            }
-        });
-    }
-    
-    // JavaScript para validar slug en tiempo real
-    const slugInput = document.getElementById('slug');
-    if (slugInput) {
-        slugInput.addEventListener('input', function(e) {
-            let value = e.target.value;
-            
-            // Convertir a minúsculas y reemplazar espacios con guiones
-            value = value.toLowerCase().replace(/\s+/g, '-');
-            
-            // Eliminar caracteres no válidos
-            value = value.replace(/[^a-z0-9\-]/g, '');
-            
-            // Eliminar guiones múltiples
-            value = value.replace(/-+/g, '-');
-            
-            // Eliminar guiones al inicio y final
-            value = value.replace(/^-+|-+$/g, '');
-            
-            // Actualizar el valor del input
-            e.target.value = value;
-            
-            // Validar longitud mínima
-            if (value.length < 3 && value.length > 0) {
-                e.target.classList.add('is-invalid');
-                if (!e.target.nextElementSibling || !e.target.nextElementSibling.classList.contains('invalid-feedback')) {
-                    const feedback = document.createElement('div');
-                    feedback.className = 'invalid-feedback';
-                    feedback.textContent = 'El slug debe tener al menos 3 caracteres';
-                    e.target.parentNode.appendChild(feedback);
-                }
-            } else {
-                e.target.classList.remove('is-invalid');
-                const feedback = e.target.parentNode.querySelector('.invalid-feedback');
-                if (feedback && feedback.textContent === 'El slug debe tener al menos 3 caracteres') {
-                    feedback.remove();
-                }
-            }
-        });
+    if (totalFaltantes === 0) {
+        boton.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Completo';
+        boton.className = 'btn btn-outline-success btn-sm';
+        boton.title = 'Todos los campos están completos';
+    } else {
+        let texto = 'Revisar Campos';
+        let clase = 'btn btn-outline-info btn-sm';
+        let icono = 'bi bi-list-check me-1';
         
-        // Evitar pegar contenido no válido
-        slugInput.addEventListener('paste', function(e) {
-            e.preventDefault();
-            const paste = (e.clipboardData || window.clipboardData).getData('text');
-            const cleanPaste = paste.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-            e.target.value = cleanPaste;
-            e.target.dispatchEvent(new Event('input'));
-        });
+        if (obligatoriosFaltantes > 0) {
+            texto = `Faltan ${obligatoriosFaltantes} obligatorios`;
+            clase = 'btn btn-outline-danger btn-sm';
+            icono = 'bi bi-exclamation-triangle me-1';
+            boton.title = `${obligatoriosFaltantes} campos obligatorios y ${totalFaltantes - obligatoriosFaltantes} opcionales por completar`;
+        } else {
+            texto = `${totalFaltantes} opcionales`;
+            boton.title = `${totalFaltantes} campos opcionales por completar`;
+        }
+        
+        boton.innerHTML = `<i class="${icono}"></i>${texto}`;
+        boton.className = clase;
     }
-});
+}
+
+// Exponer funciones globalmente para uso desde atributos onclick en el HTML
+window.verificarCamposFaltantes = verificarCamposFaltantes;
+window.mostrarAlertaCamposFaltantes = mostrarAlertaCamposFaltantes;
+window.irACampo = irACampo;
+window.mostrarTooltipCampo = mostrarTooltipCampo;
 </script>
 @endpush
 @endsection

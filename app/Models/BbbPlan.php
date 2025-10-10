@@ -40,6 +40,7 @@ class BbbPlan extends Model
         'orden',
         'destacado',
         'idioma',
+        'aplicaProductos',
     ];
 
     /**
@@ -53,6 +54,7 @@ class BbbPlan extends Model
         'dias' => 'integer',
         'orden' => 'integer',
         'destacado' => 'boolean',
+        'aplicaProductos' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -95,5 +97,21 @@ class BbbPlan extends Model
     public function renovaciones()
     {
         return $this->hasMany(BbbRenovacion::class, 'plan_id', 'idPlan');
+    }
+
+    /**
+     * Get formatted price in COP.
+     */
+    public function getPrecioPesosFormateadoAttribute()
+    {
+        return format_cop_price($this->precioPesos);
+    }
+
+    /**
+     * Get formatted price in USD.
+     */
+    public function getPreciosDolarFormateadoAttribute()
+    {
+        return format_usd_price($this->preciosDolar);
     }
 }

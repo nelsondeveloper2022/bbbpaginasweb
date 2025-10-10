@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Planes y Precios – Arriendo o compra + Prueba gratis 15 días')
-@section('description', 'Consigue tu página web sin complicaciones: arriendo desde $45.000 COP/trimestre o compra con dominio y hosting incluidos (1er año). Incluye 15 días de prueba gratuita.')
+@section('description', 'Consigue tu página web sin complicaciones: arriendo desde $45.000 COP/trimestre o compra con hosting incluidos (1er año). Incluye 15 días de prueba gratuita.')
 
 @push('styles')
 <style>
@@ -161,7 +161,7 @@
 <section class="plans-hero">
     <div class="container">
     <h1>¿Qué plan te conviene hoy?</h1>
-    <p>Arriendo para empezar sin grandes costos o compra con <strong>dominio y hosting incluidos (1er año)</strong>. Incluye <strong>15 días de prueba gratuita</strong>.</p>
+    <p>Arriendo para empezar sin grandes costos o compra con. Incluye <strong>15 días de prueba gratuita</strong>.</p>
     </div>
 </section>
 

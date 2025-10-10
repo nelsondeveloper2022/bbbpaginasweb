@@ -101,7 +101,7 @@
                 </div>
                 
                 <div class="card-footer bg-transparent text-center">
-                    <form action="{{ route('subscription.checkout') }}" method="POST" class="d-inline">
+                    <form action="{{ route('admin.subscription.checkout') }}" method="POST" class="d-inline">
                         @csrf
                         <input type="hidden" name="plan_id" value="{{ $plan->idPlan }}">
                         <button type="submit" class="btn {{ $plan->destacado ? 'btn-primary' : 'btn-outline-primary' }} btn-lg w-100">
@@ -170,16 +170,13 @@
                                             </div>
                                             
                                             <div class="card-footer bg-transparent text-center">
-                                                <form action="{{ route('subscription.checkout') }}" method="POST" class="d-inline">
+                                                <form action="{{ route('admin.subscription.checkout') }}" method="POST" class="d-inline">
                                                     @csrf
-                                                    <input type="hidden" name="plan_id" value="{{ $plan->idPlan }}">
-                                                    <button type="submit" class="btn {{ $plan->destacado ? 'btn-primary' : 'btn-outline-primary' }} btn-lg w-100">
-                                                        <i class="bi bi-credit-card me-2"></i>
-                                                        Seleccionar Plan
+                                                    <input type="hidden" name="plan_id" value="{{ $planItem->idPlan }}">
+                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                        Cambiar Plan
                                                     </button>
-                                                </form>
-                                                
-                                                <small class="text-muted d-block mt-2">
+                                                </form>                                                <small class="text-muted d-block mt-2">
                                                     <i class="bi bi-shield-check me-1"></i>
                                                     Pago seguro con Wompi
                                                 </small>

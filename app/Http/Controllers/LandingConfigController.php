@@ -69,9 +69,8 @@ class LandingConfigController extends Controller
         
         // Verificar si el perfil está completo antes de procesar
         if (!$user->hasCompleteProfile() || !$user->isEmailVerified()) {
-            return redirect()->route('landing.configurar')
-                ->with('error', 'Debes completar tu perfil antes de configurar tu landing page.')
-                ->withInput();
+            return redirect()->route('admin.landing.configurar')
+                ->with('error', 'Debes completar los datos de tu empresa antes de configurar la landing page.');
         }
         
         // Obtener la empresa para verificar el estado
@@ -265,7 +264,14 @@ class LandingConfigController extends Controller
                 $landing->subtitulo = $request->subtitulo;
                 $landing->descripcion = $request->descripcion;
 
-                // Manejar la subida del logo usando el slug
+                $landing->save();
+            }
+
+            // Buscar la landing existente para actualizar logo y archivos adicionales
+            $landing = BbbLanding::where('idEmpresa', $user->idEmpresa)->first();
+            
+            if ($landing) {
+                // Manejar la subida del logo usando el slug (permitido en todos los estados)
                 if ($request->hasFile('logo')) {
                     // Eliminar el logo anterior si existe
                     if ($landing->logo_url) {
@@ -274,9 +280,8 @@ class LandingConfigController extends Controller
 
                     $logoPath = $request->file('logo')->store($empresa->getLandingStoragePath(), 'public');
                     $landing->logo_url = $logoPath;
+                    $landing->save();
                 }
-
-                $landing->save();
             }
 
             // Actualizar información de la empresa
@@ -314,7 +319,7 @@ class LandingConfigController extends Controller
                 ? 'Información empresarial actualizada exitosamente. La configuración de la landing no se modificó porque está publicada.'
                 : 'Configuración de landing e información empresarial guardada exitosamente.';
 
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('success', $successMessage);
 
         } catch (\Exception $e) {
@@ -356,7 +361,7 @@ class LandingConfigController extends Controller
 
             $landing->delete();
 
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('success', 'Configuración de landing eliminada exitosamente.');
 
         } catch (\Exception $e) {
@@ -386,21 +391,51 @@ class LandingConfigController extends Controller
         }
 
         try {
-            // Obtener o crear la landing
+            // Obtener o crear la landing automáticamente
             $landing = BbbLanding::where('idEmpresa', $user->idEmpresa)->first();
             
             if (!$landing) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Debe guardar la configuración básica primero.'
-                ], 400);
-            }
+                // Obtener empresa
+                $empresa = BbbEmpresa::find($user->idEmpresa);
+                
+                if (!$empresa) {
+                    $empresa = BbbEmpresa::where('nombre', $user->empresa_nombre)
+                        ->where('estado', null)
+                        ->first();
+                    
+                    if ($empresa) {
+                        $user->idEmpresa = $empresa->idEmpresa;
+                        $user->save();
+                    }
+                }
+                
+                if (!$empresa) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se encontró la información de la empresa.'
+                    ], 400);
+                }
 
-            // Obtener empresa para usar slug
-            $empresa = BbbEmpresa::find($user->idEmpresa);
+                // Asegurar que la empresa tenga un slug
+                if (!$empresa->slug) {
+                    $empresa->updateSlug();
+                    $empresa->save();
+                }
+
+                // Crear una landing básica automáticamente para permitir subir imágenes
+                $landing = new BbbLanding();
+                $landing->idEmpresa = $user->idEmpresa;
+                $landing->titulo_principal = $empresa->nombre ?? 'Mi Empresa';
+                $landing->objetivo = 'generar_contactos'; // Valor por defecto
+                // No establecer estado ya que la columna no existe en la tabla
+                $landing->save();
+            } else {
+                // Si la landing ya existe, obtener la empresa
+                $empresa = BbbEmpresa::find($user->idEmpresa);
+            }
             
-            // Subir archivo usando slug
-            $mediaPath = $request->file('media')->store($empresa->getLandingStoragePath() . '/media', 'public');
+            // Subir archivo en la ruta landing/media
+            $mediaPath = $request->file('media')->store('landing/media', 'public');
 
             // Crear registro en la base de datos
             $media = new BbbLandingMedia();
@@ -470,13 +505,13 @@ class LandingConfigController extends Controller
         $landing = BbbLanding::where('idEmpresa', $user->idEmpresa)->first();
         
         if (!$landing || !$empresa) {
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('error', 'Debe configurar su landing page primero.');
         }
 
         // Verificar que existe el slug de la empresa
         if (!$empresa->slug) {
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('error', 'La empresa debe tener un slug configurado.');
         }
 
@@ -485,7 +520,7 @@ class LandingConfigController extends Controller
 
         
         if (!view()->exists($viewName)) {
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('error', 'La vista de la landing page no existe. Publique primero su landing.');
         }
 
@@ -532,7 +567,7 @@ class LandingConfigController extends Controller
         
         // Verificar si el perfil está completo antes de publicar
         if (!$user->hasCompleteProfile() || !$user->isEmailVerified()) {
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('error', 'Debes completar tu perfil antes de publicar tu landing page.')
                 ->withInput();
         }
@@ -572,7 +607,7 @@ class LandingConfigController extends Controller
                 Log::warning('Failed to send landing publication email: ' . $e->getMessage());
             }
 
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('success', 'Tu landing page se ha publicado exitosamente y está en construcción.')
                 ->with('published', true)
                 ->with('landing_url', $empresa->getLandingUrl());
@@ -593,7 +628,7 @@ class LandingConfigController extends Controller
         $landing = BbbLanding::where('idEmpresa', $user->idEmpresa)->with(['media', 'images', 'icons'])->first();
 
         if (!$empresa || !$landing) {
-            return redirect()->route('landing.configurar')
+            return redirect()->route('admin.landing.configurar')
                 ->with('error', 'No se encontró información de la landing page.');
         }
 

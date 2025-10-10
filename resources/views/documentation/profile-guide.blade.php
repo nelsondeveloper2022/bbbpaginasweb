@@ -4,23 +4,24 @@
 @section('description', 'Aprende a completar y actualizar tu información de perfil')
 
 @section('content')
-<div class="content-header">
+<!-- Header -->
+<div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="dashboard-title">
-                <i class="bi bi-person-gear me-3"></i>
+                <i class="bi bi-person-gear me-3 text-info"></i>
                 Configurar Perfil
             </h1>
             <p class="text-muted mb-0">Completa tu información para personalizar tu sitio web</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('documentation.index') }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>
-                Volver
+                Volver a Academy
             </a>
-            <a href="{{ route('profile.edit') }}" class="btn btn-primary btn-sm">
-                <i class="bi bi-pencil me-2"></i>
-                Editar Perfil
+            <a href="{{ route('admin.profile.edit') }}" class="btn btn-info">
+                <i class="bi bi-person-gear me-2"></i>
+                Editar perfil
             </a>
         </div>
     </div>
@@ -148,10 +149,10 @@
                 </div>
 
                 <div class="mt-4">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil me-2"></i>
-                        Actualizar Información Personal
-                    </a>
+                                <a href="{{ route('admin.profile.edit') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-person-gear me-1"></i>
+                Configurar Perfil
+            </a>
                 </div>
             </div>
         </div>
@@ -265,7 +266,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-info btn-sm">
+                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-info btn-sm">
                         <i class="bi bi-building me-2"></i>
                         Actualizar Información de Empresa
                     </a>
@@ -274,6 +275,135 @@
         </div>
     </div>
 </div>
+
+<!-- Configuración de Flete (solo para planes con productos) -->
+@php
+    $user = auth()->user();
+    $planPermiteProductos = $user->plan && $user->plan->aplicaProductos == 1;
+@endphp
+
+@if($planPermiteProductos)
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-truck me-2 text-primary"></i>
+                <h6 class="mb-0">Configuración de Envío</h6>
+                <span class="badge bg-success ms-auto">Disponible en tu plan</span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info border-0 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle me-3 fs-5"></i>
+                        <div>
+                            <strong>Funcionalidad Avanzada:</strong> Tu plan incluye la gestión de productos y configuración de envíos.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-guide">
+                    <div class="step-item {{ ($user->empresa && isset($user->empresa->flete)) ? 'completed' : '' }}">
+                        <div class="step-icon">
+                            @if($user->empresa && isset($user->empresa->flete))
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                            @else
+                                <i class="bi bi-circle text-muted"></i>
+                            @endif
+                        </div>
+                        <div class="step-content">
+                            <h6>Valor del Flete</h6>
+                            <p class="text-muted mb-1">Configura el costo de envío que se aplicará a todos los productos</p>
+                            @if($user->empresa && isset($user->empresa->flete))
+                                @if($user->empresa->flete > 0)
+                                    <span class="badge bg-success-soft text-success">
+                                        ${{ number_format($user->empresa->flete, 0, ',', '.') }} COP
+                                    </span>
+                                @else
+                                    <span class="badge bg-info-soft text-info">Envío Gratuito</span>
+                                @endif
+                            @else
+                                <span class="badge bg-warning-soft text-warning">Por configurar</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="bg-light rounded p-3">
+                            <h6 class="mb-2">
+                                <i class="bi bi-lightbulb text-warning me-2"></i>
+                                ¿Cómo funciona?
+                            </h6>
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    El valor se aplicará automáticamente a todos los productos
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Se muestra en el checkout junto al subtotal
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Configura $0 si ofreces envío gratuito
+                                </li>
+                                <li class="mb-0">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Los cambios se guardan automáticamente
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="bi bi-truck" style="font-size: 3rem; color: var(--bs-primary); opacity: 0.3;"></i>
+                            <p class="text-muted small mt-2">
+                                Gestión simplificada de envíos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-truck me-2"></i>
+                        Configurar Flete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@else
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header d-flex align-items-center bg-warning bg-opacity-10">
+                <i class="bi bi-truck me-2 text-warning"></i>
+                <h6 class="mb-0">Configuración de Envío</h6>
+                <span class="badge bg-warning ms-auto">No disponible</span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning border-0 mb-0">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle me-3 fs-5"></i>
+                        <div>
+                            <strong>Funcionalidad Premium:</strong> La configuración de flete está disponible solo en planes que incluyen gestión de productos.
+                            <div class="mt-2">
+                                <a href="{{ route('admin.plans.index') }}" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-arrow-up-circle me-1"></i>
+                                    Ver Planes con Productos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 <!-- Consejos y mejores prácticas -->
 <div class="row">
@@ -366,7 +496,7 @@
                         </p>
                     </div>
                     <div class="text-end">
-                        <a href="{{ route('profile.edit') }}" class="btn btn-light">
+                        <a href="{{ route('admin.profile.edit') }}" class="btn btn-light">
                             <i class="bi bi-arrow-right me-2"></i>
                             Completar Perfil
                         </a>
@@ -386,7 +516,7 @@
                 <p class="mb-3 opacity-75">
                     Tu información está completa y lista para tu sitio web
                 </p>
-                <a href="{{ route('documentation.publish-guide') }}" class="btn btn-light">
+                <a href="{{ route('admin.documentation.publish-guide') }}" class="btn btn-light">
                     <i class="bi bi-globe me-2"></i>
                     Ver Guía de Publicación
                 </a>

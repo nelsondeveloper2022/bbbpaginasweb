@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -185,6 +186,14 @@ class User extends Authenticatable
         $fiveDaysFromNow = $now->copy()->addDays(5);
         
         return $this->trial_ends_at->between($now, $fiveDaysFromNow) && $this->trial_ends_at->isFuture();
+    }
+
+    /**
+     * Verificar si tiene una licencia activa
+     */
+    public function hasActiveLicense()
+    {
+        return $this->hasActiveSubscription() || (!$this->trialExpired() && $this->isOnTrial());
     }
 
     /**
@@ -408,7 +417,43 @@ class User extends Authenticatable
      */
     public function isAdmin()
     {
-        return $this->is_admin === true;
+        return $this->is_admin == 1;
+    }
+
+    /**
+     * Verificar si el usuario puede ser impersonado
+     */
+    public function canBeImpersonated()
+    {
+        // No se puede impersonar a otros administradores
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        // Si ya tiene idEmpresa asignado (email validado), se puede impersonar
+        if ($this->idEmpresa !== null) {
+            return true;
+        }
+
+        // Si no tiene idEmpresa (email no validado), verificar si su empresa_nombre 
+        // existe en la tabla bbbempresa
+        if (!empty($this->empresa_nombre)) {
+            $empresa = \App\Models\BbbEmpresa::where('nombre', $this->empresa_nombre)->first();
+            if ($empresa) {
+                return true;
+            }
+        }
+
+        // Si no cumple ninguna condición, no se puede impersonar
+        return false;
+    }
+
+    /**
+     * Verificar si actualmente se está impersonando a este usuario
+     */
+    public function isBeingImpersonated()
+    {
+        return session()->has('impersonating_admin_id') && Auth::check() && Auth::user()->id === $this->id;
     }
 
     /**
@@ -467,5 +512,42 @@ class User extends Authenticatable
         return 0;
     }
 
+    /**
+     * Obtener la empresa asociada (por idEmpresa o por empresa_nombre)
+     */
+    public function getAssociatedEmpresa()
+    {
+        // Si tiene idEmpresa asignado (email validado), usar la relación existente
+        if ($this->idEmpresa && $this->empresa) {
+            return $this->empresa;
+        }
+
+        // Si no tiene idEmpresa (email no validado), buscar por empresa_nombre
+        if (!empty($this->empresa_nombre)) {
+            $empresa = \App\Models\BbbEmpresa::where('nombre', $this->empresa_nombre)->first();
+            if ($empresa) {
+                return $empresa;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Obtener información para impersonación
+     */
+    public function getImpersonationInfo()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'empresa' => $this->empresa_nombre,
+            'plan' => $this->plan->nombre ?? 'Sin plan',
+            'status' => $this->subscription_status,
+            'days_remaining' => $this->days_remaining,
+            'can_be_impersonated' => $this->canBeImpersonated()
+        ];
+    }
 
 }

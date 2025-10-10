@@ -4,26 +4,25 @@
 @section('description', 'Información sobre planes, precios y métodos de pago')
 
 @section('content')
-<div class="content-header">
+<!-- Header -->
+<div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="dashboard-title">
-                <i class="bi bi-credit-card me-3"></i>
-                Planes y Pagos
+                <i class="bi bi-credit-card me-3 text-warning"></i>
+                Planes y Suscripciones
             </h1>
             <p class="text-muted mb-0">Todo lo que necesitas saber sobre nuestros planes</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('documentation.index') }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>
-                Volver
+                Volver a Academy
             </a>
-            @if(auth()->user()->isOnTrial())
-                <a href="#" class="btn btn-success btn-sm">
-                    <i class="bi bi-star me-2"></i>
-                    Elegir Plan
-                </a>
-            @endif
+            <a href="{{ route('admin.plans.index') }}" class="btn btn-warning">
+                <i class="bi bi-gem me-2"></i>
+                Ver planes
+            </a>
         </div>
     </div>
 </div>
@@ -111,27 +110,27 @@
                     </div>
                     <div class="col-md-4 text-md-end">
                         @if($hasExpired)
-                            <a href="{{ route('subscription.plans') }}" class="btn btn-danger">
+                            <a href="{{ route('admin.plans.index') }}" class="btn btn-danger">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 Renovar Plan
                             </a>
                         @elseif($isOnTrial && $daysLeft <= 3)
-                            <a href="{{ route('subscription.plans') }}" class="btn btn-warning">
+                            <a href="{{ route('admin.plans.index') }}" class="btn btn-warning">
                                 <i class="bi bi-clock me-2"></i>
                                 Renovar Antes de Vencer
                             </a>
                         @elseif($isOnTrial)
-                            <a href="{{ route('subscription.plans') }}" class="btn btn-primary">
+                            <a href="{{ route('admin.plans.index') }}" class="btn btn-primary">
                                 <i class="bi bi-star me-2"></i>
                                 Ver Planes Disponibles
                             </a>
                         @elseif($currentPlan && auth()->user()->hasFreePlan())
-                            <a href="{{ route('subscription.plans') }}" class="btn btn-success">
+                            <a href="{{ route('admin.plans.index') }}" class="btn btn-success">
                                 <i class="bi bi-arrow-up-circle me-2"></i>
                                 Mejorar Plan
                             </a>
                         @else
-                            <a href="{{ route('subscription.plans') }}" class="btn btn-outline-primary">
+                            <a href="{{ route('admin.plans.index') }}" class="btn btn-outline-primary">
                                 <i class="bi bi-gear me-2"></i>
                                 Gestionar Plan
                             </a>
@@ -210,12 +209,12 @@
                         Plan Actual
                     </button>
                 @elseif($hasExpired || $isOnTrial)
-                    <a href="{{ route('subscription.plans') }}" class="btn btn-primary w-100">
+                    <a href="{{ route('admin.plans.index') }}" class="btn btn-primary w-100">
                         <i class="bi bi-star me-2"></i>
                         Elegir Plan
                     </a>
                 @else
-                    <a href="{{ route('subscription.plans') }}" class="btn btn-outline-primary w-100">
+                    <a href="{{ route('admin.plans.index') }}" class="btn btn-outline-primary w-100">
                         <i class="bi bi-arrow-up-circle me-2"></i>
                         Cambiar Plan
                     </a>

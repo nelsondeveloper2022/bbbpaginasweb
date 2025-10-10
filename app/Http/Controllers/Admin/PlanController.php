@@ -43,10 +43,10 @@ class PlanController extends Controller
                 ->with('error', 'No puedes adquirir este plan según tu plan actual.');
         }
 
-        // No permitir comprar el plan gratuito desde el checkout
-        if ($plan->idPlan == 6) {
+        // No permitir comprar planes que contengan "free" en el nombre
+        if (stripos($plan->nombre, 'free') !== false) {
             return redirect()->route('admin.plans.index')
-                ->with('error', 'El plan gratuito no se puede adquirir desde el checkout.');
+                ->with('error', 'Los planes gratuitos no se pueden adquirir desde el checkout.');
         }
         
         // Buscar renovación pendiente o crear una nueva
@@ -72,7 +72,7 @@ class PlanController extends Controller
         $reference = $renovacion->reference;
         $amountInCents = $plan->precioPesos * 100;
         $currency = 'COP';
-        $integritySecret = config('services.wompi.integrity_secret');
+        $integritySecret = config('wompi.integrity_key');
         
         // Generar firma de integridad según documentación Wompi
         // Formato: "referencia + monto_en_centavos + moneda + secreto_integridad"
@@ -108,23 +108,33 @@ class PlanController extends Controller
         $currentPlanId = $user->id_plan;
         $targetPlanId = $plan->idPlan;
         
-        // Desde Free (sin plan o plan 6) → cualquier plan excepto otro Free
-        if (!$currentPlanId || $currentPlanId == 0 || $currentPlanId == 6) {
-            return in_array($targetPlanId, [1, 2, 5]) && $targetPlanId != 6;
+        // No permitir comprar planes que contengan "free" en el nombre (case insensitive)
+        if (stripos($plan->nombre, 'free') !== false) {
+            return false;
         }
         
-        // Desde 5 → 1 o 2
+        // Desde Free (sin plan, plan 0, plan 1 o plan 2) → cualquier plan de pago
+        if (!$currentPlanId || $currentPlanId == 0 || $currentPlanId == 1 || $currentPlanId == 2) {
+            return stripos($plan->nombre, 'free') === false;
+        }
+        
+        // Desde plan 3 (Arriendo Landing) → puede cambiar a cualquier plan superior
+        if ($currentPlanId == 3) {
+            return in_array($targetPlanId, [4, 5, 6]);
+        }
+        
+        // Desde plan 4 (Arriendo Landing + Carrito) → puede cambiar a planes superiores
+        if ($currentPlanId == 4) {
+            return in_array($targetPlanId, [5, 6]);
+        }
+        
+        // Desde plan 5 (Plan Básico) → puede cambiar a plan 6
         if ($currentPlanId == 5) {
-            return in_array($targetPlanId, [1, 2]);
+            return $targetPlanId == 6;
         }
         
-        // Desde 1 → 2
-        if ($currentPlanId == 1) {
-            return $targetPlanId == 2;
-        }
-        
-        // Si está en 2 → no puede cambiar (plan premium final)
-        if ($currentPlanId == 2) {
+        // Si está en plan 6 → no puede cambiar (plan premium final)
+        if ($currentPlanId == 6) {
             return false;
         }
         

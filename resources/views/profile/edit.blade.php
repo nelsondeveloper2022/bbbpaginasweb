@@ -10,6 +10,10 @@
 @endpush
 
 @section('content')
+@php
+    $planPermiteProductos = Auth::user()->  plan->aplicaProductos ?? false;    
+@endphp
+
 <div class="page-header">
     <h1 class="page-title">
         <i class="bi bi-person-gear me-3"></i>Mi Perfil
@@ -164,7 +168,7 @@
                 <p class="text-muted small mt-1 mb-0">Actualiza tu información personal y configuración de cuenta</p>
             </div>
             <div class="card-body p-4">
-                <form method="POST" action="{{ route('profile.update') }}">
+                <form method="POST" action="{{ route('admin.profile.update') }}">
                     @csrf
                     @method('PATCH')
 
@@ -257,7 +261,7 @@
                             <div>
                                 <h6 class="mb-1">¿Buscas configurar tu información empresarial?</h6>
                                 <p class="mb-2 small">La información de tu empresa, redes sociales y documentos legales ahora se configuran directamente en tu landing page.</p>
-                                <a href="{{ route('landing.configurar') }}" class="btn btn-sm btn-outline-primary">
+                                <a href="{{ route('admin.landing.configurar') }}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-building me-1"></i>
                                     Ir a Configurar Landing Page
                                 </a>
@@ -275,6 +279,85 @@
                 </form>
             </div>
         </div>
+
+        <!-- Configuración de Flete -->
+        @if($planPermiteProductos)
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header border-0 bg-light">
+                <h5 class="mb-0 text-dark fw-bold">
+                    <i class="bi bi-truck me-2 text-primary-gold"></i>
+                    Configuración de Envío
+                </h5>
+                <p class="text-muted mb-0 small">Configura el valor del flete que aplicará a todos los productos</p>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info border-0 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle me-3 fs-5"></i>
+                        <div>
+                            <strong>Valor Global:</strong> Este valor de flete se aplicará automáticamente a todos los productos y ciudades en tu tienda online.
+                        </div>
+                    </div>
+                </div>
+
+                <form id="fleteForm">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="flete" class="form-label fw-bold">
+                                <i class="bi bi-currency-dollar me-1"></i>
+                                Valor del Flete (COP)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">$</span>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="flete" 
+                                       name="flete" 
+                                       value="{{ auth()->user()->empresa->flete ?? 0 }}"
+                                       min="0" 
+                                       step="100"
+                                       placeholder="0">
+                                <span class="input-group-text bg-light">COP</span>
+                            </div>
+                            <div class="form-text">
+                                <i class="bi bi-lightbulb me-1"></i>
+                                Ingresa 0 si ofreces envío gratuito
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="w-100">
+                                <div class="bg-light rounded p-3 text-center">
+                                    <i class="bi bi-check-circle text-success fs-4 mb-2"></i>
+                                    <div class="small text-muted">
+                                        <strong>Guardado automático</strong><br>
+                                        Los cambios se guardan al modificar el valor
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="mb-2">
+                        <i class="bi bi-eye me-1"></i>
+                        Vista previa en checkout:
+                    </h6>
+                    <div class="d-flex justify-content-between align-items-center small">
+                        <span>Envío:</span>
+                        <span class="fw-bold" id="preview-flete">
+                            @if(auth()->user()->empresa && auth()->user()->empresa->flete > 0)
+                                ${{ number_format(auth()->user()->empresa->flete, 0, ',', '.') }}
+                            @else
+                                Gratis
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Right Column - Plan & Security -->
@@ -771,7 +854,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ route('profile.password.update') }}" id="passwordForm">
+                <form method="POST" action="{{ route('admin.profile.password.update') }}" id="passwordForm">
                     @csrf
                     @method('PATCH')
 
@@ -862,7 +945,7 @@
                     Todos tus datos, configuraciones y contenido serán eliminados permanentemente.
                 </p>
                 
-                <form method="POST" action="{{ route('profile.destroy') }}" id="deleteAccountForm">
+                <form method="POST" action="{{ route('admin.profile.destroy') }}" id="deleteAccountForm">
                     @csrf
                     @method('DELETE')
                     
@@ -1125,7 +1208,7 @@
             button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Enviando...';
             
             try {
-                const response = await fetch('/email/send-verification', {
+                const response = await fetch('/admin/email/send-verification', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1461,7 +1544,7 @@ function syncQuillEditors() {
                 });
                 
                 // Validación del formulario
-                const form = document.querySelector('form[action="{{ route('profile.update') }}"]');
+                const form = document.querySelector('form[action="{{ route('admin.profile.update') }}"]');
                 if (form) {
                     form.addEventListener('submit', function(e) {
                         // Sincronizar contenido
@@ -1802,6 +1885,80 @@ function syncQuillEditors() {
                 }
             });
         }
+
+        // Configuración del flete - Guardado automático
+        document.addEventListener('DOMContentLoaded', function() {
+            const fleteInput = document.getElementById('flete');
+            const previewFlete = document.getElementById('preview-flete');
+            let timeout;
+
+            if (fleteInput) {
+                fleteInput.addEventListener('input', function() {
+                    clearTimeout(timeout);
+                    
+                    // Actualizar vista previa inmediatamente
+                    const value = parseInt(this.value) || 0;
+                    if (value > 0) {
+                        previewFlete.textContent = '$' + value.toLocaleString('es-CO');
+                    } else {
+                        previewFlete.textContent = 'Gratis';
+                    }
+
+                    // Debounce - guardar después de 1 segundo sin cambios
+                    timeout = setTimeout(() => {
+                        updateFlete(value);
+                    }, 1000);
+                });
+
+                // También guardar cuando pierde el foco
+                fleteInput.addEventListener('blur', function() {
+                    clearTimeout(timeout);
+                    const value = parseInt(this.value) || 0;
+                    updateFlete(value);
+                });
+            }
+
+            function updateFlete(value) {
+                fetch('{{ route("admin.profile.flete.update") }}', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        flete: value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mostrar toast de éxito discreto
+                        showToast('success', 'Flete actualizado correctamente');
+                    } else {
+                        showToast('error', data.message || 'Error al actualizar el flete');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error de conexión al actualizar el flete');
+                });
+            }
+
+            function showToast(type, message) {
+                Swal.fire({
+                    icon: type,
+                    title: message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    customClass: {
+                        popup: 'colored-toast'
+                    }
+                });
+            }
+        });
     </script>
 
 @endsection

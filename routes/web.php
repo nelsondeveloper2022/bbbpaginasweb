@@ -29,6 +29,11 @@ Route::get('/planes', [LandingController::class, 'plans'])->name('plans');
 Route::get('/test-recaptcha', [TestRecaptchaController::class, 'show'])->name('test-recaptcha');
 Route::post('/test-recaptcha', [TestRecaptchaController::class, 'store']);
 
+// Ruta temporal para debug de Wompi (REMOVER EN PRODUCCIÓN)
+Route::get('/debug/wompi-config', function() {
+    return view('debug.wompi-config');
+})->name('debug.wompi-config');
+
 // Páginas legales
 Route::get('/terminos', [LandingController::class, 'terms'])->name('terms');
 Route::get('/privacidad', [LandingController::class, 'privacy'])->name('privacy');
@@ -58,67 +63,144 @@ Route::middleware('guest')->group(function() {
 Route::middleware('auth')->group(function() {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
-    // Dashboard (requiere autenticación)
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('check.trial')->name('dashboard');
     
     // Admin routes (con middleware de trial)
     Route::prefix('admin')->name('admin.')->middleware('check.trial')->group(function () {
+        
+        // Dashboard (requiere autenticación y check.trial)
+
         Route::prefix('plans')->name('plans.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\PlanController::class, 'index'])->name('index');
             Route::get('/purchase/{planId}', [\App\Http\Controllers\Admin\PlanController::class, 'checkout'])->name('purchase');
             Route::get('/success', [\App\Http\Controllers\Admin\PlanController::class, 'success'])->name('success');
         });
-    });
-    
-    // Subscription routes (mantener para compatibilidad)
-    Route::prefix('subscription')->name('subscription.')->group(function () {
-        Route::get('/plans', [\App\Http\Controllers\SubscriptionController::class, 'showPlans'])->name('plans');
-        Route::post('/checkout', [\App\Http\Controllers\SubscriptionController::class, 'checkout'])->name('checkout');
-        Route::get('/success', [\App\Http\Controllers\SubscriptionController::class, 'success'])->name('success');
-        Route::get('/check-status', [\App\Http\Controllers\SubscriptionController::class, 'checkStatus'])->name('check-status');
-    });
-    
-    // Perfil de usuario
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
-    // Verificación de email
-    Route::post('/email/send-verification', [\App\Http\Controllers\EmailVerificationController::class, 'sendVerificationEmail'])->name('email.send-verification');
-    Route::get('/email/verification-status', [\App\Http\Controllers\EmailVerificationController::class, 'getVerificationStatus'])->name('email.verification-status');
-    
-    // Descarga de recibos
-    Route::get('/receipt/download/{renovacion}', [\App\Http\Controllers\ReceiptController::class, 'download'])->name('user.receipt.download');
-    Route::get('/receipt/download-latest', [\App\Http\Controllers\ReceiptController::class, 'downloadLatest'])->name('user.receipt.download-latest');
-    
-    // Documentación y ayuda
-    Route::prefix('documentacion')->name('documentation.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\DocumentationController::class, 'index'])->name('index');
-        Route::get('/inicio-rapido', [\App\Http\Controllers\DocumentationController::class, 'quickStart'])->name('quick-start');
-        Route::get('/publicar-web', [\App\Http\Controllers\DocumentationController::class, 'publishGuide'])->name('publish-guide');
-        Route::get('/configurar-perfil', [\App\Http\Controllers\DocumentationController::class, 'profileGuide'])->name('profile-guide');
-        Route::get('/planes-suscripciones', [\App\Http\Controllers\DocumentationController::class, 'plansGuide'])->name('plans-guide');
-        Route::get('/landing-pages', [\App\Http\Controllers\DocumentationController::class, 'landingGuide'])->name('landing-guide');
-        Route::get('/recibos-pagos', [\App\Http\Controllers\DocumentationController::class, 'receiptsGuide'])->name('receipts-guide');
-        Route::get('/preguntas-frecuentes', [\App\Http\Controllers\DocumentationController::class, 'faq'])->name('faq');
-    });
-    
-    // Configuración de Landing Page (requiere trial activo o suscripción)
-    Route::prefix('landing')->name('landing.')->middleware('check.trial')->group(function () {
-        Route::get('/configurar', [LandingConfigController::class, 'index'])->name('configurar');
-        Route::post('/guardar', [LandingConfigController::class, 'store'])->name('guardar');
-        Route::put('/actualizar/{id}', [LandingConfigController::class, 'update'])->name('actualizar');
-        Route::delete('/eliminar/{id}', [LandingConfigController::class, 'destroy'])->name('eliminar');
-        Route::get('/preview', [LandingConfigController::class, 'preview'])->name('preview');
-        Route::post('/publicar', [LandingConfigController::class, 'publish'])->name('publicar');
         
-        // Gestión de medios
-        Route::post('/media/subir', [LandingConfigController::class, 'mediaStore'])->name('media.subir');
-        Route::delete('/media/eliminar/{id}', [LandingConfigController::class, 'mediaDestroy'])->name('media.eliminar');
-        Route::get('/media/obtener', [LandingConfigController::class, 'getMedia'])->name('media.obtener');
+        // Subscription routes (mantener para compatibilidad)
+        Route::prefix('subscription')->name('subscription.')->group(function () {
+            Route::get('/plans', [\App\Http\Controllers\SubscriptionController::class, 'showPlans'])->name('plans');
+            Route::post('/checkout', [\App\Http\Controllers\SubscriptionController::class, 'checkout'])->name('checkout');
+            Route::get('/success', [\App\Http\Controllers\SubscriptionController::class, 'success'])->name('success');
+            Route::get('/check-status', [\App\Http\Controllers\SubscriptionController::class, 'checkStatus'])->name('check-status');
+        });
+        
+        // Perfil de usuario
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+        Route::patch('/profile/flete', [ProfileController::class, 'updateFlete'])->name('profile.flete.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        
+        // Verificación de email
+        Route::post('/email/send-verification', [\App\Http\Controllers\EmailVerificationController::class, 'sendVerificationEmail'])->name('email.send-verification');
+        Route::get('/email/verification-status', [\App\Http\Controllers\EmailVerificationController::class, 'getVerificationStatus'])->name('email.verification-status');
+        
+        // Descarga de recibos
+        Route::get('/receipt/download/{renovacion}', [\App\Http\Controllers\ReceiptController::class, 'download'])->name('user.receipt.download');
+        Route::get('/receipt/download-latest', [\App\Http\Controllers\ReceiptController::class, 'downloadLatest'])->name('user.receipt.download-latest');
+        
+        // Documentación y ayuda
+        Route::prefix('documentacion')->name('documentation.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\DocumentationController::class, 'index'])->name('index');
+            Route::get('/configurar-landing', [\App\Http\Controllers\DocumentationController::class, 'landingConfigurationGuide'])->name('landing-configuration-guide');
+            Route::get('/gestionar-clientes', [\App\Http\Controllers\DocumentationController::class, 'clientsGuide'])->name('clients-guide');
+            Route::get('/gestionar-productos', [\App\Http\Controllers\DocumentationController::class, 'productsGuide'])->name('products-guide');
+            Route::get('/ventas-online', [\App\Http\Controllers\DocumentationController::class, 'salesGuide'])->name('sales-guide');
+            Route::get('/configurar-pagos', [\App\Http\Controllers\DocumentationController::class, 'paymentsGuide'])->name('payments-guide');
+            Route::get('/arquitectura', [\App\Http\Controllers\DocumentationController::class, 'architecture'])->name('architecture');
+            Route::get('/inicio-rapido', [\App\Http\Controllers\DocumentationController::class, 'quickStart'])->name('quick-start');
+            Route::get('/publicar-web', [\App\Http\Controllers\DocumentationController::class, 'publishGuide'])->name('publish-guide');
+            Route::get('/configurar-perfil', [\App\Http\Controllers\DocumentationController::class, 'profileGuide'])->name('profile-guide');
+            Route::get('/planes-suscripciones', [\App\Http\Controllers\DocumentationController::class, 'plansGuide'])->name('plans-guide');
+            Route::get('/landing-pages', [\App\Http\Controllers\DocumentationController::class, 'landingGuide'])->name('landing-guide');
+            Route::get('/recibos-pagos', [\App\Http\Controllers\DocumentationController::class, 'receiptsGuide'])->name('receipts-guide');
+            Route::get('/preguntas-frecuentes', [\App\Http\Controllers\DocumentationController::class, 'faq'])->name('faq');
+        });
+        
+        // Configuración de Landing Page (requiere trial activo o suscripción)
+        Route::prefix('landing')->name('landing.')->middleware('check.trial')->group(function () {
+            Route::get('/configurar', [LandingConfigController::class, 'index'])->name('configurar');
+            Route::post('/guardar', [LandingConfigController::class, 'store'])->name('guardar');
+            Route::put('/actualizar/{id}', [LandingConfigController::class, 'update'])->name('actualizar');
+            Route::delete('/eliminar/{id}', [LandingConfigController::class, 'destroy'])->name('eliminar');
+            Route::get('/preview', [LandingConfigController::class, 'preview'])->name('preview');
+            Route::post('/publicar', [LandingConfigController::class, 'publish'])->name('publicar');
+            
+            // Gestión de medios
+            Route::post('/media/subir', [LandingConfigController::class, 'mediaStore'])->name('media.subir');
+            Route::delete('/media/eliminar/{id}', [LandingConfigController::class, 'mediaDestroy'])->name('media.eliminar');
+            Route::get('/media/obtener', [LandingConfigController::class, 'getMedia'])->name('media.obtener');
+        });
+    
+        // Productos (requiere trial activo o suscripción)
+        Route::prefix('productos')->name('productos.')->middleware('check.trial')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ProductoController::class, 'index'])->name('index');
+            Route::get('/data', [\App\Http\Controllers\ProductoController::class, 'getData'])->name('data');
+            Route::get('/create', [\App\Http\Controllers\ProductoController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\ProductoController::class, 'store'])->name('store');
+            Route::get('/{producto}', [\App\Http\Controllers\ProductoController::class, 'show'])->name('show');
+            Route::get('/{producto}/edit', [\App\Http\Controllers\ProductoController::class, 'edit'])->name('edit');
+            Route::put('/{producto}', [\App\Http\Controllers\ProductoController::class, 'update'])->name('update');
+            Route::patch('/{producto}/quick-update', [\App\Http\Controllers\ProductoController::class, 'updateQuick'])->name('update-quick');
+            Route::delete('/{producto}', [\App\Http\Controllers\ProductoController::class, 'destroy'])->name('destroy');
+            Route::post('/{producto}/delete-ajax', [\App\Http\Controllers\ProductoController::class, 'destroyAjax'])->name('destroy-ajax');
+            Route::post('/{producto}/remove-image', [\App\Http\Controllers\ProductoController::class, 'removeImage'])->name('remove-image');
+        });
+    
+        // Clientes (requiere trial activo o suscripción)
+        Route::prefix('clientes')->name('clientes.')->middleware('check.trial')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ClienteController::class, 'index'])->name('index');
+            Route::get('/data', [\App\Http\Controllers\ClienteController::class, 'getData'])->name('data');
+            Route::get('/create', [\App\Http\Controllers\ClienteController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\ClienteController::class, 'store'])->name('store');
+            Route::get('/{cliente}', [\App\Http\Controllers\ClienteController::class, 'show'])->name('show');
+            Route::get('/{cliente}/edit', [\App\Http\Controllers\ClienteController::class, 'edit'])->name('edit');
+            Route::put('/{cliente}', [\App\Http\Controllers\ClienteController::class, 'update'])->name('update');
+            Route::delete('/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('destroy');
+        });
+
+        // Ventas Online (requiere trial activo o suscripción)
+        Route::prefix('ventas')->name('ventas.')->middleware('check.trial')->group(function () {
+            Route::get('/', [\App\Http\Controllers\VentaController::class, 'index'])->name('index');
+            Route::get('/data', [\App\Http\Controllers\VentaController::class, 'getData'])->name('data');
+            Route::get('/create', [\App\Http\Controllers\VentaController::class, 'create'])->name('create');
+            Route::get('/search-clientes', [\App\Http\Controllers\VentaController::class, 'searchClientes'])->name('search-clientes');
+            Route::get('/search-productos', [\App\Http\Controllers\VentaController::class, 'searchProductos'])->name('search-productos');
+            Route::post('/', [\App\Http\Controllers\VentaController::class, 'store'])->name('store');
+            Route::get('/{venta}', [\App\Http\Controllers\VentaController::class, 'show'])->name('show');
+            Route::get('/{venta}/print', [\App\Http\Controllers\VentaController::class, 'print'])->name('print');
+            Route::get('/{venta}/edit', [\App\Http\Controllers\VentaController::class, 'edit'])->name('edit');
+            Route::put('/{venta}', [\App\Http\Controllers\VentaController::class, 'update'])->name('update');
+            Route::post('/{venta}/change-status', [\App\Http\Controllers\VentaController::class, 'changeStatus'])->name('change-status');
+        });
+    
+        // Configuración de Pagos (requiere trial activo o suscripción)
+        Route::prefix('pagos')->name('pagos.')->middleware('check.trial')->group(function () {
+            // Rutas nuevas de Wompi - Admin Controller
+            Route::get('/', [\App\Http\Controllers\Admin\PagosController::class, 'index'])->name('index');
+            Route::post('/wompi/store', [\App\Http\Controllers\Admin\PagosController::class, 'storeWompi'])->name('wompi.store');
+            Route::post('/wompi/toggle', [\App\Http\Controllers\Admin\PagosController::class, 'toggleWompi'])->name('wompi.toggle');
+            Route::get('/confirmacion/{id}', [\App\Http\Controllers\Admin\PagosController::class, 'showConfirmacion'])->name('confirmacion');
+            Route::get('/filter', [\App\Http\Controllers\Admin\PagosController::class, 'filterConfirmaciones'])->name('filter');
+            // Rutas existentes de configuración general
+            Route::post('/config', [\App\Http\Controllers\PagoConfigController::class, 'updateConfig'])->name('update-config');
+            
+            // Pasarelas (mantener para compatibilidad)
+            Route::get('/pasarelas/create', [\App\Http\Controllers\PagoConfigController::class, 'createPasarela'])->name('pasarelas.create');
+            Route::post('/pasarelas', [\App\Http\Controllers\PagoConfigController::class, 'storePasarela'])->name('pasarelas.store');
+            Route::get('/pasarelas/{pasarela}/edit', [\App\Http\Controllers\PagoConfigController::class, 'editPasarela'])->name('pasarelas.edit');
+            Route::put('/pasarelas/{pasarela}', [\App\Http\Controllers\PagoConfigController::class, 'updatePasarela'])->name('pasarelas.update');
+            Route::post('/pasarelas/{pasarela}/toggle', [\App\Http\Controllers\PagoConfigController::class, 'togglePasarela'])->name('pasarelas.toggle');
+            Route::delete('/pasarelas/{pasarela}', [\App\Http\Controllers\PagoConfigController::class, 'destroyPasarela'])->name('pasarelas.destroy');
+            Route::post('/pasarelas/{pasarela}/test', [\App\Http\Controllers\PagoConfigController::class, 'testPasarela'])->name('pasarelas.test');
+        });
     });
+    
 });
+
+// Webhook de Wompi (debe estar FUERA del middleware de autenticación)
+Route::post('/wompi/confirmacion-pago', [\App\Http\Controllers\WompiController::class, 'confirmacionPago'])->name('wompi.webhook');
+Route::get('/wompi/transaction/{transactionId}', [\App\Http\Controllers\WompiController::class, 'getTransactionStatus'])->name('wompi.transaction');
 
 // Verificación de email (no requiere autenticación)
 Route::get('/email/verify/{token}', [\App\Http\Controllers\EmailVerificationController::class, 'verifyEmail'])->name('email.verify');
@@ -148,6 +230,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users/{id}', [\App\Http\Controllers\AdminController::class, 'userDetail'])->name('user-detail');
     Route::post('/users/{id}/publish-landing', [\App\Http\Controllers\AdminController::class, 'publishLanding'])->name('publish-landing');
     
+    // Impersonación de usuarios
+    Route::get('/impersonate/{id}', [\App\Http\Controllers\AdminController::class, 'impersonate'])->name('impersonate');
+    Route::get('/impersonate-login/{token}', [\App\Http\Controllers\AdminController::class, 'impersonateLogin'])->name('impersonate.login');
+    Route::get('/stop-impersonating', [\App\Http\Controllers\AdminController::class, 'stopImpersonating'])->name('stop-impersonating');
+    
     // Gestión de administradores
     Route::get('/admins', [\App\Http\Controllers\AdminController::class, 'admins'])->name('admins');
     Route::get('/admins/create', [\App\Http\Controllers\AdminController::class, 'createAdmin'])->name('create-admin');
@@ -159,6 +246,34 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 // Public Landing Pages (MUST BE LAST - Catch-all route)
+// Ruta específica para tienda virtual
+Route::get('/{slug}/tienda', [PublicLandingController::class, 'showTienda'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('public.tienda');
+
+// Ruta para checkout
+Route::get('/{slug}/checkout', [PublicLandingController::class, 'showCheckout'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('public.checkout');
+
+// API routes para el carrito
+Route::post('/{slug}/cart/add', [PublicLandingController::class, 'addToCart'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('public.cart.add');
+
+Route::post('/{slug}/checkout/process', [PublicLandingController::class, 'processCheckout'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('public.checkout.process');
+
+// Payment result routes
+Route::get('/{slug}/payment/success', [PublicLandingController::class, 'paymentSuccess'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('public.payment.success');
+
+Route::get('/{slug}/payment/error', [PublicLandingController::class, 'paymentError'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('public.payment.error');
+
 Route::get('/{slug}', [PublicLandingController::class, 'showLanding'])
     ->where('slug', '[a-z0-9\-]+')
     ->name('public.landing');

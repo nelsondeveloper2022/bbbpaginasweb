@@ -94,16 +94,13 @@
                 </div>
                 
                 <div class="card-footer bg-transparent text-center">
-                    <form action="{{ route('subscription.checkout') }}" method="POST" class="d-inline">
+                    <form action="{{ route('admin.subscription.checkout') }}" method="POST" class="d-inline">
                         @csrf
-                        <input type="hidden" name="plan_id" value="{{ $plan->idPlan }}">
-                        <button type="submit" class="btn {{ $plan->destacado ? 'btn-primary' : 'btn-outline-primary' }} btn-lg w-100">
-                            <i class="bi bi-credit-card me-2"></i>
-                            Adquirir Plan
+                        <input type="hidden" name="plan_id" value="1">
+                        <button type="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 25px;">
+                            <i class="fas fa-rocket me-2"></i>Actualizar Plan
                         </button>
-                    </form>
-                    
-                    <small class="text-muted d-block mt-2">
+                    </form>                    <small class="text-muted d-block mt-2">
                         <i class="bi bi-shield-check me-1"></i>
                         Pago seguro con Wompi
                     </small>

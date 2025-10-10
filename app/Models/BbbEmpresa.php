@@ -49,6 +49,7 @@ class BbbEmpresa extends Model
         'privacy_policy_en',
         'politica_cookies',
         'cookies_policy_en',
+        'flete',
     ];
 
     /**
@@ -336,7 +337,7 @@ class BbbEmpresa extends Model
      */
     public function getLandingUrl()
     {
-        return url('/' . $this->slug);
+        return route('public.landing', ['slug' => $this->slug]);
     }
 
     /**
@@ -379,5 +380,46 @@ class BbbEmpresa extends Model
     {
         $this->estado = 'publicada';
         $this->save();
+    }
+
+    /**
+     * Get the productos for the empresa.
+     */
+    public function productos()
+    {
+        return $this->hasMany(BbbProducto::class, 'idEmpresa', 'idEmpresa');
+    }
+
+    /**
+     * Get active productos for the empresa.
+     */
+    public function productosActivos()
+    {
+        return $this->hasMany(BbbProducto::class, 'idEmpresa', 'idEmpresa')
+                    ->where('estado', 'activo');
+    }
+
+    /**
+     * Get the clientes for the empresa.
+     */
+    public function clientes()
+    {
+        return $this->hasMany(BbbCliente::class, 'idEmpresa', 'idEmpresa');
+    }
+
+    /**
+     * Get the ventas for the empresa.
+     */
+    public function ventas()
+    {
+        return $this->hasMany(BbbVentaOnline::class, 'idEmpresa', 'idEmpresa');
+    }
+
+    /**
+     * Get the configuracion de pagos for the empresa.
+     */
+    public function configuracionPagos()
+    {
+        return $this->hasOne(BbbEmpresaPagos::class, 'idEmpresa', 'idEmpresa');
     }
 }

@@ -61,11 +61,11 @@ return [
     |
     | Here you may specify the default timezone for your application, which
     | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | is set to "America/Bogota" for Colombian timezone.
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'America/Bogota',
 
     /*
     |--------------------------------------------------------------------------
@@ -166,6 +166,53 @@ return [
         'api_key' => env('RECAPTCHA_ENTERPRISE_API_KEY'),
         'project_id' => env('RECAPTCHA_ENTERPRISE_PROJECT_ID'),
         'verify_url' => 'https://recaptchaenterprise.googleapis.com/v1/projects/' . env('RECAPTCHA_ENTERPRISE_PROJECT_ID') . '/assessments',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | BBB Academy - YouTube Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure how YouTube resources are displayed in the documentation
+    | section. You can set a channel URL, a playlist ID to embed, a featured
+    | video, or provide up to 4 specific video IDs (comma separated) for a
+    | grid. All values are optional and safe defaults are provided.
+    |
+    */
+
+    'youtube' => [
+        // Public channel URL or handle
+        'channel_url' => env('YOUTUBE_CHANNEL_URL', 'https://www.youtube.com/@bbbpaginasweb'),
+
+        // Optional: Playlist ID to embed (e.g., PLxxxxxxxx)
+        'playlist_id' => env('YOUTUBE_PLAYLIST_ID', null),
+
+        // Optional: Featured video to show large if no playlist is set
+        'featured_video_id' => env('YOUTUBE_FEATURED_VIDEO_ID', null),
+
+        // Optional: Predefined videos with titles (used for grid rendering)
+        'videos' => [
+            [
+                'id' => 'z7x4Uy-64WQ',
+                'title' => 'Registro en bbbpaginasweb y configuración de página web 😏🤓',
+            ],
+            [
+                'id' => 'nFUMu5PCuWo',
+                'title' => 'Configurar clientes',
+            ],
+            [
+                'id' => 'e1uICSyKM1E',
+                'title' => 'Como crear productos',
+            ],
+            [
+                'id' => '2kwRjrp0UHY',
+                'title' => 'Integración pasarela de pago Wompi😁 y ventas',
+            ],
+        ],
+
+        // Optional: Comma-separated list of video IDs to render as a grid
+        // Example: YOUTUBE_VIDEO_IDS="dQw4w9WgXcQ,VIDEO2ID,VIDEO3ID,VIDEO4ID"
+        'video_ids' => array_values(array_filter(array_map('trim', explode(',', (string) env('YOUTUBE_VIDEO_IDS', ''))))),
     ],
 
 ];

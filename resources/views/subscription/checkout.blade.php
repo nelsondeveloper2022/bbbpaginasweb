@@ -76,9 +76,9 @@
                             Proceder al Pago - ${{ number_format($plan->precioPesos, 0, ',', '.') }}
                         </button>
                         
-                        <a href="{{ route('subscription.plans') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>
-                            Cambiar Plan
+                                                <a href="{{ route('admin.subscription.plans') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Volver a Planes
                         </a>
                     </div>
 
@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
         checkoutButton.innerHTML = '<i class="spinner-border spinner-border-sm me-2"></i>Procesando...';
         
         // Configurar el widget de Wompi
+        console.log('Initializing Wompi with public key:', '{{ $checkoutData["public_key"] }}');
+        console.log('Environment:', '{{ config('wompi.environment') }}');
+        
         const checkout = new WidgetCheckout({
             currency: '{{ $checkoutData["currency"] }}',
             amountInCents: {{ $checkoutData["amount_in_cents"] }},
@@ -137,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (transaction.status === 'APPROVED') {
                 // Redirigir a página de éxito
-                window.location.href = '{{ route("subscription.success") }}';
+                window.location.href = '{{ route("admin.subscription.success") }}';
             } else if (transaction.status === 'DECLINED') {
                 // Mostrar error
                 alert('El pago fue rechazado. Por favor, intenta con otro método de pago.');

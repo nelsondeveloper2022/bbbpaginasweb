@@ -7,21 +7,23 @@
     <div class="row">
         <div class="col-12">
             <!-- Header -->
-            <div class="content-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="dashboard-title">
-                            <i class="bi bi-receipt me-3 text-primary"></i>
-                            Recibos y Pagos
-                        </h1>
-                        <p class="text-muted mb-0">Aprende a gestionar y descargar tus recibos de pago</p>
-                    </div>
-                    <div>
-                        <a href="{{ route('documentation.index') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-left me-2"></i>
-                            Volver a Documentación
-                        </a>
-                    </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-receipt me-3 text-info"></i>
+                        Recibos y Pagos
+                    </h1>
+                    <p class="text-muted mb-0">Aprende a gestionar y descargar tus recibos de pago</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Volver a Academy
+                    </a>
+                    <a href="{{ route('admin.plans.index') }}" class="btn btn-info">
+                        <i class="bi bi-receipt me-2"></i>
+                        Ver recibos
+                    </a>
                 </div>
             </div>
 
@@ -343,7 +345,7 @@
                                 Ver Mis Planes
                             </a>
                             
-                            <a href="{{ route('profile.edit') }}" class="btn btn-outline-secondary w-100">
+                            <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-person-gear me-2"></i>
                                 Histórico de Pagos
                             </a>

@@ -227,7 +227,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="testimonial-text">
-                        "Mi sitio web me ha permitido posicionarme como abogada. Los clientes me encuentran fácilmente y pueden ver mi experiencia y casos de éxito."
+                        "Mi sitio web <a href="https://katherinrodriguezabogada.com/" target="_blank" rel="noopener noreferrer">katherinrodriguezabogada.com</a> me ha permitido posicionarme como abogada. Los clientes me encuentran fácilmente y pueden ver mi experiencia y casos de éxito."
                     </p>
                     <div class="testimonial-author">Katherine Rodríguez</div>
                     <div class="testimonial-position">Abogada Independiente</div>
@@ -246,7 +246,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="testimonial-text">
-                        "Con nuestro sitio web hemos automatizado las citas y nuestros clientes pueden conocer todos nuestros tratamientos faciales y relajantes. Ha sido clave para el crecimiento del spa."
+                        "Nuestro sitio web <a href="https://dannluxury.com/" target="_blank" rel="noopener noreferrer">dannluxury.com</a> nos ha permitido automatizar las citas y nuestros clientes pueden conocer todos nuestros tratamientos faciales y relajantes. Ha sido clave para el crecimiento del spa."
                     </p>
                     <div class="testimonial-author">Dann Luxury Spa</div>
                     <div class="testimonial-position">Centro de Belleza y Relajación</div>
@@ -322,7 +322,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="testimonial-text">
-                        "Empezamos con una Landing y luego migramos a Arriendo para escalar. La transición fue sencilla y las mejoras aumentaron la captación de clientes."
+                        "Empezamos con Arriendo y luego migramos a Landing para escalar. La transición fue sencilla y las mejoras aumentaron la captación de clientes."
                     </p>
                     <div class="testimonial-author">Laura Sánchez</div>
                     <div class="testimonial-position">Fundadora, Boutique Luna Bella</div>
@@ -436,7 +436,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="testimonial-text">
-                        "Para temporada alta lanzamos una Landing y luego migramos a Arriendo para mantener reservas todo el año. El proceso fue rápido y sin fricción."
+                        "Para temporada alta lanzamos un sitio en Arriendo y luego migramos a Landing para mantener reservas todo el año. El proceso fue rápido y sin fricción."
                     </p>
                     <div class="testimonial-author">Paola Mendoza</div>
                     <div class="testimonial-position">Administradora, Hotel VistaMar</div>

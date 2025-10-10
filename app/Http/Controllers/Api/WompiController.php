@@ -23,7 +23,7 @@ class WompiController extends Controller
     {
         try {
             // Verificar la integridad del webhook
-            $eventSecret = config('services.wompi.event_secret');
+            $eventSecret = config('wompi.events_key');
             $payload = $request->getContent();
             $signature = $request->header('X-Event-Signature');
             

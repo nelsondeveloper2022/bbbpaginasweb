@@ -4,23 +4,24 @@
 @section('description', 'Paso a paso completo para publicar tu sitio web profesional con BBB Páginas Web')
 
 @section('content')
-<div class="content-header">
+<!-- Header -->
+<div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="dashboard-title">
-                <i class="bi bi-globe me-3"></i>
+                <i class="bi bi-globe me-3 text-primary"></i>
                 Cómo Publicar tu Sitio Web
             </h1>
             <p class="text-muted mb-0">Guía completa paso a paso</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('documentation.index') }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>
-                Volver a Documentación
+                Volver a Academy
             </a>
-            <a href="{{ route('landing.configurar') }}" class="btn btn-primary btn-sm">
-                <i class="bi bi-gear me-2"></i>
-                Ir a Configuración
+            <a href="{{ route('admin.landing.configurar') }}" class="btn btn-primary">
+                <i class="bi bi-rocket me-2"></i>
+                Publicar sitio
             </a>
         </div>
     </div>
@@ -43,14 +44,14 @@
                                 'description' => 'Confirma tu dirección de correo',
                                 'completed' => auth()->user()->isEmailVerified(),
                                 'icon' => 'bi-envelope-check',
-                                'route' => 'profile.edit'
+                                'route' => 'admin.profile.edit'
                             ],
                             [
                                 'title' => 'Completar Perfil',
                                 'description' => 'Información personal y empresarial',
                                 'completed' => auth()->user()->hasCompleteProfile(),
                                 'icon' => 'bi-person-check',
-                                'route' => 'profile.edit'
+                                'route' => 'admin.profile.edit'
                             ],
                             [
                                 'title' => 'Configurar Sitio Web',
@@ -163,7 +164,7 @@
                                     Tu perfil está {{ auth()->user()->getProfileCompletion() }}% completo
                                 </div>
                                 <div class="mb-3">
-                                    <a href="{{ route('profile.edit') }}" class="btn btn-primary">
+                                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-primary">
                                         <i class="bi bi-person-gear me-2"></i>
                                         Completar Perfil
                                     </a>
@@ -406,7 +407,7 @@ async function sendVerificationEmail() {
     button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Enviando...';
     
     try {
-        const response = await fetch('/email/send-verification', {
+        const response = await fetch('/admin/email/send-verification', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

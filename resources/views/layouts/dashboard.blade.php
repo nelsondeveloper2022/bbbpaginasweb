@@ -26,6 +26,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -721,7 +724,16 @@
         </div>
         
         @php
-            $isLicenseExpired = auth()->user()->trial_ends_at && auth()->user()->trial_ends_at->isPast();
+            $user = auth()->user();
+            $isLicenseExpired = $user->trial_ends_at && $user->trial_ends_at->isPast();
+            $isTrialExpired = $user->trial_ends_at && $user->trial_ends_at->isPast();
+            $hasActiveLicense = $user->hasActiveLicense();
+            
+            // Verificar si el plan actual permite productos
+            $planPermiteProductos = false;
+            if ($user->plan && $user->plan->aplicaProductos) {
+                $planPermiteProductos = true;
+            }
         @endphp
         
         <ul class="sidebar-nav list-unstyled">
@@ -739,12 +751,91 @@
                         <i class="bi bi-lock-fill ms-auto text-danger" style="font-size: 0.8rem;"></i>
                     </a>
                 @else
-                    <a href="{{ route('landing.configurar') }}" class="nav-link {{ Request::routeIs('landing.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.landing.configurar') }}" class="nav-link {{ Request::routeIs('admin.landing.*') ? 'active' : '' }}">
                         <i class="bi bi-palette"></i>
                         <span>Configura tu Landing</span>
                     </a>
                 @endif
             </li>
+            
+            <!-- Módulo de Clientes -->
+            @if($planPermiteProductos)
+            <li class="nav-item">
+                @if($isTrialExpired && !$hasActiveLicense)
+                    <a href="#" class="nav-link disabled" onclick="showTrialExpiredMessage(); return false;" title="Trial vencido - Gestiona tu plan para acceder">
+                        <i class="bi bi-people"></i>
+                        <span>Clientes</span>
+                        <i class="bi bi-lock-fill ms-auto text-danger" style="font-size: 0.8rem;"></i>
+                    </a>
+                @else
+                    <a href="{{ route('admin.clientes.index') }}" class="nav-link {{ Request::routeIs('admin.clientes.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i>
+                        <span>Clientes</span>
+                        @php
+                            $clientesCount = Auth::user()->empresa ? App\Models\BbbCliente::forEmpresa(Auth::user()->empresa->idEmpresa)->count() : 0;
+                        @endphp
+                        @if($clientesCount > 0)
+                            <span class="badge bg-primary ms-auto">{{ $clientesCount }}</span>
+                        @endif
+                    </a>
+                @endif
+            </li>
+            @endif
+            
+            <!-- Módulo de Productos -->
+            @if($planPermiteProductos)
+            <li class="nav-item">
+                @if($isLicenseExpired)
+                    <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Productos</span>
+                        <i class="bi bi-lock-fill ms-auto text-danger" style="font-size: 0.8rem;"></i>
+                    </a>
+                @else
+                    <a href="{{ route('admin.productos.index') }}" class="nav-link {{ Request::routeIs('admin.productos.*') ? 'active' : '' }}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Productos</span>
+                    </a>
+                @endif
+            </li>
+            @endif
+            
+            <!-- Módulo de Ventas Online -->
+            @if($planPermiteProductos)
+            <li class="nav-item">
+                @if($isLicenseExpired)
+                    <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
+                        <i class="bi bi-cart-check"></i>
+                        <span>Ventas Online</span>
+                        <i class="bi bi-lock-fill ms-auto text-danger" style="font-size: 0.8rem;"></i>
+                    </a>
+                @else
+                    <a href="{{ route('admin.ventas.index') }}" class="nav-link {{ Request::routeIs('admin.ventas.*') ? 'active' : '' }}">
+                        <i class="bi bi-cart-check"></i>
+                        <span>Ventas Online</span>
+                    </a>
+                @endif
+            </li>
+            @endif
+            
+            <!-- Módulo de Configuración de Pagos Wompi -->
+            @if($planPermiteProductos)
+            <li class="nav-item">
+                @if($isLicenseExpired)
+                    <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
+                        <i class="bi bi-credit-card-2-back"></i>
+                        <span>Configuración de Pagos</span>
+                        <i class="bi bi-lock-fill ms-auto text-danger" style="font-size: 0.8rem;"></i>
+                    </a>
+                @else
+                    <a href="{{ route('admin.pagos.index') }}" class="nav-link {{ Request::routeIs('admin.pagos.*') ? 'active' : '' }}">
+                        <i class="bi bi-credit-card-2-back"></i>
+                        <span>Configuración de Pagos</span>
+                    </a>
+                @endif
+            </li>
+            @endif
+            
             <li class="nav-item">
                 @if($isLicenseExpired)
                     <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
@@ -753,7 +844,7 @@
                         <i class="bi bi-lock-fill ms-auto text-danger" style="font-size: 0.8rem;"></i>
                     </a>
                 @else
-                    <a href="{{ route('profile.edit') }}" class="nav-link {{ Request::routeIs('profile.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.profile.edit') }}" class="nav-link {{ Request::routeIs('admin.profile.*') ? 'active' : '' }}">
                         <i class="bi bi-building-gear"></i>
                         <span>Perfil y Empresa</span>
                     </a>
@@ -774,7 +865,16 @@
                 <hr class="sidebar-divider" style="border-color: rgba(255,255,255,0.2);">
             </li>
             
-            <!-- Botones de Ayuda -->
+            <!-- BBB Academy -->
+            <li class="nav-item">
+                <a href="{{ route('admin.documentation.index') }}" class="nav-link {{ Request::routeIs('admin.documentation.*') ? 'active' : '' }}" 
+                   style="background: rgba(102, 126, 234, 0.1); border-left: 3px solid #667eea;">
+                    <i class="bi bi-mortarboard-fill text-primary"></i>
+                    <span>BBB Academy</span>
+                    <span class="badge bg-primary ms-auto" style="font-size: 0.6rem;">NUEVO</span>
+                </a>
+            </li>
+            
             <li class="nav-item">
                 @php
                     $empresaSlug = auth()->user()->empresa?->slug ?? 'sin-empresa';
@@ -809,12 +909,27 @@
         <!-- User Profile Section at Bottom -->
         <div class="sidebar-user-section">
             <hr class="sidebar-divider">
+            
+            <!-- Admin Impersonation indicator -->
+            @if(session('impersonating_admin_id'))
+                <div class="alert alert-warning alert-sm mb-2 p-2" style="font-size: 0.8rem;">
+                    <i class="fas fa-user-shield me-1"></i>
+                    <strong>Modo Admin</strong>
+                    <br><small>Admin: {{ session('impersonating_admin_name', 'Administrador') }}</small>
+                </div>
+            @endif
+            
             <div class="user-profile-card">
                 <div class="user-avatar-sidebar">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
                 <div class="user-details">
-                    <h6 class="user-name">{{ auth()->user()->name }}</h6>
+                    <h6 class="user-name">
+                        {{ auth()->user()->name }}
+                        @if(session('impersonating_admin_id'))
+                            <i class="fas fa-eye text-warning ms-1" title="Vista como cliente"></i>
+                        @endif
+                    </h6>
                     <div class="user-email">{{ auth()->user()->email }}</div>
                     @if(auth()->user()->empresa && auth()->user()->empresa->nombre)
                         <div class="user-company text-warning">
@@ -830,6 +945,13 @@
             </div>
             
             <div class="sidebar-actions">
+                @if(session('impersonating_admin_id'))
+                    <a href="{{ route('admin.stop-impersonating') }}" class="sidebar-action-btn mb-2" style="background: #f39c12; color: white;">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Regresar al Admin</span>
+                    </a>
+                @endif
+                
                 <form method="POST" action="{{ route('logout') }}" class="d-inline w-100">
                     @csrf
                     <button type="submit" class="sidebar-action-btn logout-btn">
@@ -866,7 +988,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                        <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                                <a class="dropdown-item" href="{{ route('admin.profile.edit') }}">
                             <i class="bi bi-person-gear"></i>
                             Mi Perfil
                         </a>

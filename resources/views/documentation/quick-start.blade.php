@@ -4,40 +4,25 @@
 @section('description', 'Configura tu cuenta y publica tu primera página web en minutos')
 
 @section('content')
-<div class="content-header">
+<!-- Header -->
+<div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="dashboard-title">
-                <i class="bi bi-rocket-takeoff me-3"></i>
+                <i class="bi bi-rocket-takeoff me-3 text-success"></i>
                 Inicio Rápido
             </h1>
             <p class="text-muted mb-0">Configura tu cuenta y publica tu web en 10 minutos</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('documentation.index') }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>
-                Volver
+                Volver a Academy
             </a>
-            <div class="dropdown">
-                <button class="btn btn-info btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-question-circle me-2"></i>
-                    ¿Necesitas ayuda?
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="dropdown-item" href="https://wa.me/{{ config('app.support.mobile') }}" target="_blank">
-                            <i class="bi bi-whatsapp me-2"></i>
-                            WhatsApp Soporte
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('documentation.faq') }}">
-                            <i class="bi bi-question-circle me-2"></i>
-                            Preguntas Frecuentes
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <a href="{{ route('admin.landing.configurar') }}" class="btn btn-success">
+                <i class="bi bi-rocket me-2"></i>
+                Empezar ahora
+            </a>
         </div>
     </div>
 </div>
@@ -126,7 +111,7 @@
                                         Completado
                                     </span>
                                 @else
-                                    <a href="{{ route('profile.edit') }}" class="btn btn-primary btn-sm">
+                                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-primary btn-sm">
                                         <i class="bi bi-person-gear me-1"></i>
                                         Completar
                                     </a>
@@ -160,7 +145,7 @@
                                         Completado
                                     </span>
                                 @else
-                                    <a href="{{ route('profile.edit') }}" class="btn btn-primary btn-sm">
+                                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-primary btn-sm">
                                         <i class="bi bi-phone me-1"></i>
                                         Agregar
                                     </a>
@@ -377,7 +362,7 @@ async function sendVerificationEmail() {
     button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Enviando...';
     
     try {
-        const response = await fetch('/email/send-verification', {
+        const response = await fetch('/admin/email/send-verification', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

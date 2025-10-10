@@ -164,7 +164,7 @@
                                 @endphp
                                 
                                 @if($isCurrentPlan)
-                                    @if($plan->idPlan == 6)
+                                    @if(stripos($plan->nombre, 'free') !== false)
                                         {{-- Plan Free actual - no se puede renovar --}}
                                         <button class="btn btn-success btn-lg w-100" disabled>
                                             <i class="bi bi-gift-fill me-2"></i>
@@ -658,23 +658,33 @@ function canSelectPlan($user, $plan) {
     $currentPlanId = $user->id_plan;
     $targetPlanId = $plan->idPlan;
     
-    // Desde Free (sin plan, plan 0 o plan 6) → cualquier plan excepto otro Free
-    if (!$currentPlanId || $currentPlanId == 0 || $currentPlanId == 6) {
-        return in_array($targetPlanId, [1, 2, 5]) && $targetPlanId != 6;
+    // No permitir comprar planes que contengan "free" en el nombre (case insensitive)
+    if (stripos($plan->nombre, 'free') !== false) {
+        return false;
     }
     
-    // Desde plan 5 (Arriendo) → puede cambiar a 1 o 2
+    // Desde Free (sin plan, plan 0, plan 1 o plan 2) → cualquier plan de pago
+    if (!$currentPlanId || $currentPlanId == 0 || $currentPlanId == 1 || $currentPlanId == 2) {
+        return stripos($plan->nombre, 'free') === false;
+    }
+    
+    // Desde plan 3 (Arriendo Landing) → puede cambiar a cualquier plan superior
+    if ($currentPlanId == 3) {
+        return in_array($targetPlanId, [4, 5, 6]);
+    }
+    
+    // Desde plan 4 (Arriendo Landing + Carrito) → puede cambiar a planes superiores
+    if ($currentPlanId == 4) {
+        return in_array($targetPlanId, [5, 6]);
+    }
+    
+    // Desde plan 5 (Plan Básico) → puede cambiar a plan 6
     if ($currentPlanId == 5) {
-        return in_array($targetPlanId, [1, 2]);
+        return $targetPlanId == 6;
     }
     
-    // Desde plan 1 → solo puede cambiar a 2
-    if ($currentPlanId == 1) {
-        return $targetPlanId == 2;
-    }
-    
-    // Si está en plan 2 → no puede cambiar (plan premium final)
-    if ($currentPlanId == 2) {
+    // Si está en plan 6 → no puede cambiar (plan premium final)
+    if ($currentPlanId == 6) {
         return false;
     }
     
@@ -683,8 +693,8 @@ function canSelectPlan($user, $plan) {
 
 function isPlanRenewable($plan) {
     // Solo los planes con días > 0 son renovables
-    // Plan 6 (Free) no se puede renovar desde el admin
-    return $plan->dias > 0 && $plan->idPlan != 6;
+    // Los planes que contengan "free" en el nombre no se pueden renovar desde el admin
+    return $plan->dias > 0 && stripos($plan->nombre, 'free') === false;
 }
 @endphp
 

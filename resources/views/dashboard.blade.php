@@ -16,14 +16,83 @@
                     <small class="text-muted d-block">Última conexión</small>
                     <span class="badge bg-success">Ahora</span>
                 </div>
-                <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-gear"></i> Configurar
-                </a>
+                                                                                <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-user me-2"></i>Configurar Perfil
+                        </a>
+                        <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-book me-2"></i>Documentación
+                        </a>
             </div>
         </div>
     </div>
 
-<!-- Email Verification Alert - PERMANENTLY VISIBLE UNTIL VERIFIED -->
+    <!-- Admin Impersonation Banner -->
+    @if(session('impersonating_admin_id'))
+        <div class="alert alert-warning border-warning d-flex align-items-center mb-4 shadow-sm" 
+             style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); 
+                    border-left: 5px solid #f39c12; 
+                    border-radius: 10px;
+                    position: sticky;
+                    top: 10px;
+                    z-index: 1040;
+                    animation: pulse 2s infinite;">
+            <div class="me-3">
+                <div style="background: #f39c12; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user-shield text-white" style="font-size: 1.2rem;"></i>
+                </div>
+            </div>
+            <div class="flex-grow-1">
+                <h5 class="mb-1 fw-bold text-warning-emphasis">
+                    <i class="fas fa-eye me-2"></i>
+                    🔍 Modo Administrador Activo - Ventana Independiente
+                </h5>
+                <p class="mb-1 text-warning-emphasis">
+                    <strong>Admin:</strong> {{ session('impersonating_admin_name', 'Administrador') }} 
+                    <span class="badge bg-warning text-dark ms-2">
+                        <i class="fas fa-clock me-1"></i>
+                        Desde: {{ \Carbon\Carbon::parse(session('impersonation_started_at'))->format('H:i') }}
+                    </span>
+                </p>
+                <p class="mb-1 text-warning-emphasis">
+                    <strong>Viendo como:</strong> {{ auth()->user()->name }} ({{ auth()->user()->email }})
+                </p>
+                <p class="mb-0 text-warning-emphasis small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Esta es una sesión independiente. Tu sesión de admin permanece activa en la pestaña original.
+                </p>
+            </div>
+            <div class="text-end">
+                <a href="{{ route('admin.stop-impersonating') }}" 
+                   class="btn btn-warning fw-bold px-4 py-2 mb-2" 
+                   style="border-radius: 25px;">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Finalizar Impersonación
+                </a>
+                <div>
+                    <button onclick="window.close()" 
+                            class="btn btn-outline-warning btn-sm px-3 py-1" 
+                            style="border-radius: 15px;">
+                        <i class="fas fa-times me-1"></i>
+                        Cerrar Ventana
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-window-restore me-1"></i>
+                        Ventana independiente del panel admin
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+            }
+        </style>
+    @endif<!-- Email Verification Alert - PERMANENTLY VISIBLE UNTIL VERIFIED -->
 @if (!auth()->user()->emailValidado)
 <div class="email-verification-alert-permanent shadow-sm mb-4" id="emailVerificationAlert" 
      style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); 
@@ -60,9 +129,8 @@
                     <i class="bi bi-envelope-plus me-2"></i>
                     Enviar Email de Verificación AHORA
                 </button>
-                <a href="{{ route('profile.edit') }}" class="btn btn-outline-danger fw-bold px-3 py-2" style="border-radius: 25px;">
-                    <i class="bi bi-person-gear me-1"></i>
-                    Ir a mi perfil
+                                <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline-danger fw-bold px-3 py-2" style="border-radius: 25px;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Completar Perfil
                 </a>
                 <div class="bg-warning text-dark px-3 py-2 rounded fw-bold small border border-warning-subtle">
                     <i class="bi bi-info-circle me-1"></i>
@@ -378,7 +446,7 @@
                             <small class="text-muted">Perfil completo:</small>
                             <span class="badge bg-{{ $completionColor }} ms-1">{{ $profileCompletion }}%</span>
                         </div>
-                        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm">
+                        <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline-primary btn-sm">
                             <i class="bi bi-pencil"></i> Editar
                         </a>
                     </div>
@@ -780,7 +848,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm">
+                        <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline-primary btn-sm">
                             <i class="bi bi-person-gear"></i>
                             Configurar Perfil
                         </a>
@@ -788,7 +856,7 @@
                             <i class="bi bi-headset"></i>
                             Soporte Técnico
                         </a>
-                        <a href="{{ route('documentation.index') }}" class="btn btn-outline-info btn-sm">
+                        <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-info btn-sm">
                             <i class="bi bi-file-text"></i>
                             Documentación
                         </a>
@@ -881,7 +949,7 @@ async function sendVerificationEmail() {
     button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Enviando...';
     
     try {
-        const response = await fetch('/email/send-verification', {
+        const response = await fetch('/admin/email/send-verification', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

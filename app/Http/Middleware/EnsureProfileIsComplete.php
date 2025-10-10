@@ -24,7 +24,7 @@ class EnsureProfileIsComplete
             }
             
             // Redirigir a completar perfil con mensaje
-            return redirect()->route('profile.edit')
+            return redirect()->route('admin.profile.edit')
                 ->with('warning', 'Por favor completa tu información de perfil y empresa para continuar.');
         }
 

@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Middleware para manejo de idiomas
         $middleware->web(\App\Http\Middleware\SetLanguageMiddleware::class);
         
+        // Middleware para manejo de impersonación
+        $middleware->web(\App\Http\Middleware\HandleImpersonation::class);
+        
         // Alias para middlewares de autenticación
         $middleware->alias([
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,

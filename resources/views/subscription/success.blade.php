@@ -82,9 +82,9 @@
                             <i class="bi bi-house-door me-2"></i>
                             Ir al Dashboard
                         </a>
-                        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-lg">
+                                                <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline-primary btn-lg">
                             <i class="bi bi-person-gear me-2"></i>
-                            Ver mi Perfil
+                            Configurar Perfil
                         </a>
                     </div>
                     
@@ -166,16 +166,23 @@
 // Auto-refresh para verificar el estado del pago cada 30 segundos
 let refreshInterval = setInterval(function() {
     // Verificar si el usuario ya tiene el plan activado
-    fetch('{{ route("subscription.check-status") }}')
+        fetch('{{ route("admin.subscription.check-status") }}')
         .then(response => response.json())
         .then(data => {
-            if (data.active) {
-                clearInterval(refreshInterval);
-                // Mostrar mensaje de éxito y redirigir
-                showActivationSuccess();
+            if (data.success) {
+                // Ocultar indicador de verificación
+                document.getElementById('status-verification').style.display = 'none';
+                
+                // Mostrar contenido principal
+                document.getElementById('success-content').style.display = 'block';
+                
+                // Mostrar botones de acción
+                document.getElementById('action-buttons').style.display = 'block';
             }
         })
-        .catch(error => console.log('Error checking status:', error));
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }, 30000); // 30 segundos
 
 function showActivationSuccess() {

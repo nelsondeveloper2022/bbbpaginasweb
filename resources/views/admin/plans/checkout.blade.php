@@ -204,11 +204,14 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Configuración del checkout de Wompi
+    console.log('Initializing Wompi Admin with public key:', '{{ config("wompi.public_key") }}');
+    console.log('Environment:', '{{ config("wompi.environment") }}');
+    
     const checkout = new WidgetCheckout({
         currency: 'COP',
         amountInCents: {{ $amountInCents }}, // Monto en centavos
         reference: '{{ $reference }}',
-        publicKey: '{{ config("services.wompi.public_key") }}',
+        publicKey: '{{ config("wompi.public_key") }}',
         signature: {
             integrity: '{{ $signature }}'
         },

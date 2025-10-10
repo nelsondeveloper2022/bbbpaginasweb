@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BbbPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SubscriptionController extends Controller
 {
@@ -42,6 +43,14 @@ class SubscriptionController extends Controller
         
         // Configuración de Wompi - Usar el widget de checkout
         $publicKey = config('wompi.public_key');
+        $environment = config('wompi.environment');
+        
+        // Log para debug en producción
+        Log::info('Wompi Configuration', [
+            'public_key' => $publicKey,
+            'environment' => $environment,
+            'app_env' => config('app.env')
+        ]);
         
         $checkoutData = [
             'public_key' => $publicKey,
@@ -50,7 +59,7 @@ class SubscriptionController extends Controller
             'reference' => $reference,
             'customer_email' => $user->email,
             'customer_name' => $user->name,
-            'redirect_url' => route('subscription.success'),
+            'redirect_url' => route('admin.subscription.success'),
             'plan_name' => $plan->nombre,
             'plan_id' => $plan->idPlan
         ];

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Tu página web fácil y rápida – Arriendo o compra con prueba gratis 15 días')
-@section('description', 'Consigue tu página web sin complicaciones: arriendo desde $45.000 COP trimestrales o compra con dominio y hosting incluidos (1er año). Prueba gratuita de 15 días, diseño moderno y enfoque en ventas.')
+@section('description', 'Consigue tu página web sin complicaciones: arriendo desde $45.000 COP trimestrales o compra con hosting incluidos (1er año). Prueba gratuita de 15 días, diseño moderno y enfoque en ventas.')
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/contact-form.css') }}">
@@ -473,7 +473,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="testimonial-text">
-                        "Mi sitio web me ha permitido posicionarme como abogada. Los clientes me encuentran fácilmente y pueden ver mi experiencia y casos de éxito."
+                        "Mi sitio web <a href="https://katherinrodriguezabogada.com/" target="_blank" rel="noopener noreferrer">katherinrodriguezabogada.com</a> me ha permitido posicionarme como abogada. Los clientes me encuentran fácilmente y pueden ver mi experiencia y casos de éxito."
                     </p>
                     <div class="testimonial-author">Katherine Rodríguez</div>
                     <div class="testimonial-position">Abogada Independiente</div>
@@ -492,7 +492,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="testimonial-text">
-                        "Con nuestro sitio web hemos automatizado las citas y nuestros clientes pueden conocer todos nuestros tratamientos faciales y relajantes. Ha sido clave para el crecimiento del spa."
+                        "Nuestro sitio web <a href="https://dannluxury.com/" target="_blank" rel="noopener noreferrer">dannluxury.com</a> nos ha permitido automatizar las citas y nuestros clientes pueden conocer todos nuestros tratamientos faciales y relajantes. Ha sido clave para el crecimiento del spa."
                     </p>
                     <div class="testimonial-author">Dann Luxury Spa</div>
                     <div class="testimonial-position">Centro de Belleza y Relajación</div>
@@ -511,7 +511,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     <p class="testimonial-text">
-                        "Empezamos con una Landing y después pasamos al plan Arriendo para escalar. La migración fue sencilla y el soporte nos ayudó a ajustar la web para aumentar la captación de clientes."
+                        "Empezamos con el plan Arriendo y después pasamos al plan Landing para escalar nuestro negocio. La migración fue sencilla y el soporte nos ayudó a optimizar la web para aumentar la captación de clientes."
                     </p>
                     <div class="testimonial-author">Ana López</div>
                     <div class="testimonial-position">Directora de Desarrollo, InnovaGroup</div>

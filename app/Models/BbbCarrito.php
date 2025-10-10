@@ -38,6 +38,11 @@ class BbbCarrito extends Model
         'valorPagadoPesos',
         'valorPagadoDolar',
         'estado',
+        'wompi_reference',
+        'wompi_transaction_id',
+        'payment_method',
+        'fecha_pago',
+        'wompi_processed_at'
     ];
 
     /**

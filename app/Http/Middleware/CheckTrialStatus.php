@@ -22,6 +22,16 @@ class CheckTrialStatus
             return $next($request);
         }
 
+        // Si es un admin impersonando, permitir acceso sin restricciones
+        if (session()->has('impersonating_admin_id')) {
+            return $next($request);
+        }
+
+        // Si es un administrador, permitir acceso sin restricciones
+        if ($user->isAdmin()) {
+            return $next($request);
+        }
+
         // Obtener plan actual del usuario
         $plan = BbbPlan::find($user->id_plan);
         $dias = $plan->dias ?? 0;
@@ -32,10 +42,16 @@ class CheckTrialStatus
             'admin.plans.index',
             'admin.plans.purchase',
             'admin.plans.success',
-            'profile.edit',
-            'profile.update',
-            'profile.password.update',
-            'logout'
+            'admin.profile.edit',
+            'admin.profile.update',
+            'admin.profile.password.update',
+            'logout',
+            // Permitir configuración de pagos para que puedan renovar
+            'admin.pagos.index',
+            'admin.pagos.wompi.store',
+            'admin.pagos.wompi.toggle',
+            'admin.pagos.confirmacion',
+            'admin.pagos.filter'
         ];
 
         // Planes permanentes (one-time payment) - Plan 1 y 2

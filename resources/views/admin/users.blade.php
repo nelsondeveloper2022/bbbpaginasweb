@@ -202,6 +202,14 @@
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         
+                                        @if($user->canBeImpersonated())
+                                            <a target="_blank" href="{{ route('admin.impersonate', $user->id) }}" 
+                                               class="btn btn-sm btn-outline-info" 
+                                               title="Ver dashboard del cliente">
+                                                <i class="fas fa-user-check"></i>
+                                            </a>
+                                        @endif
+                                        
                                         @if($user->landings_count > 0 && $user->empresa && $user->empresa->estado === 'en_construccion')
                                             <form method="POST" 
                                                   action="{{ route('admin.publish-landing', $user->id) }}" 

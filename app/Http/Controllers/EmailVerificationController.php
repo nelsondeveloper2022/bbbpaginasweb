@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Mail\EmailVerification;
 use App\Models\User;
 
@@ -14,7 +16,7 @@ class EmailVerificationController extends Controller
      */
     public function sendVerificationEmail(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         if ($user->isEmailVerified()) {
             return response()->json([
@@ -42,9 +44,18 @@ class EmailVerificationController extends Controller
                 'message' => 'Email de verificación enviado correctamente. Revisa tu bandeja de entrada.'
             ]);
         } catch (\Exception $e) {
+            // Log del error para debugging
+            Log::error('Error enviando email de verificación', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error al enviar el email. Por favor intenta nuevamente.'
+                'message' => 'Error al enviar el email. Por favor intenta nuevamente.',
+                'debug' => config('app.debug') ? $e->getMessage() : null
             ]);
         }
     }
@@ -57,12 +68,12 @@ class EmailVerificationController extends Controller
         $user = User::where('email_verification_token', $token)->first();
         
         if (!$user) {
-            return redirect()->route('profile.edit')->with('error', 'Token de verificación inválido.');
+            return redirect()->route('admin.profile.edit')->with('error', 'Token de verificación inválido.');
         }
         
         // Verificar si el token no ha expirado (24 horas)
         if ($user->email_verification_sent_at && $user->email_verification_sent_at->addHours(24)->isPast()) {
-            return redirect()->route('profile.edit')->with('error', 'El token de verificación ha expirado. Solicita uno nuevo.');
+            return redirect()->route('admin.profile.edit')->with('error', 'El token de verificación ha expirado. Solicita uno nuevo.');
         }
         
         // Marcar email como verificado
@@ -71,7 +82,7 @@ class EmailVerificationController extends Controller
         $user->email_verification_sent_at = null;
         $user->save();
         
-        return redirect()->route('profile.edit')->with('success', '¡Email verificado correctamente! Ya puedes publicar tu sitio web.');
+        return redirect()->route('admin.profile.edit')->with('success', '¡Email verificado correctamente! Ya puedes publicar tu sitio web.');
     }
     
     /**
@@ -79,7 +90,7 @@ class EmailVerificationController extends Controller
      */
     public function getVerificationStatus()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         
         return response()->json([
             'verified' => $user->isEmailVerified(),

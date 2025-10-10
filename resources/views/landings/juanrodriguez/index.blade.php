@@ -5,117 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $landing->titulo_principal }} - {{ $empresa->nombre }}</title>
     <meta name="description" content="{{ $landing->descripcion }}">
-    <meta name="keywords" content="historia, exploración, aventuras, {{ $empresa->nombre }}, comunidad">
-    <meta name="author" content="{{ $empresa->nombre }}">
     
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="{{ $landing->titulo_principal }} - {{ $empresa->nombre }}">
-    <meta property="og:description" content="{{ $landing->descripcion }}">
-    @if($landing->logo_url)
-    <meta property="og:image" content="{{ asset('storage/' . $landing->logo_url) }}">
-    @endif
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="website">
-    
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $landing->titulo_principal }} - {{ $empresa->nombre }}">
-    <meta name="twitter:description" content="{{ $landing->descripcion }}">
-    @if($landing->logo_url)
-    <meta name="twitter:image" content="{{ asset('storage/' . $landing->logo_url) }}">
-    @endif
-    
-    <!-- Favicon -->
-    @if($landing->logo_url)
-    <link rel="icon" type="image/png" href="{{ asset('storage/' . $landing->logo_url) }}">
-    @endif
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- AOS Animation -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $landing->tipografia ?? 'Arial') }}:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary-color: {{ $landing->color_principal ?? '#6c9d86' }};
-            --secondary-color: {{ $landing->color_secundario ?? '#e8dbb6' }};
-            --font-family: '{{ $landing->tipografia ?? 'Arial' }}', sans-serif;
+            --secondary-color: #e8dbb6;
+            --accent-color: #2c5530;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-light: #f8f9fa;
         }
-        
+
         * {
-            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+
         body {
+            font-family: '{{ $landing->tipografia ?? 'Inter' }}', sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: var(--text-dark);
+            overflow-x: hidden;
         }
-        
-        .primary-color {
-            color: var(--primary-color);
-        }
-        
-        .secondary-color {
-            color: var(--secondary-color);
-        }
-        
-        .bg-primary-custom {
-            background-color: var(--primary-color);
-        }
-        
-        .bg-secondary-custom {
-            background-color: var(--secondary-color);
-        }
-        
-        .btn-primary-custom {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
+
+        /* Header Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
         }
-        
-        .btn-primary-custom:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            color: #333;
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary-custom {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            color: #333;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary-custom:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
+
         .navbar-brand img {
-            max-height: 50px;
+            height: 50px;
             width: auto;
+            transition: transform 0.3s ease;
         }
-        
+
+        .navbar-brand:hover img {
+            transform: scale(1.05);
+        }
+
+        .nav-link {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 157, 134, 0.3);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 157, 134, 0.4);
+            color: white;
+        }
+
+        /* Hero Section */
         .hero-section {
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            display: flex;
-            align-items: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 150px 0 100px;
             position: relative;
             overflow: hidden;
         }
-        
+
         .hero-section::before {
             content: '';
             position: absolute;
@@ -123,173 +114,257 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,0 1000,300 1000,1000 0,700"/></svg>');
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200"><path d="M0,100 C150,200 350,0 500,100 C650,200 850,0 1000,100 V200 H0 V100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
             background-size: cover;
+            opacity: 0.3;
         }
-        
+
         .hero-content {
             position: relative;
             z-index: 2;
         }
-        
+
         .hero-title {
             font-size: 3.5rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff, var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
+
         .hero-subtitle {
             font-size: 1.5rem;
-            font-weight: 400;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             opacity: 0.9;
         }
-        
+
         .hero-description {
             font-size: 1.2rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             opacity: 0.8;
         }
-        
+
+        /* Sections */
+        .section-padding {
+            padding: 100px 0;
+        }
+
         .section-title {
             font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
             position: relative;
-            text-align: center;
         }
-        
+
         .section-title::after {
             content: '';
             position: absolute;
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
-            height: 3px;
-            background-color: var(--primary-color);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
         }
-        
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+        }
+
+        /* Cards */
         .card-custom {
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             overflow: hidden;
+            height: 100%;
         }
-        
+
         .card-custom:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
         }
-        
-        .feature-icon {
+
+        .card-custom .card-body {
+            padding: 2rem;
+        }
+
+        .card-icon {
             width: 80px;
             height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2rem;
+            margin-bottom: 1.5rem;
             color: white;
+            font-size: 2rem;
         }
-        
-        .testimonial-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            position: relative;
-        }
-        
-        .testimonial-card::before {
-            content: '"';
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            font-size: 4rem;
-            color: var(--primary-color);
-            line-height: 1;
-        }
-        
+
+        /* Gallery */
         .gallery-item {
-            border-radius: 15px;
-            overflow: hidden;
             position: relative;
+            overflow: hidden;
+            border-radius: 20px;
             margin-bottom: 2rem;
+            cursor: pointer;
         }
-        
+
         .gallery-item img {
             width: 100%;
             height: 300px;
             object-fit: cover;
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease;
         }
-        
+
         .gallery-item:hover img {
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
-        
+
         .gallery-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-            display: flex;
-            align-items: flex-end;
-            padding: 1.5rem;
-            color: white;
+            background: linear-gradient(135deg, rgba(108, 157, 134, 0.8), rgba(44, 85, 48, 0.8));
             opacity: 0;
             transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
         }
-        
+
         .gallery-item:hover .gallery-overlay {
             opacity: 1;
         }
-        
-        .contact-info {
+
+        /* Testimonials */
+        .testimonial-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
             margin-bottom: 2rem;
+            position: relative;
         }
-        
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4rem;
+            color: var(--primary-color);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .testimonial-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: var(--bg-light);
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            height: 100%;
+        }
+
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-logo {
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
         .social-links a {
             display: inline-block;
             width: 50px;
             height: 50px;
-            background: var(--primary-color);
-            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 50%;
             text-align: center;
             line-height: 50px;
-            border-radius: 50%;
-            margin: 0 10px;
+            color: white;
+            margin: 0 10px 10px 0;
             transition: all 0.3s ease;
-            text-decoration: none;
+            font-size: 1.2rem;
         }
-        
+
         .social-links a:hover {
-            background: var(--secondary-color);
-            color: #333;
-            transform: translateY(-5px);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(108, 157, 134, 0.4);
+            color: white;
         }
-        
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* WhatsApp Float Button */
         .whatsapp-float {
             position: fixed;
             width: 60px;
             height: 60px;
             bottom: 40px;
             right: 40px;
-            background-color: #25d366;
+            background: #25d366;
             color: white;
-            border-radius: 50px;
+            border-radius: 50%;
             text-align: center;
             font-size: 30px;
             box-shadow: 2px 2px 3px #999;
@@ -300,35 +375,14 @@
             justify-content: center;
             text-decoration: none;
         }
-        
+
         .whatsapp-float:hover {
-            background-color: #20ba55;
-            color: white;
+            background: #128c7e;
             transform: scale(1.1);
-        }
-        
-        .stats-section {
-            background: var(--primary-color);
             color: white;
-            padding: 4rem 0;
         }
-        
-        .stat-item {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 700;
-            display: block;
-        }
-        
-        .stat-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2.5rem;
@@ -342,36 +396,56 @@
                 font-size: 2rem;
             }
             
-            .whatsapp-float {
-                width: 50px;
-                height: 50px;
-                bottom: 20px;
-                right: 20px;
-                font-size: 24px;
+            .section-padding {
+                padding: 60px 0;
+            }
+            
+            .hero-section {
+                padding: 120px 0 80px;
             }
         }
-        
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
         }
-        
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
+
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            background: var(--bg-light);
+        }
+
+        .modal-title {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* Animation Classes */
+        .fade-in-up {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
+
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top navbar-custom">
         <div class="container">
-            @if($landing->logo_url)
-            <a class="navbar-brand" href="#hero">
-                <img src="{{ asset('storage/' . $landing->logo_url) }}" alt="{{ $empresa->nombre }}" loading="lazy">
+            <a class="navbar-brand" href="#home">
+                <img src="{{ asset('storage/' . $landing->logo_url) }}" alt="{{ $empresa->nombre }}">
             </a>
-            @endif
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -380,13 +454,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#hero">Inicio</a>
+                        <a class="nav-link" href="#home">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#about">Acerca</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#benefits">Beneficios</a>
+                        <a class="nav-link" href="#about">Acerca de</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#community">Comunidad</a>
@@ -397,36 +468,36 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Contacto</a>
                     </li>
-                    @if($empresa->whatsapp)
-                    <li class="nav-item">
-                        <a class="btn btn-primary-custom ms-2" href="https://wa.me/57{{ $empresa->whatsapp }}" target="_blank">
-                            <i class="fab fa-whatsapp"></i> Únete Ahora
-                        </a>
-                    </li>
+                    @if(isset($productosActivos) && $productosActivos > 0)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('public.tienda', $empresa->slug) }}" target="_blank" style="color: var(--secondary-color) !important; font-weight: 600;">
+                                <i class="fas fa-shopping-cart me-2"></i>Tienda Virtual
+                            </a>
+                        </li>
                     @endif
                 </ul>
+                <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $empresa->whatsapp) }}" class="btn btn-primary-custom ms-3" target="_blank">
+                    <i class="fab fa-whatsapp me-2"></i>¡Únete Ahora!
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section id="hero" class="hero-section">
+    <section id="home" class="hero-section">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6">
-                    <div class="hero-content text-white" data-aos="fade-right">
+                    <div class="hero-content" data-aos="fade-right">
                         <h1 class="hero-title">{{ $landing->titulo_principal }}</h1>
                         <h2 class="hero-subtitle">{{ $landing->subtitulo }}</h2>
                         <p class="hero-description">{{ $landing->descripcion }}</p>
-                        
-                        <div class="d-flex flex-wrap gap-3">
-                            @if($empresa->whatsapp)
-                            <a href="https://wa.me/57{{ $empresa->whatsapp }}" class="btn btn-secondary-custom btn-lg" target="_blank">
-                                <i class="fab fa-whatsapp"></i> Únete a la Comunidad
+                        <div class="hero-buttons">
+                            <a href="#community" class="btn btn-primary-custom me-3">
+                                <i class="fas fa-users me-2"></i>Únete a la Comunidad
                             </a>
-                            @endif
-                            <a href="#about" class="btn btn-outline-light btn-lg">
-                                <i class="fas fa-compass"></i> Descubre Más
+                            <a href="#about" class="btn btn-outline-light">
+                                <i class="fas fa-compass me-2"></i>Descubre Más
                             </a>
                         </div>
                     </div>
@@ -436,13 +507,11 @@
                         @if($landing->media && $landing->media->count() > 0)
                             <img src="{{ asset('storage/' . $landing->media->first()->url) }}" 
                                  alt="{{ $landing->media->first()->descripcion ?? 'Imagen de ' . $empresa->nombre }}" 
-                                 class="img-fluid rounded-3 shadow-lg"
-                                 loading="lazy">
-                        @elseif($landing->logo_url)
+                                 class="img-fluid rounded" style="max-height: 400px; object-fit: cover;">
+                        @else
                             <img src="{{ asset('storage/' . $landing->logo_url) }}" 
                                  alt="{{ $empresa->nombre }}" 
-                                 class="img-fluid rounded-3 shadow-lg"
-                                 loading="lazy">
+                                 class="img-fluid rounded" style="max-height: 400px; object-fit: cover;">
                         @endif
                     </div>
                 </div>
@@ -451,47 +520,87 @@
     </section>
 
     <!-- About Section -->
-    <section id="about" class="py-5">
+    <section id="about" class="section-padding">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-                    <h2 class="section-title primary-color" data-aos="fade-up">Nuestra Misión</h2>
+                <div class="col-lg-12 text-center mb-5">
+                    <h2 class="section-title" data-aos="fade-up">Nuestro Propósito</h2>
+                    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                        Conectando exploradores modernos con el espíritu de la aventura
+                    </p>
                 </div>
             </div>
-            <div class="row align-items-center">
+            <div class="row">
                 <div class="col-lg-6" data-aos="fade-right">
-                    @if($landing->logo_url)
-                    <img src="{{ asset('storage/' . $landing->logo_url) }}" 
-                         alt="{{ $empresa->nombre }}" 
-                         class="img-fluid rounded-3 shadow-lg mb-4"
-                         loading="lazy">
-                    @endif
+                    <div class="about-content">
+                        <h3 class="mb-4">Nuestra Misión</h3>
+                        <p class="mb-4">{{ $landing->descripcion_objetivo }}</p>
+                        
+                        <div class="company-info">
+                            <h4 class="mb-3">Información de Contacto</h4>
+                            <div class="contact-info-item mb-2">
+                                <i class="fas fa-envelope me-3 text-primary"></i>
+                                <strong>Email:</strong> {{ $empresa->email }}
+                            </div>
+                            @if($empresa->movil)
+                            <div class="contact-info-item mb-2">
+                                <i class="fas fa-phone me-3 text-primary"></i>
+                                <strong>Teléfono:</strong> {{ $empresa->movil }}
+                            </div>
+                            @endif
+                            <div class="contact-info-item mb-2">
+                                <i class="fas fa-map-marker-alt me-3 text-primary"></i>
+                                <strong>Ubicación:</strong> {{ $empresa->direccion }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-lg-6" data-aos="fade-left">
-                    <div class="ps-lg-4">
-                        <h3 class="mb-4 primary-color">{{ $landing->objetivo }}</h3>
-                        <p class="lead mb-4">{{ $landing->descripcion_objetivo }}</p>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <i class="fas fa-map-marked-alt primary-color me-2"></i>
-                                    <strong>Ubicación:</strong> {{ $empresa->direccion }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <i class="fas fa-envelope primary-color me-2"></i>
-                                    <strong>Contacto:</strong> {{ $empresa->email }}
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card-custom text-center">
+                                <div class="card-body">
+                                    <div class="card-icon mx-auto">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <h5>Comunidad Global</h5>
+                                    <p>Únete a exploradores de todo el mundo</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        @if($empresa->whatsapp)
-                        <a href="https://wa.me/57{{ $empresa->whatsapp }}" class="btn btn-primary-custom" target="_blank">
-                            <i class="fab fa-whatsapp"></i> Contáctanos
-                        </a>
-                        @endif
+                        <div class="col-md-6 mb-4">
+                            <div class="card-custom text-center">
+                                <div class="card-body">
+                                    <div class="card-icon mx-auto">
+                                        <i class="fas fa-compass"></i>
+                                    </div>
+                                    <h5>Rutas Históricas</h5>
+                                    <p>Descubre caminos llenos de historia</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card-custom text-center">
+                                <div class="card-body">
+                                    <div class="card-icon mx-auto">
+                                        <i class="fas fa-book-open"></i>
+                                    </div>
+                                    <h5>Contenido Exclusivo</h5>
+                                    <p>Accede a recursos únicos y curados</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card-custom text-center">
+                                <div class="card-body">
+                                    <div class="card-icon mx-auto">
+                                        <i class="fas fa-medal"></i>
+                                    </div>
+                                    <h5>Desafíos Temáticos</h5>
+                                    <p>Participa en aventuras programadas</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -499,139 +608,128 @@
     </section>
 
     <!-- Problems Section -->
-    <section class="py-5 bg-light">
+    <section class="section-padding" style="background: var(--bg-light);">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-                    <h2 class="section-title primary-color" data-aos="fade-up">¿Te Identificas con Estos Desafíos?</h2>
+                <div class="col-lg-12 text-center mb-5">
+                    <h2 class="section-title" data-aos="fade-up">¿Te Identificas con Esto?</h2>
+                    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                        Problemas comunes que enfrentan los amantes de la historia y la exploración
+                    </p>
                 </div>
             </div>
             <div class="row">
-                @php
-                $problems = [
-                    [
-                        'icon' => 'fas fa-users-slash',
-                        'title' => 'Falta de Comunidad',
-                        'description' => 'No encuentras un espacio dedicado donde puedas interactuar profundamente con otros apasionados por la historia y la exploración.'
-                    ],
-                    [
-                        'icon' => 'fas fa-puzzle-piece',
-                        'title' => 'Información Dispersa',
-                        'description' => 'Tienes dificultades para encontrar contenido curado y conversaciones significativas sobre rutas históricas y destinos relevantes.'
-                    ],
-                    [
-                        'icon' => 'fas fa-heart-broken',
-                        'title' => 'Sensación de Aislamiento',
-                        'description' => 'Te sientes solo en tus pasiones, sin una red de apoyo para compartir y discutir temas que realmente te interesan.'
-                    ],
-                    [
-                        'icon' => 'fas fa-lightbulb',
-                        'title' => 'Inspiración Limitada',
-                        'description' => 'Necesitas nuevas ideas, rutas y perspectivas para tus propias aventuras o proyectos de investigación personal.'
-                    ]
-                ];
-                @endphp
-                
-                @foreach($problems as $index => $problem)
-                <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
-                    <div class="card-custom h-100 p-4">
-                        <div class="feature-icon">
-                            <i class="{{ $problem['icon'] }}"></i>
+                <div class="col-lg-8 mx-auto">
+                    <div class="problems-content" data-aos="fade-up">
+                        <div class="text-center mb-5">
+                            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
                         </div>
-                        <h4 class="text-center mb-3 primary-color">{{ $problem['title'] }}</h4>
-                        <p class="text-center text-muted">{{ $problem['description'] }}</p>
+                        <div class="problems-text">
+                            <p class="lead text-center mb-4">{{ $landing->audiencia_problemas }}</p>
+                        </div>
+                        
+                        <div class="row mt-5">
+                            <div class="col-md-4 mb-4">
+                                <div class="problem-item text-center">
+                                    <div class="problem-icon mb-3">
+                                        <i class="fas fa-search text-danger" style="font-size: 2.5rem;"></i>
+                                    </div>
+                                    <h5>Información Dispersa</h5>
+                                    <p>Difícil encontrar contenido curado sobre rutas históricas</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="problem-item text-center">
+                                    <div class="problem-icon mb-3">
+                                        <i class="fas fa-user-friends text-warning" style="font-size: 2.5rem;"></i>
+                                    </div>
+                                    <h5>Falta de Comunidad</h5>
+                                    <p>No hay espacios para compartir la pasión por la exploración</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="problem-item text-center">
+                                    <div class="problem-icon mb-3">
+                                        <i class="fas fa-lightbulb text-info" style="font-size: 2.5rem;"></i>
+                                    </div>
+                                    <h5>Falta de Inspiración</h5>
+                                    <p>Necesidad de nuevas ideas para aventuras temáticas</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                @endforeach
             </div>
         </div>
     </section>
 
     <!-- Benefits Section -->
-    <section id="benefits" class="py-5">
+    <section class="section-padding">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-                    <h2 class="section-title primary-color" data-aos="fade-up">Beneficios que Obtienes</h2>
+                <div class="col-lg-12 text-center mb-5">
+                    <h2 class="section-title" data-aos="fade-up">La Solución que Buscabas</h2>
+                    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                        Descubre todos los beneficios de unirte a nuestra comunidad
+                    </p>
                 </div>
             </div>
             <div class="row">
-                @php
-                $benefits = [
-                    [
-                        'icon' => 'fas fa-globe-americas',
-                        'title' => 'Conexión Auténtica',
-                        'description' => 'Únete a una red global de personas con intereses similares en historia, exploración y aventura.'
-                    ],
-                    [
-                        'icon' => 'fas fa-crown',
-                        'title' => 'Contenido Exclusivo',
-                        'description' => 'Accede a artículos, discusiones, mapas interactivos y recursos que profundizan en el legado de exploradores.'
-                    ],
-                    [
-                        'icon' => 'fas fa-comments',
-                        'title' => 'Participación Activa',
-                        'description' => 'Participa en foros, debates, desafíos temáticos y eventos virtuales exclusivos para miembros.'
-                    ],
-                    [
-                        'icon' => 'fas fa-rocket',
-                        'title' => 'Inspiración Constante',
-                        'description' => 'Descubre nuevas rutas de viaje, destinos históricos y formas de vivir el espíritu de la exploración.'
-                    ],
-                    [
-                        'icon' => 'fas fa-graduation-cap',
-                        'title' => 'Desarrollo Personal',
-                        'description' => 'Amplía tus conocimientos históricos y geográficos, perfecciona tus habilidades como cronista moderno.'
-                    ],
-                    [
-                        'icon' => 'fas fa-heart',
-                        'title' => 'Sentido de Pertenencia',
-                        'description' => 'Forma parte de una comunidad que valora la curiosidad, el aprendizaje y el deseo de descubrir.'
-                    ]
-                ];
-                @endphp
-                
-                @foreach($benefits as $index => $benefit)
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
-                    <div class="card-custom h-100 p-4 text-center">
-                        <div class="feature-icon">
-                            <i class="{{ $benefit['icon'] }}"></i>
+                <div class="col-lg-8 mx-auto">
+                    <div class="benefits-content" data-aos="fade-up">
+                        <div class="text-center mb-5">
+                            <i class="fas fa-trophy text-success" style="font-size: 4rem;"></i>
                         </div>
-                        <h4 class="mb-3 primary-color">{{ $benefit['title'] }}</h4>
-                        <p class="text-muted">{{ $benefit['description'] }}</p>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6" data-aos="fade-up">
-                    <div class="stat-item">
-                        <span class="stat-number" data-count="500">0</span>
-                        <span class="stat-label">Exploradores Activos</span>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                    <div class="stat-item">
-                        <span class="stat-number" data-count="150">0</span>
-                        <span class="stat-label">Rutas Documentadas</span>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                    <div class="stat-item">
-                        <span class="stat-number" data-count="25">0</span>
-                        <span class="stat-label">Países Explorados</span>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                    <div class="stat-item">
-                        <span class="stat-number" data-count="1000">0</span>
-                        <span class="stat-label">Historias Compartidas</span>
+                        <div class="benefits-text mb-5">
+                            <p class="lead text-center">{{ $landing->audiencia_beneficios }}</p>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="benefit-item d-flex">
+                                    <div class="benefit-icon me-3">
+                                        <i class="fas fa-globe text-success" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Conexión Global</h5>
+                                        <p>Red mundial de personas con intereses similares en historia y aventura</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="benefit-item d-flex">
+                                    <div class="benefit-icon me-3">
+                                        <i class="fas fa-star text-success" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Contenido Exclusivo</h5>
+                                        <p>Acceso a recursos únicos, mapas interactivos y material curado</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="benefit-item d-flex">
+                                    <div class="benefit-icon me-3">
+                                        <i class="fas fa-hands-helping text-success" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Participación Activa</h5>
+                                        <p>Foros, debates y eventos virtuales exclusivos para miembros</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="benefit-item d-flex">
+                                    <div class="benefit-icon me-3">
+                                        <i class="fas fa-heart text-success" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Sentido de Pertenencia</h5>
+                                        <p>Forma parte de una comunidad que valora la curiosidad y el aprendizaje</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -639,105 +737,129 @@
     </section>
 
     <!-- Community Section -->
-    <section id="community" class="py-5 bg-light">
+    <section id="community" class="section-padding" style="background: var(--bg-light);">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-                    <h2 class="section-title primary-color" data-aos="fade-up">Lo Que Dicen Nuestros Exploradores</h2>
+                <div class="col-lg-12 text-center mb-5">
+                    <h2 class="section-title" data-aos="fade-up">Nuestra Comunidad</h2>
+                    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                        Lo que dicen nuestros exploradores
+                    </p>
                 </div>
             </div>
             <div class="row">
-                @php
-                $testimonials = [
-                    [
-                        'name' => 'María González',
-                        'role' => 'Historiadora y Viajera',
-                        'text' => 'Esta comunidad ha transformado mi forma de viajar. Ahora cada destino tiene una historia profunda que descubrir y compartir.',
-                        'rating' => 5
-                    ],
-                    [
-                        'name' => 'Carlos Rodríguez',
-                        'role' => 'Fotógrafo de Aventuras',
-                        'text' => 'He encontrado inspiración constante y conexiones auténticas. Las rutas recomendadas han sido extraordinarias.',
-                        'rating' => 5
-                    ],
-                    [
-                        'name' => 'Ana Martínez',
-                        'role' => 'Escritora y Exploradora',
-                        'text' => 'Finalmente un espacio donde puedo compartir mis pasiones sin sentirme sola. La comunidad es increíblemente enriquecedora.',
-                        'rating' => 5
-                    ]
-                ];
-                @endphp
-                
-                @foreach($testimonials as $index => $testimonial)
-                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
-                    <div class="testimonial-card">
-                        <div class="mb-3">
-                            @for($i = 1; $i <= 5; $i++)
-                                <i class="fas fa-star {{ $i <= $testimonial['rating'] ? 'text-warning' : 'text-muted' }}"></i>
-                            @endfor
+                <div class="col-lg-10 mx-auto">
+                    <div class="community-objective mb-5" data-aos="fade-up">
+                        <div class="text-center">
+                            <h3 class="mb-4">{{ $landing->objetivo }}</h3>
+                            <p class="lead">{{ $landing->descripcion_objetivo }}</p>
                         </div>
-                        <p class="mb-4">{{ $testimonial['text'] }}</p>
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-primary-custom d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                <i class="fas fa-user text-white"></i>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                            <div class="testimonial-card">
+                                <div class="testimonial-avatar">
+                                    MR
+                                </div>
+                                <h5>María Rodríguez</h5>
+                                <p class="text-muted mb-3">Exploradora Cultural</p>
+                                <p><em>Encontré mi tribu aquí. Las rutas históricas que hemos descubierto juntos han enriquecido mis viajes de manera increíble.</em></p>
+                                <div class="stars">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
                             </div>
-                            <div>
-                                <h6 class="mb-0 primary-color">{{ $testimonial['name'] }}</h6>
-                                <small class="text-muted">{{ $testimonial['role'] }}</small>
+                        </div>
+                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                            <div class="testimonial-card">
+                                <div class="testimonial-avatar">
+                                    CL
+                                </div>
+                                <h5>Carlos López</h5>
+                                <p class="text-muted mb-3">Historiador Amateur</p>
+                                <p><em>El contenido exclusivo y los debates en los foros han ampliado mis conocimientos más de lo que imaginé posible.</em></p>
+                                <div class="stars">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                            <div class="testimonial-card">
+                                <div class="testimonial-avatar">
+                                    AP
+                                </div>
+                                <h5>Ana Pérez</h5>
+                                <p class="text-muted mb-3">Fotógrafa de Viajes</p>
+                                <p><em>Los desafíos temáticos me inspiraron a documentar historias increíbles. Mi portfolio creció exponencialmente.</em></p>
+                                <div class="stars">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                @endforeach
             </div>
         </div>
     </section>
 
     <!-- Gallery Section -->
-    <section id="gallery" class="py-5">
+    <section id="gallery" class="section-padding">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-                    <h2 class="section-title primary-color" data-aos="fade-up">Galería de Aventuras</h2>
+                <div class="col-lg-12 text-center mb-5">
+                    <h2 class="section-title" data-aos="fade-up">Galería de Aventuras</h2>
+                    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                        Momentos capturados en nuestras exploraciones
+                    </p>
                 </div>
             </div>
             <div class="row">
                 @if($landing->media && $landing->media->count() > 0)
                     @foreach($landing->media as $index => $media)
-                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
-                        <div class="gallery-item">
-                            <img src="{{ asset('storage/' . $media->url) }}" 
-                                 alt="{{ $media->descripcion ?? 'Aventura ' . ($index + 1) }}" 
-                                 loading="lazy">
-                            <div class="gallery-overlay">
-                                <div>
-                                    <h5>{{ $media->descripcion ?? 'Aventura ' . ($index + 1) }}</h5>
-                                    <p class="mb-0">Descubre nuevos horizontes</p>
+                        <div class="col-lg-{{ $index == 0 ? '8' : '4' }} col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
+                            <div class="gallery-item">
+                                <img src="{{ asset('storage/' . $media->url) }}" alt="{{ $media->descripcion ?? 'Imagen de ' . $empresa->nombre }}">
+                                <div class="gallery-overlay">
+                                    <span>{{ $media->descripcion ?? 'Aventura ' . ($index + 1) }}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     @endforeach
-                @else
-                    <!-- Fallback con logo si no hay imágenes adicionales -->
-                    @for($i = 1; $i <= 6; $i++)
-                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ ($i-1) * 100 }}">
-                        <div class="gallery-item">
-                            @if($landing->logo_url)
-                            <img src="{{ asset('storage/' . $landing->logo_url) }}" 
-                                 alt="Aventura {{ $i }}" 
-                                 loading="lazy">
-                            @endif
-                            <div class="gallery-overlay">
-                                <div>
-                                    <h5>Aventura {{ $i }}</h5>
-                                    <p class="mb-0">Próximamente más contenido</p>
+                    
+                    <!-- Imágenes adicionales con el logo si hay espacio -->
+                    @for($i = $landing->media->count(); $i < 6; $i++)
+                        <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $i * 100 }}">
+                            <div class="gallery-item">
+                                <img src="{{ asset('storage/' . $landing->logo_url) }}" alt="{{ $empresa->nombre }}">
+                                <div class="gallery-overlay">
+                                    <span>Explora con {{ $empresa->nombre }}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endfor
+                @else
+                    <!-- Si no hay media, mostrar el logo en múltiples posiciones -->
+                    @for($i = 0; $i < 6; $i++)
+                        <div class="col-lg-{{ $i == 0 ? '8' : '4' }} col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ $i * 100 }}">
+                            <div class="gallery-item">
+                                <img src="{{ asset('storage/' . $landing->logo_url) }}" alt="{{ $empresa->nombre }}">
+                                <div class="gallery-overlay">
+                                    <span>{{ $empresa->nombre }} - Aventura {{ $i + 1 }}</span>
+                                </div>
+                            </div>
+                        </div>
                     @endfor
                 @endif
             </div>
@@ -745,83 +867,65 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-5 bg-light">
+    <section id="contact" class="section-padding contact-section">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-                    <h2 class="section-title primary-color" data-aos="fade-up">Únete a Nuestra Comunidad</h2>
+                <div class="col-lg-12 text-center mb-5">
+                    <h2 class="section-title" data-aos="fade-up">Contáctanos</h2>
+                    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                        ¿Listo para comenzar tu aventura? ¡Hablemos!
+                    </p>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="contact-info text-center" data-aos="fade-up">
-                        @if($landing->logo_url)
-                        <img src="{{ asset('storage/' . $landing->logo_url) }}" 
-                             alt="{{ $empresa->nombre }}" 
-                             class="mb-4" 
-                             style="max-height: 100px;"
-                             loading="lazy">
-                        @endif
-                        
-                        <h3 class="mb-4 primary-color">{{ $empresa->nombre }}</h3>
-                        <p class="lead mb-4">{{ $landing->descripcion }}</p>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <i class="fas fa-envelope primary-color me-2"></i>
-                                    <a href="mailto:{{ $empresa->email }}" class="text-decoration-none">{{ $empresa->email }}</a>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <i class="fas fa-map-marker-alt primary-color me-2"></i>
-                                    <span>{{ $empresa->direccion }}</span>
-                                </div>
-                            </div>
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
                         </div>
-                        
-                        @if($empresa->whatsapp)
-                        <div class="mb-4">
-                            <a href="https://wa.me/57{{ $empresa->whatsapp }}" class="btn btn-primary-custom btn-lg" target="_blank">
-                                <i class="fab fa-whatsapp"></i> Únete Ahora por WhatsApp
-                            </a>
+                        <h5>Email</h5>
+                        <p class="mb-0">{{ $empresa->email }}</p>
+                        <a href="mailto:{{ $empresa->email }}" class="btn btn-primary-custom btn-sm mt-3">
+                            Enviar Email
+                        </a>
+                    </div>
+                </div>
+                
+                @if($empresa->movil)
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
                         </div>
-                        @endif
-                        
-                        <!-- Social Links -->
-                        <div class="social-links">
-                            @if($empresa->facebook)
-                            <a href="{{ $empresa->facebook }}" target="_blank" title="Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            @endif
-                            @if($empresa->instagram)
-                            <a href="{{ $empresa->instagram }}" target="_blank" title="Instagram">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            @endif
-                            @if($empresa->linkedin)
-                            <a href="{{ $empresa->linkedin }}" target="_blank" title="LinkedIn">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                            @endif
-                            @if($empresa->twitter)
-                            <a href="{{ $empresa->twitter }}" target="_blank" title="Twitter">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            @endif
-                            @if($empresa->tiktok)
-                            <a href="{{ $empresa->tiktok }}" target="_blank" title="TikTok">
-                                <i class="fab fa-tiktok"></i>
-                            </a>
-                            @endif
-                            @if($empresa->youtube)
-                            <a href="{{ $empresa->youtube }}" target="_blank" title="YouTube">
-                                <i class="fab fa-youtube"></i>
-                            </a>
-                            @endif
+                        <h5>Teléfono</h5>
+                        <p class="mb-0">{{ $empresa->movil }}</p>
+                        <a href="tel:{{ $empresa->movil }}" class="btn btn-primary-custom btn-sm mt-3">
+                            Llamar Ahora
+                        </a>
+                    </div>
+                </div>
+                @endif
+                
+                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fab fa-whatsapp"></i>
                         </div>
+                        <h5>WhatsApp</h5>
+                        <p class="mb-0">{{ $empresa->whatsapp }}</p>
+                        <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $empresa->whatsapp) }}" target="_blank" class="btn btn-primary-custom btn-sm mt-3">
+                            Chat Directo
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-12 mt-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h5>Ubicación</h5>
+                        <p class="mb-0">{{ $empresa->direccion }}</p>
                     </div>
                 </div>
             </div>
@@ -829,126 +933,256 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
+    <footer class="footer">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center">
-                        @if($landing->logo_url)
-                        <img src="{{ asset('storage/' . $landing->logo_url) }}" 
-                             alt="{{ $empresa->nombre }}" 
-                             style="max-height: 40px;" 
-                             class="me-3"
-                             loading="lazy">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <img src="{{ asset('storage/' . $landing->logo_url) }}" alt="{{ $empresa->nombre }}" class="footer-logo">
+                    <p class="mt-3">{{ $landing->descripcion }}</p>
+                    <div class="social-links">
+                        @if($empresa->facebook)
+                            <a href="{{ $empresa->facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
                         @endif
-                        <div>
-                            <h6 class="mb-0">{{ $empresa->nombre }}</h6>
-                            <small class="text-muted">{{ $landing->descripcion }}</small>
-                        </div>
+                        @if($empresa->instagram)
+                            <a href="{{ $empresa->instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
+                        @endif
+                        @if($empresa->twitter)
+                            <a href="{{ $empresa->twitter }}" target="_blank"><i class="fab fa-twitter"></i></a>
+                        @endif
+                        @if($empresa->linkedin)
+                            <a href="{{ $empresa->linkedin }}" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        @endif
+                        @if($empresa->youtube)
+                            <a href="{{ $empresa->youtube }}" target="_blank"><i class="fab fa-youtube"></i></a>
+                        @endif
+                        @if($empresa->tiktok)
+                            <a href="{{ $empresa->tiktok }}" target="_blank"><i class="fab fa-tiktok"></i></a>
+                        @endif
                     </div>
                 </div>
-                <div class="col-md-6 text-md-end">
+                
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">Enlaces Rápidos</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#home">Inicio</a></li>
+                        <li><a href="#about">Acerca de</a></li>
+                        <li><a href="#community">Comunidad</a></li>
+                        <li><a href="#gallery">Galería</a></li>
+                        <li><a href="#contact">Contacto</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">Información Legal</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalTerminos">Términos y Condiciones</a></li>
+                        <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacidad">Política de Privacidad</a></li>
+                        <li><a href="#" data-bs-toggle="modal" data-bs-target="#modalCookies">Política de Cookies</a></li>
+                    </ul>
+                    
+                    <div class="mt-4">
+                        <h6>Contacto</h6>
+                        <p class="mb-1">{{ $empresa->email }}</p>
+                        <p class="mb-0">{{ $empresa->direccion }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="my-4" style="border-color: #444;">
+            
+            <div class="row align-items-center">
+                <div class="col-md-6">
                     <p class="mb-0">&copy; {{ date('Y') }} {{ $empresa->nombre }}. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Creado con ❤️ para exploradores modernos</p>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- WhatsApp Float Button -->
-    @if($empresa->whatsapp)
-    <a href="https://wa.me/57{{ $empresa->whatsapp }}" class="whatsapp-float" target="_blank" title="Contáctanos por WhatsApp">
+    <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $empresa->whatsapp) }}" target="_blank" class="whatsapp-float">
         <i class="fab fa-whatsapp"></i>
     </a>
-    @endif
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Modales Legales -->
     
-    <!-- AOS Animation -->
+    <!-- Modal Términos -->
+    <div class="modal fade" id="modalTerminos" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Términos y Condiciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {!! $empresa->terminos_condiciones !!}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Política de Privacidad -->
+    <div class="modal fade" id="modalPrivacidad" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Política de Privacidad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {!! $empresa->politica_privacidad !!}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Política de Cookies -->
+    <div class="modal fade" id="modalCookies" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Política de Cookies</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {!! $empresa->politica_cookies !!}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script>
         // Initialize AOS
         AOS.init({
-            duration: 800,
+            duration: 1000,
             easing: 'ease-in-out',
-            once: true
+            once: true,
+            mirror: false
         });
-        
-        // Smooth scrolling for anchor links
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.boxShadow = '0 2px 30px rgba(0,0,0,0.15)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+            }
+        });
+
+        // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    const offsetTop = target.offsetTop - 70;
-                    window.scrollTo({
-                        top: offsetTop,
-                        behavior: 'smooth'
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 }
             });
         });
-        
-        // Counter animation for stats
-        function animateCounters() {
-            const counters = document.querySelectorAll('.stat-number');
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-count'));
-                const duration = 2000;
-                const step = target / (duration / 16);
-                let current = 0;
-                
-                const timer = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        counter.textContent = target.toLocaleString();
-                        clearInterval(timer);
-                    } else {
-                        counter.textContent = Math.floor(current).toLocaleString();
-                    }
-                }, 16);
+
+        // Gallery lightbox effect (simple version)
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const img = this.querySelector('img');
+                if (img) {
+                    // Create a simple modal effect
+                    const overlay = document.createElement('div');
+                    overlay.className = 'position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center';
+                    overlay.style.backgroundColor = 'rgba(0,0,0,0.9)';
+                    overlay.style.zIndex = '9999';
+                    overlay.style.cursor = 'pointer';
+                    
+                    const modalImg = document.createElement('img');
+                    modalImg.src = img.src;
+                    modalImg.alt = img.alt;
+                    modalImg.className = 'img-fluid';
+                    modalImg.style.maxWidth = '90%';
+                    modalImg.style.maxHeight = '90%';
+                    modalImg.style.objectFit = 'contain';
+                    
+                    overlay.appendChild(modalImg);
+                    document.body.appendChild(overlay);
+                    
+                    overlay.addEventListener('click', function() {
+                        document.body.removeChild(overlay);
+                    });
+                }
             });
-        }
-        
-        // Intersection Observer for stats animation
-        const statsSection = document.querySelector('.stats-section');
-        if (statsSection) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animateCounters();
-                        observer.unobserve(entry.target);
-                    }
-                });
-            });
-            observer.observe(statsSection);
-        }
-        
-        // Navbar background on scroll
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('shadow-lg');
-            } else {
-                navbar.classList.remove('shadow-lg');
-            }
         });
-        
-        // Parallax effect for hero section
+
+        // Add loading animation to buttons
+        document.querySelectorAll('.btn-primary-custom').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.href && this.href.includes('wa.me')) {
+                    // Don't prevent WhatsApp links
+                    return;
+                }
+                
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Conectando...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 2000);
+            });
+        });
+
+        // Add parallax effect to hero section
         window.addEventListener('scroll', function() {
             const scrolled = window.pageYOffset;
-            const parallax = document.querySelector('.hero-section');
-            if (parallax) {
-                const speed = scrolled * 0.5;
-                parallax.style.transform = `translateY(${speed}px)`;
+            const hero = document.querySelector('.hero-section');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
             }
         });
-        
-        // Form validation and enhancement (if needed in future)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add any additional JavaScript functionality here
-            console.log('{{ $empresa->nombre }} - Landing Page Loaded Successfully');
+
+        // Counter animation for statistics (if needed)
+        function animateCounter(element, target, duration = 2000) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            const timer = setInterval(function() {
+                start += increment;
+                element.textContent = Math.floor(start);
+                
+                if (start >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                }
+            }, 16);
+        }
+
+        // Intersection Observer for counters
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target.querySelector('.counter');
+                    if (counter && !counter.classList.contains('animated')) {
+                        const target = parseInt(counter.dataset.target);
+                        animateCounter(counter, target);
+                        counter.classList.add('animated');
+                    }
+                }
+            });
+        });
+
+        // Observe counter elements
+        document.querySelectorAll('.counter-section').forEach(section => {
+            observer.observe(section);
         });
     </script>
 </body>

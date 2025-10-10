@@ -45,7 +45,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Perfil actualizado correctamente.');
+        return redirect()->route('admin.profile.edit')->with('success', 'Perfil actualizado correctamente.');
     }
 
     /**
@@ -60,8 +60,36 @@ class ProfileController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return Redirect::route('profile.edit')
-            ->with('success', 'Contraseña actualizada correctamente.');
+        return Redirect::route('admin.profile.edit')
+                        ->with('status', 'password-updated');
+    }
+
+    /**
+     * Update the empresa's flete value.
+     */
+    public function updateFlete(Request $request)
+    {
+        $request->validate([
+            'flete' => 'required|numeric|min:0',
+        ]);
+
+        $user = Auth::user();
+        $empresa = $user->empresa;
+
+        if (!$empresa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró información de la empresa.'
+            ], 404);
+        }
+
+        $empresa->update(['flete' => $request->flete]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Valor del flete actualizado correctamente.',
+            'flete' => $empresa->flete
+        ]);
     }
 
     /**

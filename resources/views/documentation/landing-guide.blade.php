@@ -4,27 +4,25 @@
 @section('description', 'Aprende a personalizar y configurar tu landing page')
 
 @section('content')
-<div class="content-header">
+<!-- Header -->
+<div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="dashboard-title">
-                <i class="bi bi-palette me-3"></i>
+                <i class="bi bi-palette me-3 text-primary"></i>
                 Personalizar tu Sitio Web
             </h1>
             <p class="text-muted mb-0">Haz que tu sitio web refleje tu marca y personalidad</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('documentation.index') }}" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('admin.documentation.index') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>
-                Volver
+                Volver a Academy
             </a>
-            @if(auth()->user()->bbbLanding)
-                <a href="{{ route('landing.preview', auth()->user()->bbbLanding) }}" 
-                   target="_blank" class="btn btn-success btn-sm">
-                    <i class="bi bi-eye me-2"></i>
-                    Ver mi Sitio
-                </a>
-            @endif
+            <a href="{{ route('admin.landing.configurar') }}" class="btn btn-primary">
+                <i class="bi bi-palette me-2"></i>
+                Personalizar sitio
+            </a>
         </div>
     </div>
 </div>
@@ -72,17 +70,17 @@
                     </div>
                     <div class="col-md-4 text-md-end">
                         @if(!auth()->user()->bbbLanding)
-                            <a href="{{ route('profile.edit') }}" class="btn btn-primary">
+                            <a href="{{ route('admin.profile.edit') }}" class="btn btn-primary">
                                 <i class="bi bi-plus-circle me-2"></i>
                                 Crear Sitio Web
                             </a>
                         @elseif(!auth()->user()->bbbLanding->is_published)
-                            <a href="{{ route('documentation.publish-guide') }}" class="btn btn-success">
+                            <a href="{{ route('admin.documentation.publish-guide') }}" class="btn btn-success">
                                 <i class="bi bi-globe me-2"></i>
                                 Publicar Sitio
                             </a>
                         @else
-                            <a href="{{ route('landing.edit', auth()->user()->bbbLanding) }}" class="btn btn-info">
+                            <a href="{{ route('admin.landing.edit', auth()->user()->bbbLanding) }}" class="btn btn-info">
                                 <i class="bi bi-pencil me-2"></i>
                                 Editar Sitio
                             </a>
@@ -168,7 +166,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-pencil me-2"></i>
                         Editar Información
                     </a>
@@ -260,7 +258,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-success btn-sm">
+                    <a href="{{ route('admin.profile.edit') }}" class="btn btn-success btn-sm">
                         <i class="bi bi-telephone me-2"></i>
                         Editar Contacto
                     </a>

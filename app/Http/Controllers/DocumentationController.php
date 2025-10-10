@@ -68,6 +68,26 @@ class DocumentationController extends Controller
     }
 
     /**
+     * Mostrar guía de configuración de landing
+     */
+    public function landingConfigurationGuide()
+    {
+        $user = Auth::user();
+        
+        return view('documentation.landing-configuration-guide', compact('user'));
+    }
+
+    /**
+     * Mostrar guía de gestión de clientes
+     */
+    public function clientsGuide()
+    {
+        $user = Auth::user();
+        
+        return view('documentation.clients-guide', compact('user'));
+    }
+
+    /**
      * Mostrar preguntas frecuentes
      */
     public function faq()
@@ -85,5 +105,45 @@ class DocumentationController extends Controller
         $user = Auth::user();
         
         return view('documentation.receipts-guide', compact('user'));
+    }
+
+    /**
+     * Mostrar guía de arquitectura del proyecto
+     */
+    public function architecture()
+    {
+        $user = Auth::user();
+        
+        return view('documentation.architecture', compact('user'));
+    }
+
+    /**
+     * Mostrar guía de productos
+     */
+    public function productsGuide()
+    {
+        $user = Auth::user();
+        
+        return view('documentation.products-guide', compact('user'));
+    }
+
+    /**
+     * Mostrar guía de ventas online
+     */
+    public function salesGuide()
+    {
+        $user = Auth::user();
+        
+        return view('documentation.sales-guide', compact('user'));
+    }
+
+    /**
+     * Mostrar guía de configuración de pagos
+     */
+    public function paymentsGuide()
+    {
+        $user = Auth::user();
+        
+        return view('documentation.payments-guide', compact('user'));
     }
 }
