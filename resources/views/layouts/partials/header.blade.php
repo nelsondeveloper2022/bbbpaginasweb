@@ -27,6 +27,9 @@
                     <a class="nav-link" href="{{ route('plans') }}">Planes</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ route('comercios.index') }}">Comercios</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('testimonials') }}">Testimonios</a>
                 </li>
                 <li class="nav-item">

@@ -32,6 +32,21 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Configurar Axios con el token CSRF y cabeceras por defecto
+        (function() {
+            if (window.axios) {
+                const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+                if (tokenMeta) {
+                    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = tokenMeta.getAttribute('content');
+                }
+                window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            }
+        })();
+    </script>
+    
     <!-- Custom CSS -->
     <style>
         :root {

@@ -117,98 +117,111 @@
         
         <div id="plansCarousel" class="carousel slide" data-bs-ride="false">
         <div class="carousel-inner">
+            @php $firstSlideRendered = true; @endphp
             @foreach($plans->chunk(2) as $chunkIndex => $planChunk)
-            <div class="carousel-item {{ $chunkIndex == 0 ? 'active' : '' }}">
-                <div class="row justify-content-center">
-                    @foreach($planChunk as $plan)
-                    <div class="col-lg-5 col-md-6 mb-4">
-                        <div class="card h-100 plan-card {{ $plan->destacado ? 'featured-plan' : '' }} {{ $currentPlan && $currentPlan->idPlan == $plan->idPlan ? 'current-plan' : '' }}">
-                            @if($plan->destacado)
-                            <div class="card-ribbon">
-                                <span class="badge bg-primary">Más Popular</span>
-                            </div>
+                @php
+                    $hasPaid = $planChunk->contains(function ($p) {
+                        return (($p->precioPesos ?? 0) > 0);
+                    });
+                @endphp
+                @if(!$hasPaid)
+                    @continue
+                @endif
+                <div class="carousel-item {{ $firstSlideRendered ? 'active' : '' }}">
+                    <div class="row justify-content-center">
+                        @foreach($planChunk as $plan)
+                            @if(($plan->precioPesos ?? 0) <= 0)
+                                @continue
                             @endif
-                            
-                            @if($currentPlan && $currentPlan->idPlan == $plan->idPlan)
-                            <div class="card-ribbon-current">
-                                <span class="badge bg-success">Plan Actual</span>
-                            </div>
-                            @endif
-                            
-                            <div class="card-header text-center bg-transparent">
-                                <div class="plan-icon mb-3">
-                                    <i class="{{ $plan->icono ?? 'bi bi-star' }} fs-1 text-primary"></i>
+                        <div class="col-lg-5 col-md-6 mb-4">
+                            <div class="card h-100 plan-card {{ $plan->destacado ? 'featured-plan' : '' }} {{ $currentPlan && $currentPlan->idPlan == $plan->idPlan ? 'current-plan' : '' }}">
+                                @if($plan->destacado)
+                                <div class="card-ribbon">
+                                    <span class="badge bg-primary">Más Popular</span>
                                 </div>
-                                <h3 class="plan-title">{{ $plan->nombre }}</h3>
-                                <div class="plan-price">
-                                    <span class="price-currency">$</span>
-                                    <span class="price-amount">{{ number_format($plan->precioPesos, 0, ',', '.') }}</span>
-                                    @if($plan->dias > 0)
-                                        <span class="price-period">/ {{ $plan->dias }} días</span>
-                                    @else
-                                        <span class="price-period">pago único</span>
-                                    @endif
-                                </div>
-                            </div>
-                            
-                            <div class="card-body">
-                                <div class="plan-description">
-                                    {!! $plan->descripcion !!}
-                                </div>
-                            </div>
-                            
-                            <div class="card-footer bg-transparent text-center">
-                                @php
-                                    $canSelect = canSelectPlan($user, $plan) ?? true;
-                                    $isCurrentPlan = $currentPlan && $currentPlan->idPlan == $plan->idPlan;
-                                @endphp
-                                
-                                @if($isCurrentPlan)
-                                    @if(stripos($plan->nombre, 'free') !== false)
-                                        {{-- Plan Free actual - no se puede renovar --}}
-                                        <button class="btn btn-success btn-lg w-100" disabled>
-                                            <i class="bi bi-gift-fill me-2"></i>
-                                            Plan Gratuito Activo
-                                        </button>
-                                        <small class="text-muted d-block mt-2 text-center">
-                                            Los planes gratuitos no se renuevan. Adquiere un plan premium.
-                                        </small>
-                                    @elseif(isPlanRenewable($plan))
-                                        <a href="{{ route('admin.plans.purchase', $plan->idPlan) }}" class="btn btn-success btn-lg w-100">
-                                            <i class="bi bi-arrow-repeat me-2"></i>
-                                            Renovar Plan
-                                        </a>
-                                    @else
-                                        <button class="btn btn-success btn-lg w-100" disabled>
-                                            <i class="bi bi-check-circle-fill me-2"></i>
-                                            Plan Permanente
-                                        </button>
-                                    @endif
-                                @elseif($canSelect)
-                                    <a href="{{ route('admin.plans.purchase', $plan->idPlan) }}" class="btn {{ $plan->destacado ? 'btn-primary' : 'btn-outline-primary' }} btn-lg w-100">
-                                        <i class="bi bi-credit-card me-2"></i>
-                                        Adquirir Plan
-                                    </a>
-                                @else
-                                    <button class="btn btn-secondary btn-lg w-100" disabled>
-                                        <i class="bi bi-lock me-2"></i>
-                                        No Disponible
-                                    </button>
-                                    <small class="text-muted d-block mt-2">
-                                        No puedes cambiar a este plan según tu plan actual
-                                    </small>
                                 @endif
                                 
-                                <small class="text-muted d-block mt-2">
-                                    <i class="bi bi-shield-check me-1"></i>
-                                    Pago seguro con Wompi
-                                </small>
+                                @if($currentPlan && $currentPlan->idPlan == $plan->idPlan)
+                                <div class="card-ribbon-current">
+                                    <span class="badge bg-success">Plan Actual</span>
+                                </div>
+                                @endif
+                                
+                                <div class="card-header text-center bg-transparent">
+                                    <div class="plan-icon mb-3">
+                                        <i class="{{ $plan->icono ?? 'bi bi-star' }} fs-1 text-primary"></i>
+                                    </div>
+                                    <h3 class="plan-title">{{ $plan->nombre }}</h3>
+                                    <div class="plan-price">
+                                        <span class="price-currency">$</span>
+                                        <span class="price-amount">{{ number_format($plan->precioPesos, 0, ',', '.') }}</span>
+                                        @if($plan->dias > 0)
+                                            <span class="price-period">/ {{ $plan->dias }} días</span>
+                                        @else
+                                            <span class="price-period">pago único</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <div class="plan-description">
+                                        {!! $plan->descripcion !!}
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer bg-transparent text-center">
+                                    @php
+                                        $canSelect = canSelectPlan($user, $plan) ?? true;
+                                        $isCurrentPlan = $currentPlan && $currentPlan->idPlan == $plan->idPlan;
+                                    @endphp
+                                    
+                                    @if($isCurrentPlan)
+                                        @if(stripos($plan->nombre, 'free') !== false)
+                                            {{-- Plan Free actual - no se puede renovar --}}
+                                            <button class="btn btn-success btn-lg w-100" disabled>
+                                                <i class="bi bi-gift-fill me-2"></i>
+                                                Plan Gratuito Activo
+                                            </button>
+                                            <small class="text-muted d-block mt-2 text-center">
+                                                Los planes gratuitos no se renuevan. Adquiere un plan premium.
+                                            </small>
+                                        @elseif(isPlanRenewable($plan))
+                                            <a href="{{ route('admin.plans.purchase', $plan->idPlan) }}" class="btn btn-success btn-lg w-100">
+                                                <i class="bi bi-arrow-repeat me-2"></i>
+                                                Renovar Plan
+                                            </a>
+                                        @else
+                                            <button class="btn btn-success btn-lg w-100" disabled>
+                                                <i class="bi bi-check-circle-fill me-2"></i>
+                                                Plan Permanente
+                                            </button>
+                                        @endif
+                                    @elseif($canSelect)
+                                        <a href="{{ route('admin.plans.purchase', $plan->idPlan) }}" class="btn {{ $plan->destacado ? 'btn-primary' : 'btn-outline-primary' }} btn-lg w-100">
+                                            <i class="bi bi-credit-card me-2"></i>
+                                            Adquirir Plan
+                                        </a>
+                                    @else
+                                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                                            <i class="bi bi-lock me-2"></i>
+                                            No Disponible
+                                        </button>
+                                        <small class="text-muted d-block mt-2">
+                                            No puedes cambiar a este plan según tu plan actual
+                                        </small>
+                                    @endif
+                                    
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="bi bi-shield-check me-1"></i>
+                                        Pago seguro con Wompi
+                                    </small>
+                                </div>
                             </div>
                         </div>
+                        @endforeach
                     </div>
-                    @endforeach
                 </div>
-            </div>
+                @php $firstSlideRendered = false; @endphp
             @endforeach
         </div>
         
@@ -338,7 +351,12 @@
                                             <small class="text-muted d-block mb-1">Vence el:</small>
                                             <strong class="text-dark fs-5">{{ $user->trial_ends_at->format('d/m/Y') }}</strong>
                                             <small class="text-muted d-block mt-1">
-                                                ({{ $user->trial_ends_at->diffForHumans() }})
+                                                @php
+                                                    $timeRemaining = calculate_precise_time_remaining($user->trial_ends_at);
+                                                @endphp
+                                                @if($timeRemaining)
+                                                    (en {{ $timeRemaining }})
+                                                @endif
                                             </small>
                                         </div>
                                     @else

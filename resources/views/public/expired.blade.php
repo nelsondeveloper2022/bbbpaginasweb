@@ -124,15 +124,15 @@
                 <strong>Nota:</strong> Si eres el propietario de este sitio, por favor renueva tu servicio para restaurar el acceso.
             </div>
             
-            @if($empresa->email || $empresa->telefono)
+            @if($empresa->email || $empresa->movil)
             <div class="contact-info">
                 <h5><i class="bi bi-telephone me-2"></i>Información de Contacto</h5>
                 <p class="mb-2">Puedes contactar directamente con la empresa:</p>
                 @if($empresa->email)
                     <p><strong>Email:</strong> <a href="mailto:{{ $empresa->email }}">{{ $empresa->email }}</a></p>
                 @endif
-                @if($empresa->telefono)
-                    <p><strong>Teléfono:</strong> <a href="tel:{{ $empresa->telefono }}">{{ $empresa->telefono }}</a></p>
+                @if($empresa->movil)
+                    <p><strong>Teléfono:</strong> <a href="tel:{{ $empresa->movil }}">{{ $empresa->movil }}</a></p>
                 @endif
                 @if($empresa->direccion)
                     <p><strong>Dirección:</strong> {{ $empresa->direccion }}</p>

@@ -8,6 +8,7 @@ use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SupportChatController;
 use App\Http\Controllers\TestRecaptchaController;
+use App\Http\Controllers\ComerciosController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,10 @@ use Illuminate\Support\Facades\Auth;
 
 // Página principal
 Route::get('/', [LandingController::class, 'index'])->name('home');
+
+// Módulo Comercios (público)
+Route::get('/comercios', [ComerciosController::class, 'index'])->name('comercios.index');
+Route::get('/api/comercios/slider', [ComerciosController::class, 'slider'])->name('comercios.slider');
 
 // Páginas individuales
 Route::get('/nosotros', [LandingController::class, 'about'])->name('about');

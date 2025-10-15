@@ -15,6 +15,7 @@ use Illuminate\View\View;
 use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 class PublicLandingController extends Controller
 {
@@ -29,6 +30,11 @@ class PublicLandingController extends Controller
             abort(404, 'Landing page not found');
         }
 
+        // Si la licencia está vencida mostrar vista unificada de "vencida"
+        if ($this->isLicenseExpired($empresa)) {
+            return view('public.expired', compact('empresa'));
+        }
+
         // Check the landing status
         $estadoLanding = $empresa->estado ?? 'sin_configurar';
         
@@ -38,14 +44,26 @@ class PublicLandingController extends Controller
                 return $this->showConstructionPage($empresa);
             
             case 'vencida':
-                return $this->showExpiredPage($empresa);
+                // Siempre mostrar la vista unificada de vencida
+                return view('public.expired', compact('empresa'));
             
             case 'publicada':
                 break; // Continue to show the landing
             
             case 'sin_configurar':
             default:
-                return $this->showBasicLanding($empresa);
+                // Cargar landing básica
+                $landing = new BbbLanding([
+                    'titulo_principal' => $empresa->nombre,
+                    'descripcion' => 'Bienvenido a ' . $empresa->nombre,
+                    'color_principal' => '#007bff',
+                    'color_secundario' => '#6c757d',
+                    'tipografia' => 'Inter'
+                ]);
+                $landing->setRelation('media', collect());
+                $landing->setRelation('images', collect());
+                $landing->setRelation('icons', collect());
+                return view('public.basic-landing', compact('empresa', 'landing'));
         }
 
         // Get the landing configuration for published state
@@ -73,6 +91,18 @@ class PublicLandingController extends Controller
 
         // Fallback to default landing view
         return view('public.landing', compact('empresa', 'landing', 'productosActivos'));
+    }
+
+    /**
+     * Determina si la licencia/suscripción de la empresa está vencida.
+     */
+    private function isLicenseExpired(BbbEmpresa $empresa): bool
+    {
+        $user = User::where('idEmpresa', $empresa->idEmpresa)->orderBy('id')->first();
+        if (!$user) {
+            return true;
+        }
+        return !$user->hasActiveLicense();
     }
 
     /**
@@ -178,6 +208,11 @@ class PublicLandingController extends Controller
             abort(404, 'Tienda not found');
         }
 
+        // Mostrar vista vencida si la licencia no está activa
+        if ($this->isLicenseExpired($empresa)) {
+            return view('public.expired', compact('empresa'));
+        }
+
         // Check if the company has active products
         $productosActivos = BbbProducto::where('idEmpresa', $empresa->idEmpresa)
             ->where('estado', 'activo')
@@ -231,6 +266,11 @@ class PublicLandingController extends Controller
         
         if (!$empresa) {
             abort(404, 'Tienda not found');
+        }
+
+        // Mostrar vista vencida si la licencia no está activa
+        if ($this->isLicenseExpired($empresa)) {
+            return view('public.expired', compact('empresa'));
         }
 
         // Verificar que la empresa tenga pasarela configurada

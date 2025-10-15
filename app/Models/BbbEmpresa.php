@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class BbbEmpresa extends Model
 {
@@ -397,6 +399,31 @@ class BbbEmpresa extends Model
     {
         return $this->hasMany(BbbProducto::class, 'idEmpresa', 'idEmpresa')
                     ->where('estado', 'activo');
+    }
+
+    /**
+     * Scope: solo empresas con landing publicada.
+     */
+    public function scopePublicadas($query)
+    {
+        return $query->where('estado', 'publicada');
+    }
+
+    /**
+     * Scope: empresas cuya licencia está vigente (usuario con suscripción activa o trial vigente).
+     */
+    public function scopeConLicenciaVigente($query)
+    {
+        return $query->whereExists(function ($sub) {
+            $sub->select(DB::raw(1))
+                ->from('users')
+                ->whereColumn('users.idEmpresa', 'bbbempresa.idEmpresa')
+                ->where(function ($q) {
+                    $now = now();
+                    $q->where('users.subscription_ends_at', '>', $now)
+                      ->orWhere('users.trial_ends_at', '>', $now);
+                });
+        });
     }
 
     /**

@@ -11,6 +11,7 @@ class BbbRenovacion extends Model
     use HasFactory;
 
     protected $table = 'bbbrenovacion';
+    protected $primaryKey = 'idRenovacion';
 
     protected $fillable = [
         'user_id',

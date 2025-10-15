@@ -45,10 +45,20 @@
                                 <p class="mb-0">
                                     @if($user->hasFreePlan())
                                         Tu período gratuito expira el <strong>{{ $user->trial_ends_at->format('d/m/Y') }}</strong>
-                                        ({{ $user->trial_ends_at->diffForHumans() }})
+                                        @php
+                                            $timeRemaining = calculate_precise_time_remaining($user->trial_ends_at);
+                                        @endphp
+                                        @if($timeRemaining)
+                                            (en {{ $timeRemaining }})
+                                        @endif
                                     @else
                                         Tu plan expira el <strong>{{ $user->trial_ends_at->format('d/m/Y') }}</strong>
-                                        ({{ $user->trial_ends_at->diffForHumans() }})
+                                        @php
+                                            $timeRemaining = calculate_precise_time_remaining($user->trial_ends_at);
+                                        @endphp
+                                        @if($timeRemaining)
+                                            (en {{ $timeRemaining }})
+                                        @endif
                                     @endif
                                 </p>
                             </div>
@@ -108,7 +118,10 @@
                                                 <div class="detail-row mb-2">
                                                     <span class="text-muted">Tiempo restante:</span>
                                                     <span class="fw-bold text-info">
-                                                        {{ $user->trial_ends_at->diffForHumans() }}
+                                                        @php
+                                                            $timeRemaining = calculate_precise_time_remaining($user->trial_ends_at);
+                                                        @endphp
+                                                        {{ $timeRemaining ?? 'Calculando...' }}
                                                     </span>
                                                 </div>
                                             @endif

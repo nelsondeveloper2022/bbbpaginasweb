@@ -309,6 +309,8 @@
         }
     }
 </style>
+<!-- Swiper CSS for Comercios slider -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
 @endpush
 
 @section('content')
@@ -342,6 +344,29 @@
             <div class="col-lg-4 position-relative">
                 <i class="fas fa-globe hero-globe"></i>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comercios Destacados (Slider) -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="section-title mb-0" style="font-size:2rem;">Comercios destacados</h2>
+            <a href="{{ route('comercios.index') }}" class="btn btn-outline-custom">Ver más comercios</a>
+        </div>
+
+        <div class="swiper commerce-swiper">
+            <div class="swiper-wrapper" id="comerciosSwiperWrapper">
+                <!-- Slides cargados por JS -->
+                <div class="swiper-slide">
+                    <div class="text-center py-5 text-muted">Cargando comercios...</div>
+                </div>
+            </div>
+            <!-- Controles -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-pagination"></div>
         </div>
     </div>
 </section>
@@ -539,3 +564,69 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const wrapper = document.getElementById('comerciosSwiperWrapper');
+    if (!wrapper) return;
+    try {
+        const res = await fetch('{{ route('comercios.slider') }}');
+        const data = await res.json();
+        if (!data.success || !Array.isArray(data.data) || data.data.length === 0) {
+            wrapper.innerHTML = '<div class="swiper-slide"><div class="text-center py-5 text-muted w-100">Sin comercios destacados por ahora.</div></div>';
+        } else {
+            wrapper.innerHTML = '';
+            const logoFallback = '{{ asset('images/logo-bbb.png') }}';
+            data.data.forEach((c) => {
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
+                const desc = (c.descripcion ?? 'Sitio publicado en nuestra plataforma');
+                slide.innerHTML = `
+                    <div class="card h-100" style="border:none; box-shadow: 0 10px 25px rgba(0,0,0,.08);">
+                        <div class="p-4 text-center" style="height:160px; background:#fff; display:flex; align-items:center; justify-content:center;">
+                            <img src="${c.logo || logoFallback}" alt="${c.nombre}" style="max-height:120px; max-width:90%; object-fit:contain;"/>
+                        </div>
+                        <div class="card-body text-center d-flex flex-column">
+                            <h6 class="card-title mb-2">${c.nombre}</h6>
+                            <p class="card-text text-muted" style="min-height:42px;">${desc.length > 80 ? (desc.slice(0,80) + '...') : desc}</p>
+                            <div class="mt-auto">
+                                <a href="${c.url}" class="btn btn-primary-custom btn-sm" target="_blank" rel="noopener noreferrer">Visitar página</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                wrapper.appendChild(slide);
+            });
+        }
+
+        // Init Swiper
+        new Swiper('.commerce-swiper', {
+            slidesPerView: 1,
+            spaceBetween: 16,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            breakpoints: {
+                576: { slidesPerView: 2 },
+                768: { slidesPerView: 3 },
+                992: { slidesPerView: 4 },
+                1200: { slidesPerView: 5 },
+            },
+            // autoplay opcional
+            autoplay: { delay: 4000, disableOnInteraction: false },
+            loop: false,
+        });
+    } catch (e) {
+        wrapper.innerHTML = '<div class="swiper-slide"><div class="text-center py-5 text-danger w-100">Error cargando comercios.</div></div>';
+    }
+});
+</script>
+@endpush

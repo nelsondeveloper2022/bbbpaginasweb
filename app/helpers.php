@@ -57,6 +57,55 @@ if (!function_exists('clean_plan_description')) {
     }
 }
 
+if (!function_exists('calculate_precise_time_remaining')) {
+    /**
+     * Calcular tiempo restante de forma precisa (meses y días)
+     */
+    function calculate_precise_time_remaining($endDate)
+    {
+        if (!$endDate || !$endDate->isFuture()) {
+            return null;
+        }
+        
+        $now = now();
+        $diff = $now->diff($endDate);
+        
+        $parts = [];
+        
+        // Años
+        if ($diff->y > 0) {
+            $parts[] = $diff->y . ($diff->y == 1 ? ' año' : ' años');
+        }
+        
+        // Meses
+        if ($diff->m > 0) {
+            $parts[] = $diff->m . ($diff->m == 1 ? ' mes' : ' meses');
+        }
+        
+        // Días
+        if ($diff->d > 0) {
+            $parts[] = $diff->d . ($diff->d == 1 ? ' día' : ' días');
+        }
+        
+        // Si es menos de 1 día, mostrar horas
+        if (empty($parts)) {
+            if ($diff->h > 0) {
+                $parts[] = $diff->h . ($diff->h == 1 ? ' hora' : ' horas');
+            } else {
+                $parts[] = 'menos de 1 hora';
+            }
+        }
+        
+        // Unir las partes con "y"
+        if (count($parts) > 1) {
+            $last = array_pop($parts);
+            return implode(', ', $parts) . ' y ' . $last;
+        }
+        
+        return $parts[0] ?? '';
+    }
+}
+
 if (!function_exists('format_cop_price')) {
     /**
      * Format price in Colombian Pesos (COP) without decimals

@@ -167,6 +167,10 @@ return [
         'project_id' => env('RECAPTCHA_ENTERPRISE_PROJECT_ID'),
         'verify_url' => 'https://recaptchaenterprise.googleapis.com/v1/projects/' . env('RECAPTCHA_ENTERPRISE_PROJECT_ID') . '/assessments',
     ],
+    
+    'api' => [
+        'API_SECRET_TOKEN' => env('API_SECRET_TOKEN'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -193,7 +193,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="wompiSubmitBtn">
                                 <i class="fas fa-save me-2"></i>
                                 Guardar Configuración
                             </button>
@@ -465,6 +465,80 @@ document.addEventListener('DOMContentLoaded', function() {
             bsAlert.close();
         });
     }, 5000);
+
+    // Intercept Wompi form submission to validate via backend (JSON) and show SweetAlerts
+    const wompiForm = document.getElementById('wompiForm');
+    const submitBtn = document.getElementById('wompiSubmitBtn');
+
+    if (wompiForm && submitBtn) {
+        wompiForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Build FormData
+            const formData = new FormData(wompiForm);
+
+            // Disable button to prevent double submits
+            submitBtn.disabled = true;
+            const originalHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...';
+
+            try {
+                // Send as JSON expecting JSON response
+                const payload = Object.fromEntries(formData.entries());
+                // Convert checkboxes to booleans
+                payload.sandbox = !!document.getElementById('sandbox')?.checked;
+                payload.activo = !!document.getElementById('activo')?.checked;
+
+                const response = await axios.post(
+                    wompiForm.getAttribute('action'),
+                    payload,
+                    { headers: { 'Accept': 'application/json' } }
+                );
+
+                if (response?.data?.success) {
+                    // Success: show SweetAlert and optionally reload
+                    await Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: '✅ Pasarela Wompi configurada correctamente.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    // Reload to reflect stored (and possibly masked) values
+                    window.location.reload();
+                } else {
+                    throw new Error(response?.data?.message || 'Error desconocido');
+                }
+            } catch (error) {
+                // Determine message based on HTTP status
+                const status = error?.response?.status;
+                let message = '❌ Error al guardar la configuración de Wompi.';
+                if (status === 401 || status === 403 || status === 400 || status === 422) {
+                    message = '❌ Llaves inválidas. Verifica tus credenciales en https://wompi.co antes de continuar.';
+                } else if (status === 502) {
+                    message = '❌ No se pudo validar las llaves en este momento. Intenta nuevamente.';
+                } else if (status === 500) {
+                    message = '❌ Error de servidor al guardar la configuración.';
+                }
+
+                // Clear sensitive fields as requested
+                const pub = document.getElementById('public_key');
+                const prv = document.getElementById('private_key');
+                if (pub) pub.value = '';
+                if (prv) prv.value = '';
+
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Validación fallida',
+                    text: message,
+                    confirmButtonColor: '#d33'
+                });
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        });
+    }
 });
 </script>
 @endpush

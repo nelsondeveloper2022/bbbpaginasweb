@@ -14,7 +14,7 @@
     }
     
     .plans-swiper {
-        overflow: visible;
+        overflow: hidden; /* evita desbordes que dañan el layout */
         padding: 0 20px;
     }
     
@@ -38,7 +38,7 @@
 
     .plan-card.featured {
         border: 3px solid var(--primary-gold);
-        transform: scale(1.05);
+        /* quitar escala para no romper el flujo del carrusel */
     }
 
     .plan-card.featured::before {
@@ -60,6 +60,11 @@
         color: var(--primary-gold);
         margin-bottom: 1rem;
     }
+
+    /* Ajustes de carrusel para alturas consistentes */
+    .plans-carousel { overflow: hidden; }
+    .plans-swiper .swiper-wrapper { align-items: stretch; }
+    .plans-swiper .swiper-slide { height: auto; }
 
     .plan-name {
         font-size: 1.5rem;
@@ -336,7 +341,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const plansSwiper = new Swiper('.plans-swiper', {
         slidesPerView: 1,
-        spaceBetween: 20,
+        spaceBetween: 24,
         loop: false,
         centeredSlides: false,
         
@@ -350,12 +355,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // when window width is >= 768px
             768: {
                 slidesPerView: 2,
-                spaceBetween: 30
+                spaceBetween: 24
             },
             // when window width is >= 1024px
             1024: {
                 slidesPerView: 3,
-                spaceBetween: 30
+                spaceBetween: 24
+            },
+            1400: {
+                slidesPerView: 4,
+                spaceBetween: 24
             }
         },
         
@@ -373,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         
         // Auto height
-        autoHeight: false,
+    autoHeight: true,
         
         // Smooth transitions
         speed: 600,

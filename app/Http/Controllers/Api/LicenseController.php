@@ -242,7 +242,7 @@ class LicenseController extends Controller
     {
         // Validar token de seguridad Bearer
         $authHeader = $request->header('Authorization');
-        $expectedToken = env('API_SECRET_TOKEN');
+        $expectedToken = config('app.api.API_SECRET_TOKEN');
 
         // Extraer token del header Authorization Bearer
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {

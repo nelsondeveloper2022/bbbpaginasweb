@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 
 class PagosController extends Controller
 {
@@ -74,30 +75,17 @@ class PagosController extends Controller
         Log::info('StoreWompi iniciado', ['request_data' => $request->all()]);
         
         try {
-            $validator = Validator::make($request->all(), [
-                'public_key' => 'required|string|max:255',
-                'private_key' => 'required|string|max:255',
-                'events_key' => 'nullable|string|max:255',
-                'integrity_key' => 'nullable|string|max:255',
-                'sandbox' => 'nullable|boolean',
-                'activo' => 'nullable|boolean',
-            ], [
-                'public_key.required' => 'La llave pública es obligatoria.',
-                'private_key.required' => 'La llave privada es obligatoria.',
-            ]);
-
-            if ($validator->fails()) {
-                Log::warning('StoreWompi validación falló', ['errors' => $validator->errors()]);
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
             $idEmpresa = $this->getEmpresaId();
             Log::info('StoreWompi idEmpresa obtenido', ['idEmpresa' => $idEmpresa]);
             
             if (!$idEmpresa) {
                 Log::error('StoreWompi: No se pudo identificar la empresa');
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se pudo identificar la empresa.'
+                    ], 400);
+                }
                 return redirect()->back()->with('error', 'No se pudo identificar la empresa.');
             }
 
@@ -111,7 +99,108 @@ class PagosController extends Controller
                 ]
             );
 
-            // Preparar configuración extra
+            // 1) Buscar una configuración Wompi existente para ajustar reglas y reutilizar claves si es necesario
+            // Buscar si ya existe una pasarela Wompi para ajustar reglas y conservar claves
+            $existingWompi = BbbEmpresaPasarela::where('idPagoConfig', $pagoConfig->idPagoConfig)
+                ->where('nombre_pasarela', 'Wompi')
+                ->first();
+
+            // 2) Validar input del formulario
+            //    - Si ya existe configuración Wompi, permitimos private_key vacío para mantener el valor actual.
+            $rules = [
+                'public_key' => 'required|string|max:255',
+                'private_key' => ($existingWompi ? 'nullable' : 'required') . '|string|max:255',
+                'events_key' => 'nullable|string|max:255',
+                'integrity_key' => 'nullable|string|max:255',
+                'sandbox' => 'nullable|boolean',
+                'activo' => 'nullable|boolean',
+            ];
+
+            $messages = [
+                'public_key.required' => 'La llave pública es obligatoria.',
+                'private_key.required' => 'La llave privada es obligatoria.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            if ($validator->fails()) {
+                Log::warning('StoreWompi validación falló', ['errors' => $validator->errors()]);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '❌ Llaves inválidas. Verifica tus credenciales en https://wompi.co antes de continuar.',
+                        'errors' => $validator->errors(),
+                    ], 422);
+                }
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
+            // 3) Determinar las llaves a validar contra la API de Wompi
+            //    - Si no se envía private_key y existe una configurada, usamos la guardada (desencriptada)
+            $publicKeyToValidate = $request->input('public_key');
+            $privateKeyToValidate = $request->input('private_key');
+
+            if (!$privateKeyToValidate && $existingWompi && $existingWompi->private_key) {
+                try {
+                    $privateKeyToValidate = Crypt::decryptString($existingWompi->private_key);
+                } catch (\Exception $e) {
+                    Log::warning('No se pudo desencriptar la private_key existente para validar: ' . $e->getMessage());
+                }
+            }
+
+            // 4) Validación remota contra la API de Wompi ANTES de guardar
+            //    Detalle técnico:
+            //    - GET https://production.wompi.co/v1/merchants/{public_key}
+            //    - Header: Authorization: Bearer {private_key}
+            //    - 200 con data => llaves válidas. 401/403 => llaves inválidas.
+            if (!$publicKeyToValidate || !$privateKeyToValidate) {
+                $msg = '❌ Llaves inválidas. Verifica tus credenciales en https://wompi.co antes de continuar.';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $msg], 400);
+                }
+                return redirect()->back()->with('error', $msg);
+            }
+
+            // Si el usuario marcó sandbox podríamos consultar sandbox, pero el requerimiento pide producción
+            $baseUrl = 'https://production.wompi.co/v1';
+
+            try {
+                $response = Http::timeout(10)
+                    ->withHeaders([
+                        'Authorization' => 'Bearer ' . $privateKeyToValidate,
+                    ])
+                    ->get($baseUrl . '/merchants/' . $publicKeyToValidate);
+
+                if ($response->status() === 200 && !empty($response->json('data'))) {
+                    Log::info('Validación Wompi exitosa');
+                    // Continúa con el guardado
+                } elseif (in_array($response->status(), [401, 403])) {
+                    Log::warning('Validación Wompi falló con status ' . $response->status());
+                    $msg = '❌ Llaves inválidas. Verifica tus credenciales en https://wompi.co antes de continuar.';
+                    if ($request->expectsJson()) {
+                        return response()->json(['success' => false, 'message' => $msg], 401);
+                    }
+                    return redirect()->back()->with('error', $msg);
+                } else {
+                    Log::warning('Respuesta inesperada de Wompi', ['status' => $response->status(), 'body' => $response->body()]);
+                    $msg = '❌ No se pudo validar las llaves en este momento. Intenta nuevamente.';
+                    if ($request->expectsJson()) {
+                        return response()->json(['success' => false, 'message' => $msg], 502);
+                    }
+                    return redirect()->back()->with('error', $msg);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error al validar llaves con Wompi: ' . $e->getMessage());
+                $msg = '❌ Error de conexión al validar las llaves. Intenta nuevamente.';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $msg], 500);
+                }
+                return redirect()->back()->with('error', $msg);
+            }
+
+            // 5) Preparar configuración extra para almacenar junto a las llaves
             $extraConfig = [
                 'sandbox' => $request->boolean('sandbox'),
             ];
@@ -124,7 +213,12 @@ class PagosController extends Controller
                 $extraConfig['integrity_key'] = $request->integrity_key;
             }
 
-            // Obtener o crear la pasarela Wompi
+            // 6) Guardar/actualizar la configuración de Wompi (sin guardar si la validación falló)
+            //    Si no se envió private_key y ya existía, conservar la anterior
+            $privateKeyToSave = $request->filled('private_key')
+                ? Crypt::encryptString($request->private_key)
+                : ($existingWompi ? $existingWompi->private_key : null);
+
             $wompiPasarela = BbbEmpresaPasarela::updateOrCreate(
                 [
                     'idPagoConfig' => $pagoConfig->idPagoConfig,
@@ -132,13 +226,13 @@ class PagosController extends Controller
                 ],
                 [
                     'public_key' => $request->public_key,
-                    'private_key' => Crypt::encryptString($request->private_key), // Encriptar la llave privada
+                    'private_key' => $privateKeyToSave, // Encriptada o existente
                     'extra_config' => $extraConfig,
                     'activo' => $request->boolean('activo', true),
                 ]
             );
 
-            // Si se activa Wompi, activar también pagos online
+            // 7) Si se activa Wompi, activar también pagos online
             if ($wompiPasarela->activo) {
                 $pagoConfig->update(['pago_online' => true]);
                 Log::info('StoreWompi: Pagos online activados');
@@ -146,12 +240,26 @@ class PagosController extends Controller
 
             Log::info('StoreWompi: Configuración guardada exitosamente', ['wompiPasarela_id' => $wompiPasarela->idPasarela]);
             
+            // 8) Responder acorde: JSON para peticiones AJAX (Axios) o redirect para formularios normales
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '✅ Pasarela Wompi configurada correctamente.'
+                ]);
+            }
+
             return redirect()->route('admin.pagos.index')
-                ->with('success', 'Configuración de Wompi guardada exitosamente.');
+                ->with('success', '✅ Pasarela Wompi configurada correctamente.');
         } catch (\Exception $e) {
             Log::error('Error saving Wompi configuration: ' . $e->getMessage());
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Error al guardar la configuración de Wompi.'
+                ], 500);
+            }
             return redirect()->back()
-                ->with('error', 'Error al guardar la configuración de Wompi.')
+                ->with('error', '❌ Error al guardar la configuración de Wompi.')
                 ->withInput();
         }
     }

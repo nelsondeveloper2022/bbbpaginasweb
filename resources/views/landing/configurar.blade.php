@@ -309,33 +309,415 @@
             <form id="landing-form" action="{{ route('admin.landing.guardar') }}" method="POST" enctype="multipart/form-data" {{ !$profileComplete ? 'style=pointer-events:none;' : '' }}>
                 @csrf
 
-                <!-- Navigation Tabs -->
-                <div class="mb-4">
-                    <ul class="nav nav-tabs nav-fill" id="landingTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="contenido-tab" data-bs-toggle="tab" data-bs-target="#contenido" type="button" role="tab" aria-controls="contenido" aria-selected="true">
-                                <i class="bi bi-palette me-2"></i>
-                                Contenido y Diseño
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link position-relative" id="empresa-tab" data-bs-toggle="tab" data-bs-target="#empresa" type="button" role="tab" aria-controls="empresa" aria-selected="false">
-                                <i class="fas fa-building me-2"></i>
-                                Información Empresarial
-                                <span class="badge rounded-pill bg-warning text-dark ms-3">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                    Importante
-                                </span>
-                            </button>
-                        </li>
-                    </ul>
+                <!-- Información Empresarial (Primero) -->
+                <div id="seccion-empresa" class="mb-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <!-- Mensaje informativo -->
+                            <div class="alert alert-info border-0 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-info-circle me-3 fs-4"></i>
+                                    <div>
+                                        <h6 class="mb-1">Información Empresarial para tu Landing Page</h6>
+                                        <p class="mb-0 small">Esta información se utilizará para personalizar tu landing page y asegurar que tenga toda la información legal requerida.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if(!$empresaCompleta)
+                            <!-- Mensaje de campos requeridos para publicar -->
+                            <div class="alert alert-warning border-0 mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle me-3 fs-4"></i>
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <i class="bi bi-rocket me-2"></i>Campos requeridos para publicar
+                                        </h6>
+                                        <p class="mb-2 small">Para poder publicar tu landing page necesitas completar estos campos mínimos:</p>
+                                        <ul class="mb-0 small">
+                                            <li><strong>Nombre de la Empresa</strong> - Información básica de tu negocio</li>
+                                            <li><strong>WhatsApp</strong> - Para que tus clientes puedan contactarte</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                            <!-- Información Empresarial -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-building text-primary me-2"></i>
+                                        Información Empresarial
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-4">
+                                        <!-- Nombre de la Empresa -->
+                                        <div class="col-md-6">
+                                            <label for="empresa_nombre" class="form-label fw-bold">Nombre de la Empresa <span class="text-danger">*</span></label>
+                                            <input type="text" 
+                                                class="form-control @error('empresa_nombre') is-invalid @enderror" 
+                                                id="empresa_nombre" 
+                                                name="empresa_nombre" 
+                                                value="{{ old('empresa_nombre', $empresa->nombre ?? auth()->user()->empresa_nombre) }}" 
+                                                placeholder="Nombre de la empresa">
+                                            @error('empresa_nombre')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Email Corporativo -->
+                                        <div class="col-md-6">
+                                            <label for="empresa_email" class="form-label fw-bold">Email Corporativo</label>
+                                            <input type="email" 
+                                                class="form-control @error('empresa_email') is-invalid @enderror" 
+                                                id="empresa_email" 
+                                                name="empresa_email" 
+                                                value="{{ old('empresa_email', $empresa->email ?? auth()->user()->empresa_email) }}" 
+                                                placeholder="info@empresa.com">
+                                            @error('empresa_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Teléfono Empresa -->
+                                        <div class="col-md-6">
+                                            <label for="empresa_movil" class="form-label fw-bold">Teléfono Empresa</label>
+                                            <input type="tel" 
+                                                class="form-control @error('empresa_movil') is-invalid @enderror" 
+                                                id="empresa_movil" 
+                                                name="empresa_movil" 
+                                                value="{{ old('empresa_movil', $empresa->movil ?? '') }}" 
+                                                placeholder="+57 300 123 4567">
+                                            @error('empresa_movil')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- WhatsApp -->
+                                        <div class="col-md-6">
+                                            <label for="whatsapp" class="form-label fw-bold">WhatsApp <span class="text-danger">*</span></label>
+                                            <input type="tel" 
+                                                class="form-control @error('whatsapp') is-invalid @enderror" 
+                                                id="whatsapp" 
+                                                name="whatsapp" 
+                                                value="{{ old('whatsapp', $empresa->whatsapp ?? '') }}" 
+                                                placeholder="+57 300 123 4567">
+                                            @error('whatsapp')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Dirección -->
+                                        <div class="col-12">
+                                            <label for="empresa_direccion" class="form-label fw-bold">Dirección de la Empresa</label>
+                                            <textarea class="form-control @error('empresa_direccion') is-invalid @enderror" 
+                                                    id="empresa_direccion" 
+                                                    name="empresa_direccion" 
+                                                    rows="3"
+                                                    placeholder="Dirección de la empresa">{{ old('empresa_direccion', $empresa->direccion ?? auth()->user()->empresa_direccion) }}</textarea>
+                                            @error('empresa_direccion')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Website - Oculto temporalmente --}}
+                                        {{-- 
+                                        <div class="col-md-6">
+                                            <label for="website" class="form-label fw-bold">Sitio Web</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">https://</span>
+                                                <input type="text" 
+                                                    class="form-control @error('website') is-invalid @enderror" 
+                                                    id="website" 
+                                                    name="website" 
+                                                    value="{{ old('website', $empresa->website ?? '') }}" 
+                                                    placeholder="www.empresa.com">
+                                                @error('website')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <small class="text-muted">No incluyas "https://", se agregará automáticamente</small>
+                                        </div>
+                                        --}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Logo de la Empresa -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-image text-primary me-2"></i>
+                                        Logo de la Empresa
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="logo-preview mb-3" id="logo-preview">
+                                        @if($landing->logo_url)
+                                            <img src="{{ $landing->logo_full_url }}" alt="Logo actual" class="img-fluid rounded" style="max-height: 150px;">
+                                        @else
+                                            <div class="logo-placeholder bg-light border-2 border-dashed border-secondary rounded d-flex align-items-center justify-content-center" style="height: 150px;">
+                                                <div class="text-center">
+                                                    <i class="bi bi-image display-4 text-muted"></i>
+                                                    <p class="text-muted mt-2 mb-0">Sin logo</p>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <input type="file" 
+                                        class="form-control @error('logo') is-invalid @enderror" 
+                                        id="logo" 
+                                        name="logo" 
+                                        accept="image/*"
+                                        onchange="previewLogo(event)">
+                                    @error('logo')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted">Recomendado: PNG transparente, 300x100px</small>
+                                </div>
+                            </div>
+
+                            <!-- Imágenes Adicionales -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-images text-primary me-2"></i>
+                                        Imágenes Adicionales
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="upload-zone border-2 border-dashed border-secondary rounded p-4 text-center" 
+                                            id="media-upload-zone"
+                                            ondrop="handleDrop(event)" 
+                                            ondragover="handleDragOver(event)"
+                                            ondragleave="handleDragLeave(event)">
+                                            <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+                                            <p class="mb-2">Arrastra y suelta imágenes aquí o</p>
+                                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('media-input').click()">
+                                                Seleccionar Archivos
+                                            </button>
+                                            <input type="file" id="media-input" class="d-none" multiple accept="image/*" onchange="handleFileSelect(event)">
+                                            <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF, SVG (Max: 2MB por imagen)</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gallery de imágenes subidas -->
+                                    <div id="media-gallery" class="row g-3">
+                                        <!-- Las imágenes se cargarán aquí dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Redes Sociales -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-share text-primary me-2"></i>
+                                        Redes Sociales
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-4">
+                                        <!-- Facebook -->
+                                        <div class="col-md-6">
+                                            <label for="facebook" class="form-label fw-bold">
+                                                <i class="bi bi-facebook me-2"></i>Facebook
+                                            </label>
+                                            <input type="url" 
+                                                class="form-control @error('facebook') is-invalid @enderror" 
+                                                id="facebook" 
+                                                name="facebook" 
+                                                value="{{ old('facebook', $empresa->facebook ?? '') }}" 
+                                                placeholder="https://facebook.com/tu-empresa">
+                                            @error('facebook')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Instagram -->
+                                        <div class="col-md-6">
+                                            <label for="instagram" class="form-label fw-bold">
+                                                <i class="bi bi-instagram me-2"></i>Instagram
+                                            </label>
+                                            <input type="url" 
+                                                class="form-control @error('instagram') is-invalid @enderror" 
+                                                id="instagram" 
+                                                name="instagram" 
+                                                value="{{ old('instagram', $empresa->instagram ?? '') }}" 
+                                                placeholder="https://instagram.com/tu-empresa">
+                                            @error('instagram')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- LinkedIn -->
+                                        <div class="col-md-6">
+                                            <label for="linkedin" class="form-label fw-bold">
+                                                <i class="bi bi-linkedin me-2"></i>LinkedIn
+                                            </label>
+                                            <input type="url" 
+                                                class="form-control @error('linkedin') is-invalid @enderror" 
+                                                id="linkedin" 
+                                                name="linkedin" 
+                                                value="{{ old('linkedin', $empresa->linkedin ?? '') }}" 
+                                                placeholder="https://linkedin.com/company/tu-empresa">
+                                            @error('linkedin')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Twitter -->
+                                        <div class="col-md-6">
+                                            <label for="twitter" class="form-label fw-bold">
+                                                <i class="bi bi-twitter me-2"></i>Twitter
+                                            </label>
+                                            <input type="url" 
+                                                class="form-control @error('twitter') is-invalid @enderror" 
+                                                id="twitter" 
+                                                name="twitter" 
+                                                value="{{ old('twitter', $empresa->twitter ?? '') }}" 
+                                                placeholder="https://twitter.com/tu-empresa">
+                                            @error('twitter')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- TikTok -->
+                                        <div class="col-md-6">
+                                            <label for="tiktok" class="form-label fw-bold">
+                                                <i class="bi bi-tiktok me-2"></i>TikTok
+                                            </label>
+                                            <input type="url" 
+                                                class="form-control @error('tiktok') is-invalid @enderror" 
+                                                id="tiktok" 
+                                                name="tiktok" 
+                                                value="{{ old('tiktok', $empresa->tiktok ?? '') }}" 
+                                                placeholder="https://tiktok.com/@tu-empresa">
+                                            @error('tiktok')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- YouTube -->
+                                        <div class="col-md-6">
+                                            <label for="youtube" class="form-label fw-bold">
+                                                <i class="bi bi-youtube me-2"></i>YouTube
+                                            </label>
+                                            <input type="url" 
+                                                class="form-control @error('youtube') is-invalid @enderror" 
+                                                id="youtube" 
+                                                name="youtube" 
+                                                value="{{ old('youtube', $empresa->youtube ?? '') }}" 
+                                                placeholder="https://youtube.com/@tu-empresa">
+                                            @error('youtube')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Documentos Legales -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-file-text text-primary me-2"></i>
+                                        Documentos Legales
+                                    </h5>
+                                    <p class="small text-muted mt-2 mb-0">Información legal para tu sitio web</p>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Términos y Condiciones -->
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="terminos_condiciones" class="form-label fw-bold">
+                                                <i class="bi bi-file-text me-2"></i>Términos y Condiciones
+                                            </label>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                    onclick="cargarTextoBase('terminos_condiciones')"
+                                                    title="Cargar texto base para facilitar el llenado">
+                                                <i class="bi bi-magic me-1"></i>
+                                                Crear una base
+                                            </button>
+                                        </div>
+                                        <div id="terminos_condiciones_editor" style="height: 200px;"></div>
+                                        <textarea class="d-none @error('terminos_condiciones') is-invalid @enderror" 
+                                                id="terminos_condiciones" 
+                                                name="terminos_condiciones">{{ old('terminos_condiciones', $empresa->terminos_condiciones ?? '') }}</textarea>
+                                        @error('terminos_condiciones')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Usa el editor de texto para formatear tus términos y condiciones con negritas, listas, títulos y más.
+                                            <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Política de Privacidad -->
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="politica_privacidad" class="form-label fw-bold">
+                                                <i class="bi bi-shield-check me-2"></i>Política de Privacidad
+                                            </label>
+                                            <button type="button" class="btn btn-outline-success btn-sm" 
+                                                    onclick="cargarTextoBase('politica_privacidad')"
+                                                    title="Cargar texto base para facilitar el llenado">
+                                                <i class="bi bi-magic me-1"></i>
+                                                Crear una base
+                                            </button>
+                                        </div>
+                                        <div id="politica_privacidad_editor" style="height: 200px;"></div>
+                                        <textarea class="d-none @error('politica_privacidad') is-invalid @enderror" 
+                                                id="politica_privacidad" 
+                                                name="politica_privacidad">{{ old('politica_privacidad', $empresa->politica_privacidad ?? '') }}</textarea>
+                                        @error('politica_privacidad')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Usa el editor de texto para formatear tu política de privacidad con títulos, listas y formato profesional.
+                                            <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Política de Cookies -->
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="politica_cookies" class="form-label fw-bold">
+                                                <i class="bi bi-cookie-bite me-2"></i>Política de Cookies
+                                            </label>
+                                            <button type="button" class="btn btn-outline-warning btn-sm" 
+                                                    onclick="cargarTextoBase('politica_cookies')"
+                                                    title="Cargar texto base para facilitar el llenado">
+                                                <i class="bi bi-magic me-1"></i>
+                                                Crear una base
+                                            </button>
+                                        </div>
+                                        <div id="politica_cookies_editor" style="height: 200px;"></div>
+                                        <textarea class="d-none @error('politica_cookies') is-invalid @enderror" 
+                                                id="politica_cookies" 
+                                                name="politica_cookies">{{ old('politica_cookies', $empresa->politica_cookies ?? '') }}</textarea>
+                                        @error('politica_cookies')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Usa el editor de texto para explicar el uso de cookies con formato claro y profesional.
+                                            <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Tab Content -->
-                <div class="tab-content" id="landingTabContent">
-                    <!-- Tab: Contenido y Diseño -->
-                    <div class="tab-pane fade show active" id="contenido" role="tabpanel" aria-labelledby="contenido-tab">
-                        <div class="row">
+                <!-- Contenido y Diseño (Después) -->
+                <div id="seccion-contenido">
+                    <div class="row">
                             <!-- Columna Principal -->
                             <div class="col-lg-8">
                                 <!-- Sección: URL Personalizada -->
@@ -784,418 +1166,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Cierre del Tab: Contenido y Diseño -->
-
-                    <!-- Tab: Información Empresarial -->
-                    <div class="tab-pane fade" id="empresa" role="tabpanel" aria-labelledby="empresa-tab">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <!-- Mensaje informativo -->
-                                        <div class="alert alert-info border-0 mb-4">
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-info-circle me-3 fs-4"></i>
-                                                <div>
-                                                    <h6 class="mb-1">Información Empresarial para tu Landing Page</h6>
-                                                    <p class="mb-0 small">Esta información se utilizará para personalizar tu landing page y asegurar que tenga toda la información legal requerida.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        @if(!$empresaCompleta)
-                                        <!-- Mensaje de campos requeridos para publicar -->
-                                        <div class="alert alert-warning border-0 mb-4">
-                                            <div class="d-flex align-items-center">
-                                                <i class="bi bi-exclamation-triangle me-3 fs-4"></i>
-                                                <div>
-                                                    <h6 class="mb-1">
-                                                        <i class="bi bi-rocket me-2"></i>Campos requeridos para publicar
-                                                    </h6>
-                                                    <p class="mb-2 small">Para poder publicar tu landing page necesitas completar estos campos mínimos:</p>
-                                                    <ul class="mb-0 small">
-                                                        <li><strong>Nombre de la Empresa</strong> - Información básica de tu negocio</li>
-                                                        <li><strong>WhatsApp</strong> - Para que tus clientes puedan contactarte</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
-                                        <!-- Información Empresarial -->
-                                        <div class="card mb-4">
-                                            <div class="card-header">
-                                                <h5 class="card-title mb-0">
-                                                    <i class="bi bi-building text-primary me-2"></i>
-                                                    Información Empresarial
-                                                </h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-4">
-                                                    <!-- Nombre de la Empresa -->
-                                                    <div class="col-md-6">
-                                                        <label for="empresa_nombre" class="form-label fw-bold">Nombre de la Empresa <span class="text-danger">*</span></label>
-                                                        <input type="text" 
-                                                            class="form-control @error('empresa_nombre') is-invalid @enderror" 
-                                                            id="empresa_nombre" 
-                                                            name="empresa_nombre" 
-                                                            value="{{ old('empresa_nombre', $empresa->nombre ?? auth()->user()->empresa_nombre) }}" 
-                                                            placeholder="Nombre de la empresa">
-                                                        @error('empresa_nombre')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- Email Corporativo -->
-                                                    <div class="col-md-6">
-                                                        <label for="empresa_email" class="form-label fw-bold">Email Corporativo</label>
-                                                        <input type="email" 
-                                                            class="form-control @error('empresa_email') is-invalid @enderror" 
-                                                            id="empresa_email" 
-                                                            name="empresa_email" 
-                                                            value="{{ old('empresa_email', $empresa->email ?? auth()->user()->empresa_email) }}" 
-                                                            placeholder="info@empresa.com">
-                                                        @error('empresa_email')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- Teléfono Empresa -->
-                                                    <div class="col-md-6">
-                                                        <label for="empresa_movil" class="form-label fw-bold">Teléfono Empresa</label>
-                                                        <input type="tel" 
-                                                            class="form-control @error('empresa_movil') is-invalid @enderror" 
-                                                            id="empresa_movil" 
-                                                            name="empresa_movil" 
-                                                            value="{{ old('empresa_movil', $empresa->movil ?? '') }}" 
-                                                            placeholder="+57 300 123 4567">
-                                                        @error('empresa_movil')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- WhatsApp -->
-                                                    <div class="col-md-6">
-                                                        <label for="whatsapp" class="form-label fw-bold">WhatsApp <span class="text-danger">*</span></label>
-                                                        <input type="tel" 
-                                                            class="form-control @error('whatsapp') is-invalid @enderror" 
-                                                            id="whatsapp" 
-                                                            name="whatsapp" 
-                                                            value="{{ old('whatsapp', $empresa->whatsapp ?? '') }}" 
-                                                            placeholder="+57 300 123 4567">
-                                                        @error('whatsapp')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- Dirección -->
-                                                    <div class="col-12">
-                                                        <label for="empresa_direccion" class="form-label fw-bold">Dirección de la Empresa</label>
-                                                        <textarea class="form-control @error('empresa_direccion') is-invalid @enderror" 
-                                                                id="empresa_direccion" 
-                                                                name="empresa_direccion" 
-                                                                rows="3"
-                                                                placeholder="Dirección de la empresa">{{ old('empresa_direccion', $empresa->direccion ?? auth()->user()->empresa_direccion) }}</textarea>
-                                                        @error('empresa_direccion')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    {{-- Website - Oculto temporalmente --}}
-                                                    {{-- 
-                                                    <div class="col-md-6">
-                                                        <label for="website" class="form-label fw-bold">Sitio Web</label>
-                                                        <div class="input-group">
-                                                            <span class="input-group-text">https://</span>
-                                                            <input type="text" 
-                                                                class="form-control @error('website') is-invalid @enderror" 
-                                                                id="website" 
-                                                                name="website" 
-                                                                value="{{ old('website', $empresa->website ?? '') }}" 
-                                                                placeholder="www.empresa.com">
-                                                            @error('website')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-                                                        <small class="text-muted">No incluyas "https://", se agregará automáticamente</small>
-                                                    </div>
-                                                    --}}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Logo de la Empresa -->
-                                        <div class="card mb-4">
-                                            <div class="card-header">
-                                                <h5 class="card-title mb-0">
-                                                    <i class="bi bi-image text-primary me-2"></i>
-                                                    Logo de la Empresa
-                                                </h5>
-                                            </div>
-                                            <div class="card-body text-center">
-                                                <div class="logo-preview mb-3" id="logo-preview">
-                                                    @if($landing->logo_url)
-                                                        <img src="{{ $landing->logo_full_url }}" alt="Logo actual" class="img-fluid rounded" style="max-height: 150px;">
-                                                    @else
-                                                        <div class="logo-placeholder bg-light border-2 border-dashed border-secondary rounded d-flex align-items-center justify-content-center" style="height: 150px;">
-                                                            <div class="text-center">
-                                                                <i class="bi bi-image display-4 text-muted"></i>
-                                                                <p class="text-muted mt-2 mb-0">Sin logo</p>
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                                <input type="file" 
-                                                    class="form-control @error('logo') is-invalid @enderror" 
-                                                    id="logo" 
-                                                    name="logo" 
-                                                    accept="image/*"
-                                                    onchange="previewLogo(event)">
-                                                @error('logo')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                                <small class="text-muted">Recomendado: PNG transparente, 300x100px</small>
-                                            </div>
-                                        </div>
-
-                                        <!-- Imágenes Adicionales -->
-                                        <div class="card mb-4">
-                                            <div class="card-header">
-                                                <h5 class="card-title mb-0">
-                                                    <i class="bi bi-images text-primary me-2"></i>
-                                                    Imágenes Adicionales
-                                                </h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="mb-3">
-                                                    <div class="upload-zone border-2 border-dashed border-secondary rounded p-4 text-center" 
-                                                        id="media-upload-zone"
-                                                        ondrop="handleDrop(event)" 
-                                                        ondragover="handleDragOver(event)"
-                                                        ondragleave="handleDragLeave(event)">
-                                                        <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
-                                                        <p class="mb-2">Arrastra y suelta imágenes aquí o</p>
-                                                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('media-input').click()">
-                                                            Seleccionar Archivos
-                                                        </button>
-                                                        <input type="file" id="media-input" class="d-none" multiple accept="image/*" onchange="handleFileSelect(event)">
-                                                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF, SVG (Max: 2MB por imagen)</small>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Gallery de imágenes subidas -->
-                                                <div id="media-gallery" class="row g-3">
-                                                    <!-- Las imágenes se cargarán aquí dinámicamente -->
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Redes Sociales -->
-                                        <div class="card mb-4">
-                                            <div class="card-header">
-                                                <h5 class="card-title mb-0">
-                                                    <i class="bi bi-share text-primary me-2"></i>
-                                                    Redes Sociales
-                                                </h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-4">
-                                                    <!-- Facebook -->
-                                                    <div class="col-md-6">
-                                                        <label for="facebook" class="form-label fw-bold">
-                                                            <i class="bi bi-facebook me-2"></i>Facebook
-                                                        </label>
-                                                        <input type="url" 
-                                                            class="form-control @error('facebook') is-invalid @enderror" 
-                                                            id="facebook" 
-                                                            name="facebook" 
-                                                            value="{{ old('facebook', $empresa->facebook ?? '') }}" 
-                                                            placeholder="https://facebook.com/tu-empresa">
-                                                        @error('facebook')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- Instagram -->
-                                                    <div class="col-md-6">
-                                                        <label for="instagram" class="form-label fw-bold">
-                                                            <i class="bi bi-instagram me-2"></i>Instagram
-                                                        </label>
-                                                        <input type="url" 
-                                                            class="form-control @error('instagram') is-invalid @enderror" 
-                                                            id="instagram" 
-                                                            name="instagram" 
-                                                            value="{{ old('instagram', $empresa->instagram ?? '') }}" 
-                                                            placeholder="https://instagram.com/tu-empresa">
-                                                        @error('instagram')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- LinkedIn -->
-                                                    <div class="col-md-6">
-                                                        <label for="linkedin" class="form-label fw-bold">
-                                                            <i class="bi bi-linkedin me-2"></i>LinkedIn
-                                                        </label>
-                                                        <input type="url" 
-                                                            class="form-control @error('linkedin') is-invalid @enderror" 
-                                                            id="linkedin" 
-                                                            name="linkedin" 
-                                                            value="{{ old('linkedin', $empresa->linkedin ?? '') }}" 
-                                                            placeholder="https://linkedin.com/company/tu-empresa">
-                                                        @error('linkedin')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- Twitter -->
-                                                    <div class="col-md-6">
-                                                        <label for="twitter" class="form-label fw-bold">
-                                                            <i class="bi bi-twitter me-2"></i>Twitter
-                                                        </label>
-                                                        <input type="url" 
-                                                            class="form-control @error('twitter') is-invalid @enderror" 
-                                                            id="twitter" 
-                                                            name="twitter" 
-                                                            value="{{ old('twitter', $empresa->twitter ?? '') }}" 
-                                                            placeholder="https://twitter.com/tu-empresa">
-                                                        @error('twitter')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- TikTok -->
-                                                    <div class="col-md-6">
-                                                        <label for="tiktok" class="form-label fw-bold">
-                                                            <i class="bi bi-tiktok me-2"></i>TikTok
-                                                        </label>
-                                                        <input type="url" 
-                                                            class="form-control @error('tiktok') is-invalid @enderror" 
-                                                            id="tiktok" 
-                                                            name="tiktok" 
-                                                            value="{{ old('tiktok', $empresa->tiktok ?? '') }}" 
-                                                            placeholder="https://tiktok.com/@tu-empresa">
-                                                        @error('tiktok')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-
-                                                    <!-- YouTube -->
-                                                    <div class="col-md-6">
-                                                        <label for="youtube" class="form-label fw-bold">
-                                                            <i class="bi bi-youtube me-2"></i>YouTube
-                                                        </label>
-                                                        <input type="url" 
-                                                            class="form-control @error('youtube') is-invalid @enderror" 
-                                                            id="youtube" 
-                                                            name="youtube" 
-                                                            value="{{ old('youtube', $empresa->youtube ?? '') }}" 
-                                                            placeholder="https://youtube.com/@tu-empresa">
-                                                        @error('youtube')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Documentos Legales -->
-                                        <div class="card mb-4">
-                                            <div class="card-header">
-                                                <h5 class="card-title mb-0">
-                                                    <i class="bi bi-file-text text-primary me-2"></i>
-                                                    Documentos Legales
-                                                </h5>
-                                                <p class="small text-muted mt-2 mb-0">Información legal para tu sitio web</p>
-                                            </div>
-                                            <div class="card-body">
-                                                <!-- Términos y Condiciones -->
-                                                <div class="mb-4">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <label for="terminos_condiciones" class="form-label fw-bold">
-                                                            <i class="bi bi-file-text me-2"></i>Términos y Condiciones
-                                                        </label>
-                                                        <button type="button" class="btn btn-outline-primary btn-sm" 
-                                                                onclick="cargarTextoBase('terminos_condiciones')"
-                                                                title="Cargar texto base para facilitar el llenado">
-                                                            <i class="bi bi-magic me-1"></i>
-                                                            Crear una base
-                                                        </button>
-                                                    </div>
-                                                    <div id="terminos_condiciones_editor" style="height: 200px;"></div>
-                                                    <textarea class="d-none @error('terminos_condiciones') is-invalid @enderror" 
-                                                            id="terminos_condiciones" 
-                                                            name="terminos_condiciones">{{ old('terminos_condiciones', $empresa->terminos_condiciones ?? '') }}</textarea>
-                                                    @error('terminos_condiciones')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                    <div class="form-text">
-                                                        <i class="bi bi-info-circle me-1"></i>
-                                                        Usa el editor de texto para formatear tus términos y condiciones con negritas, listas, títulos y más.
-                                                        <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Política de Privacidad -->
-                                                <div class="mb-4">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <label for="politica_privacidad" class="form-label fw-bold">
-                                                            <i class="bi bi-shield-check me-2"></i>Política de Privacidad
-                                                        </label>
-                                                        <button type="button" class="btn btn-outline-success btn-sm" 
-                                                                onclick="cargarTextoBase('politica_privacidad')"
-                                                                title="Cargar texto base para facilitar el llenado">
-                                                            <i class="bi bi-magic me-1"></i>
-                                                            Crear una base
-                                                        </button>
-                                                    </div>
-                                                    <div id="politica_privacidad_editor" style="height: 200px;"></div>
-                                                    <textarea class="d-none @error('politica_privacidad') is-invalid @enderror" 
-                                                            id="politica_privacidad" 
-                                                            name="politica_privacidad">{{ old('politica_privacidad', $empresa->politica_privacidad ?? '') }}</textarea>
-                                                    @error('politica_privacidad')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                    <div class="form-text">
-                                                        <i class="bi bi-info-circle me-1"></i>
-                                                        Usa el editor de texto para formatear tu política de privacidad con títulos, listas y formato profesional.
-                                                        <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Política de Cookies -->
-                                                <div class="mb-4">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <label for="politica_cookies" class="form-label fw-bold">
-                                                            <i class="bi bi-cookie-bite me-2"></i>Política de Cookies
-                                                        </label>
-                                                        <button type="button" class="btn btn-outline-warning btn-sm" 
-                                                                onclick="cargarTextoBase('politica_cookies')"
-                                                                title="Cargar texto base para facilitar el llenado">
-                                                            <i class="bi bi-magic me-1"></i>
-                                                            Crear una base
-                                                        </button>
-                                                    </div>
-                                                    <div id="politica_cookies_editor" style="height: 200px;"></div>
-                                                    <textarea class="d-none @error('politica_cookies') is-invalid @enderror" 
-                                                            id="politica_cookies" 
-                                                            name="politica_cookies">{{ old('politica_cookies', $empresa->politica_cookies ?? '') }}</textarea>
-                                                    @error('politica_cookies')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                    <div class="form-text">
-                                                        <i class="bi bi-info-circle me-1"></i>
-                                                        Usa el editor de texto para explicar el uso de cookies con formato claro y profesional.
-                                                        <br><small class="text-muted">💡 Tip: Usa el botón "crear una base" para obtener un texto inicial que puedes personalizar.</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Cierre del Tab: Información Empresarial -->
                 </div>
-                <!-- Cierre de Tab Content -->
             </form>
             
             @if(!$profileComplete)
@@ -1212,45 +1183,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
 <style>
-    /* Estilos para los tabs */
-    .nav-tabs .nav-link {
-        color: #495057;
-        border: 1px solid transparent;
-        border-top-left-radius: 0.375rem;
-        border-top-right-radius: 0.375rem;
-        background-color: #f8f9fa;
-        margin-bottom: -1px;
-        transition: all 0.3s ease;
-    }
-    
-    .nav-tabs .nav-link:hover {
-        background-color: #e9ecef;
-        border-color: #e9ecef #e9ecef #dee2e6;
-    }
-    
-    .nav-tabs .nav-link.active {
-        color: #0d6efd;
-        background-color: #fff;
-        border-color: #dee2e6 #dee2e6 #fff;
-        font-weight: 500;
-    }
-    
-    .tab-content {
-        border: 1px solid #dee2e6;
-        border-top: none;
-        background-color: #fff;
-        border-radius: 0 0 0.375rem 0.375rem;
-        padding: 0;
-    }
-    
-    .tab-pane {
-        padding: 20px;
-        min-height: 400px;
-    }
-    
-    .tab-pane.active {
-        display: block !important;
-    }
+    /* El layout ya no usa tabs; estilos eliminados */
     
     /* Estilos para el bloqueo del perfil */
     .profile-lock-overlay {
@@ -1669,46 +1602,20 @@ function irACampo(campoId, nombreCampo) {
     // Cerrar el SweetAlert primero
     Swal.close();
     
-    // Buscar en qué tab está el campo
-    const campoInfo = {
-        'logo': 'contenido', 'color_principal': 'contenido', 'color_secundario': 'contenido',
-        'tipografia': 'contenido', 'estilo': 'contenido', 'objetivo': 'contenido',
-        'descripcion_objetivo': 'contenido', 'audiencia_descripcion': 'contenido',
-        'audiencia_problemas': 'contenido', 'audiencia_beneficios': 'contenido',
-        'titulo_principal': 'contenido', 'subtitulo': 'contenido', 'descripcion': 'contenido',
-        'empresa_nombre': 'empresa', 'empresa_email': 'empresa', 'whatsapp': 'empresa',
-        'empresa_movil': 'empresa', 'empresa_direccion': 'empresa', 'website': 'empresa',
-        'facebook': 'empresa', 'instagram': 'empresa', 'linkedin': 'empresa',
-        'twitter': 'empresa', 'tiktok': 'empresa', 'youtube': 'empresa'
-    };
-    
-    const tabRequerido = campoInfo[campoId];
-    
-    // Activar el tab correcto si es necesario
-    if (tabRequerido) {
-        const tabButton = document.getElementById(tabRequerido + '-tab');
-        if (tabButton && !tabButton.classList.contains('active')) {
-            const tabTrigger = new bootstrap.Tab(tabButton);
-            tabTrigger.show();
-        }
-    }
-    
-    // Esperar a que se active el tab y luego buscar el campo
-    setTimeout(() => {
-        const elemento = document.getElementById(campoId);
-        if (elemento) {
-            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Desplazarse directamente al campo y resaltarlo
+    const elemento = document.getElementById(campoId);
+    if (elemento) {
+        elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+            elemento.focus();
+            elemento.style.boxShadow = '0 0 0 3px rgba(0, 123, 255, 0.25)';
+            elemento.style.borderColor = '#007bff';
             setTimeout(() => {
-                elemento.focus();
-                elemento.style.boxShadow = '0 0 0 3px rgba(0, 123, 255, 0.25)';
-                elemento.style.borderColor = '#007bff';
-                setTimeout(() => {
-                    elemento.style.boxShadow = '';
-                    elemento.style.borderColor = '';
-                }, 2000);
-            }, 500);
-        }
-    }, tabRequerido ? 300 : 0);
+                elemento.style.boxShadow = '';
+                elemento.style.borderColor = '';
+            }, 2000);
+        }, 500);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -2106,26 +2013,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 @endif
 
-// Activar tab de empresa si hay errores en campos empresariales
+// Si hay errores en información empresarial, desplazarse a la primera ocurrencia
 document.addEventListener('DOMContentLoaded', function() {
-    const empresaErrors = document.querySelectorAll('#empresa .is-invalid');
-    if (empresaErrors.length > 0) {
-        const empresaTab = document.getElementById('empresa-tab');
-        const empresaTabPane = document.getElementById('empresa');
-        const contenidoTab = document.getElementById('contenido-tab');
-        const contenidoTabPane = document.getElementById('contenido');
-        
-        if (empresaTab && empresaTabPane && contenidoTab && contenidoTabPane) {
-            // Desactivar tab de contenido
-            contenidoTab.classList.remove('active');
-            contenidoTab.setAttribute('aria-selected', 'false');
-            contenidoTabPane.classList.remove('show', 'active');
-            
-            // Activar tab de empresa
-            empresaTab.classList.add('active');
-            empresaTab.setAttribute('aria-selected', 'true');
-            empresaTabPane.classList.add('show', 'active');
-        }
+    const primeraInvalida = document.querySelector('#seccion-empresa .is-invalid');
+    if (primeraInvalida) {
+        primeraInvalida.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 });
 
