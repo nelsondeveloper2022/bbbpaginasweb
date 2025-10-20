@@ -4,34 +4,38 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">
-                <i class="bi bi-receipt me-2"></i>
-                Venta #{{ $venta->idVenta }}
-            </h1>
-            <div class="d-flex gap-2">
-                @if($venta->estado !== 'completada')
-                    <a href="{{ route('admin.ventas.edit', $venta) }}" class="btn btn-warning">
-                        <i class="bi bi-pencil me-1"></i> Editar
+        <div class="row align-items-center mb-4">
+            <div class="col-12 mb-3 mb-md-0">
+                <h1 class="h3 mb-2">
+                    <i class="bi bi-receipt me-2"></i>
+                    Venta <span class="d-none d-sm-inline">#</span>{{ $venta->idVenta }}
+                </h1>
+            </div>
+            <div class="col-12">
+                <div class="d-flex flex-wrap gap-2">
+                    @if($venta->estado !== 'completada')
+                        <a href="{{ route('admin.ventas.edit', $venta) }}" class="btn btn-warning flex-fill flex-sm-grow-0">
+                            <i class="bi bi-pencil me-1"></i> <span class="d-none d-sm-inline">Editar</span>
+                        </a>
+                    @endif
+                    <a href="{{ route('admin.ventas.print', $venta) }}" target="_blank" class="btn btn-outline-primary flex-fill flex-sm-grow-0">
+                        <i class="bi bi-printer me-1"></i> <span class="d-none d-sm-inline">Imprimir</span>
                     </a>
-                @endif
-                <a href="{{ route('admin.ventas.print', $venta) }}" target="_blank" class="btn btn-outline-primary">
-                    <i class="bi bi-printer me-1"></i> Imprimir
-                </a>
-                <a href="{{ route('admin.ventas.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Volver
-                </a>
+                    <a href="{{ route('admin.ventas.index') }}" class="btn btn-outline-secondary flex-fill flex-sm-grow-0">
+                        <i class="bi bi-arrow-left me-1"></i> <span class="d-none d-sm-inline">Volver</span>
+                    </a>
+                </div>
             </div>
         </div>
 
         <div class="row">
             <!-- Información de la Venta -->
-            <div class="col-lg-8">
+            <div class="col-12 col-lg-8 order-2 order-lg-1">
                 <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
                         <h5 class="mb-0">
                             <i class="bi bi-info-circle me-2"></i>
-                            Información de la Venta
+                            <span class="d-none d-md-inline">Información de la </span>Venta
                         </h5>
                         <div>
                             @switch($venta->estado)
@@ -52,14 +56,14 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6 mb-3 mb-md-0">
                                 <table class="table table-borderless table-sm">
                                     <tr>
-                                        <td><strong>Fecha de Venta:</strong></td>
+                                        <td class="text-nowrap"><strong>Fecha de Venta:</strong></td>
                                         <td>{{ format_colombian_datetime($venta->fecha) }}</td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Estado:</strong></td>
+                                        <td class="text-nowrap"><strong>Estado:</strong></td>
                                         <td>
                                             <span class="text-capitalize">{{ $venta->estado }}</span>
                                             @if($venta->estado !== 'completada')
@@ -72,19 +76,19 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Método de Pago:</strong></td>
+                                        <td class="text-nowrap"><strong>Método de Pago:</strong></td>
                                         <td class="text-capitalize">{{ $venta->metodo_pago ?? 'No especificado' }}</td>
                                     </tr>
                                 </table>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <table class="table table-borderless table-sm">
                                     <tr>
-                                        <td><strong>Total de Productos:</strong></td>
+                                        <td class="text-nowrap"><strong>Total de Productos:</strong></td>
                                         <td>{{ $venta->detalles->sum('cantidad') }} unidades</td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Costo de Envío:</strong></td>
+                                        <td class="text-nowrap"><strong>Costo de Envío:</strong></td>
                                         <td>
                                             @if($venta->totalEnvio && $venta->totalEnvio > 0)
                                                 {{ format_cop_price($venta->totalEnvio) }}
@@ -94,7 +98,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Total de la Venta:</strong></td>
+                                        <td class="text-nowrap"><strong>Total de la Venta:</strong></td>
                                         <td><strong class="text-primary">{{ format_cop_price($venta->total) }}</strong></td>
                                     </tr>
                                 </table>
@@ -123,11 +127,12 @@
                     <div class="card-header">
                         <h5 class="mb-0">
                             <i class="bi bi-box me-2"></i>
-                            Productos ({{ $venta->detalles->count() }})
+                            Productos <span class="badge bg-primary">{{ $venta->detalles->count() }}</span>
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <!-- Vista Desktop -->
+                        <div class="table-responsive d-none d-md-block">
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
@@ -199,12 +204,75 @@
                                 </tfoot>
                             </table>
                         </div>
+
+                        <!-- Vista Mobile -->
+                        <div class="d-md-none">
+                            @foreach($venta->detalles as $detalle)
+                                <div class="producto-card-mobile mb-3">
+                                    <div class="d-flex align-items-start">
+                                        @if($detalle->producto->imagenPrincipal)
+                                            <img src="{{ $detalle->producto->imagenPrincipal->url_complete }}" 
+                                                 class="rounded me-3 flex-shrink-0" 
+                                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                                 alt="{{ $detalle->producto->nombre }}">
+                                        @else
+                                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center flex-shrink-0" 
+                                                 style="width: 60px; height: 60px;">
+                                                <i class="bi bi-image text-muted"></i>
+                                            </div>
+                                        @endif
+                                        <div class="flex-grow-1" style="min-width: 0;">
+                                            <h6 class="mb-1 text-truncate">{{ $detalle->producto->nombre }}</h6>
+                                            @if($detalle->producto->descripcion)
+                                                <p class="text-muted small mb-2">{{ Str::limit($detalle->producto->descripcion, 60) }}</p>
+                                            @endif
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Cantidad</small>
+                                                    <span class="badge bg-secondary">{{ $detalle->cantidad }}</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Precio Unit.</small>
+                                                    <span class="fw-semibold">{{ format_cop_price($detalle->precio_unitario) }}</span>
+                                                </div>
+                                                <div class="col-12">
+                                                    <small class="text-muted d-block">Subtotal</small>
+                                                    <strong class="text-primary">{{ format_cop_price($detalle->subtotal) }}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            <!-- Totales Mobile -->
+                            <div class="border-top pt-3 mt-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Subtotal:</span>
+                                    <strong>{{ format_cop_price($venta->detalles->sum('subtotal')) }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Envío:</span>
+                                    <strong>
+                                        @if($venta->totalEnvio && $venta->totalEnvio > 0)
+                                            {{ format_cop_price($venta->totalEnvio) }}
+                                        @else
+                                            <span class="text-success">Gratis</span>
+                                        @endif
+                                    </strong>
+                                </div>
+                                <div class="d-flex justify-content-between border-top pt-2">
+                                    <span class="fw-bold">Total:</span>
+                                    <span class="h5 text-primary mb-0">{{ format_cop_price($venta->total) }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Información del Cliente -->
-            <div class="col-lg-4">
+            <div class="col-12 col-lg-4 order-1 order-lg-2">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
@@ -320,6 +388,62 @@
         }
         .card {
             border: 1px solid #000 !important;
+        }
+    }
+
+    /* Mobile Optimizations - v2.0 */
+    .producto-card-mobile {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+    }
+
+    @media (max-width: 767px) {
+        /* Header mobile */
+        .container-fluid > .row.align-items-center h1 {
+            font-size: 1.5rem !important;
+        }
+
+        /* Cards responsive */
+        .card-header h5 {
+            font-size: 1rem !important;
+        }
+
+        /* Tablas mobile */
+        .table td, .table th {
+            font-size: 0.875rem !important;
+            padding: 0.5rem 0.25rem !important;
+        }
+
+        /* Producto card mobile */
+        .producto-card-mobile {
+            padding: 0.75rem;
+        }
+
+        .producto-card-mobile h6 {
+            font-size: 0.9rem;
+        }
+
+        .producto-card-mobile .small {
+            font-size: 0.75rem !important;
+        }
+
+        /* Buttons mobile */
+        .btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        /* Cliente card */
+        .card-body a {
+            word-break: break-all;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .flex-fill {
+            min-width: 100% !important;
         }
     }
 </style>

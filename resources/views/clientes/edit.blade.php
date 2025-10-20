@@ -4,21 +4,23 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
+        <div class="row align-items-center mb-4">
+            <div class="col-12 col-md-auto flex-grow-1 mb-3 mb-md-0">
                 <h1 class="h3 mb-1">
                     <i class="bi bi-person-gear me-2"></i>
                     Editar Cliente
                 </h1>
-                <p class="text-muted mb-0">Modificar información de {{ $cliente->nombre }}</p>
+                <p class="text-muted mb-0 small">Modificar información de {{ $cliente->nombre }}</p>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('admin.clientes.show', $cliente) }}" class="btn btn-outline-info">
-                    <i class="bi bi-eye me-1"></i> Ver Detalle
-                </a>
-                <a href="{{ route('admin.clientes.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Volver
-                </a>
+            <div class="col-12 col-md-auto">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('admin.clientes.show', $cliente) }}" class="btn btn-outline-info flex-fill flex-sm-grow-0">
+                        <i class="bi bi-eye me-1"></i> <span class="d-none d-sm-inline">Ver Detalle</span>
+                    </a>
+                    <a href="{{ route('admin.clientes.index') }}" class="btn btn-outline-secondary flex-fill flex-sm-grow-0">
+                        <i class="bi bi-arrow-left me-1"></i> <span class="d-none d-sm-inline">Volver</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -31,12 +33,12 @@
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-person me-2"></i>
-                        Información Básica
+                        <span class="d-none d-md-inline">Información </span>Básica
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-8">
+                        <div class="col-12 col-md-8 col-xl-6 mb-3 mb-xl-0">
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">
                                     Nombre Completo <span class="text-danger">*</span>
@@ -54,7 +56,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-xl-6 col-lg-6 col-md-4">
+                        <div class="col-12 col-md-4 col-xl-6">
                             <div class="mb-3">
                                 <label for="estado" class="form-label">
                                     Estado
@@ -85,13 +87,12 @@
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-envelope me-2"></i>
-                        Información de Contacto
+                        <span class="d-none d-md-inline">Información de </span>Contacto
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
+                        <div class="col-12 col-md-6 mb-3">
                                 <label for="email" class="form-label">
                                     Correo Electrónico <span class="text-danger">*</span>
                                 </label>
@@ -113,7 +114,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6 mb-3">
                             <div class="mb-3">
                                 <label for="telefono" class="form-label">
                                     Teléfono
@@ -420,4 +421,57 @@ function confirmarEliminacion() {
     });
 }
 </script>
+
+@push('styles')
+<style>
+/* ============================================
+   MOBILE OPTIMIZATIONS - v2.0
+   ============================================ */
+
+@media (max-width: 767px) {
+    /* Header mobile */
+    .container-fluid > .row.align-items-center h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .container-fluid > .row.align-items-center p {
+        font-size: 0.875rem !important;
+    }
+
+    /* Cards mobile */
+    .card-header h5 {
+        font-size: 1rem !important;
+    }
+
+    /* Form controls mobile */
+    .form-control,
+    .form-select {
+        font-size: 0.875rem !important;
+        min-height: 44px;
+    }
+
+    .input-group-text {
+        font-size: 0.875rem !important;
+    }
+
+    /* Labels mobile */
+    .form-label {
+        font-size: 0.875rem !important;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Botones mobile */
+    .btn {
+        min-height: 44px;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .flex-fill {
+        min-width: 100% !important;
+    }
+}
+</style>
+@endpush
 @endpush

@@ -7,6 +7,37 @@
 <link href="{{ asset('css/profile-enhancements.css') }}" rel="stylesheet">
 <!-- SweetAlert2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+<style>
+    /* Mobile Payment Cards */
+    .payment-card-mobile {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: box-shadow 0.2s;
+    }
+    
+    .payment-card-mobile:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    @media (max-width: 575px) {
+        .payment-card-mobile {
+            padding: 0.75rem;
+        }
+        
+        .payment-card-mobile .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .payment-card-mobile .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.6rem;
+            min-height: 44px;
+        }
+    }
+</style>
 @endpush
 
 @section('content')
@@ -607,10 +638,10 @@
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-gradient border-0" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                     <h5 class="mb-0 text-dark fw-bold">
                         <i class="bi bi-receipt me-2 text-primary"></i>
-                        Histórico de Pagos
+                        <span class="d-none d-md-inline">Histórico de </span>Pagos
                     </h5>
                     <div>
                         @php
@@ -634,7 +665,8 @@
                 @endphp
                 
                 @if($renovaciones->count() > 0)
-                    <div class="table-responsive">
+                    <!-- Vista Desktop -->
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
@@ -734,23 +766,86 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Vista Mobile -->
+                    <div class="d-md-none px-3 py-2">
+                        @foreach($renovaciones as $renovacion)
+                            <div class="payment-card-mobile mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <div class="fw-semibold">{{ $renovacion->created_at->format('d/m/Y') }}</div>
+                                        <small class="text-muted">{{ $renovacion->created_at->format('H:i') }}</small>
+                                    </div>
+                                    @php
+                                        $statusConfig = [
+                                            'completed' => ['class' => 'bg-success', 'icon' => 'check-circle', 'text' => 'Completado'],
+                                            'pending' => ['class' => 'bg-warning', 'icon' => 'hourglass-split', 'text' => 'Pendiente'],
+                                            'failed' => ['class' => 'bg-danger', 'icon' => 'x-circle', 'text' => 'Fallido'],
+                                            'cancelled' => ['class' => 'bg-secondary', 'icon' => 'dash-circle', 'text' => 'Cancelado'],
+                                            'refunded' => ['class' => 'bg-info', 'icon' => 'arrow-counterclockwise', 'text' => 'Reembolsado']
+                                        ];
+                                        $config = $statusConfig[$renovacion->status] ?? ['class' => 'bg-secondary', 'icon' => 'question-circle', 'text' => ucfirst($renovacion->status)];
+                                    @endphp
+                                    <span class="badge {{ $config['class'] }} px-2 py-1">
+                                        <i class="bi bi-{{ $config['icon'] }} me-1"></i>
+                                        {{ $config['text'] }}
+                                    </span>
+                                </div>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Plan</small>
+                                        <div class="fw-semibold">{{ $renovacion->plan->nombre ?? 'N/A' }}</div>
+                                        @if($renovacion->plan && $renovacion->plan->dias > 0)
+                                            <small class="text-muted">{{ $renovacion->plan->dias }} días</small>
+                                        @elseif($renovacion->plan)
+                                            <small class="text-muted">De por vida</small>
+                                        @endif
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Monto</small>
+                                        <div class="fw-bold text-primary">${{ number_format($renovacion->amount, 0, ',', '.') }}</div>
+                                        <small class="text-muted">{{ $renovacion->currency ?? 'COP' }}</small>
+                                    </div>
+                                </div>
+                                @if($renovacion->transaction_id)
+                                    <div class="mb-2">
+                                        <small class="text-muted">ID: {{ $renovacion->transaction_id }}</small>
+                                    </div>
+                                @endif
+                                <div class="d-flex gap-2">
+                                    <button type="button" 
+                                            class="btn btn-outline-primary btn-sm flex-fill" 
+                                            onclick="downloadInvoice('{{ $renovacion->id }}')">
+                                        <i class="bi bi-download me-1"></i> Recibo
+                                    </button>
+                                    @if($renovacion->notes)
+                                        <button type="button" 
+                                                class="btn btn-outline-info btn-sm flex-fill" 
+                                                onclick="showPaymentDetails('{{ $renovacion->id }}', '{{ addslashes($renovacion->notes) }}', '{{ $renovacion->gateway ?? 'N/A' }}', '{{ $renovacion->payment_method ?? 'N/A' }}')">
+                                            <i class="bi bi-info-circle me-1"></i> Detalles
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                     
                     <!-- Payment Summary Footer -->
                     <div class="px-4 py-3 bg-light border-top">
-                        <div class="row text-center">
-                            <div class="col-md-3">
+                        <div class="row text-center g-3">
+                            <div class="col-6 col-md-3">
                                 <div class="stat-item">
                                     <div class="stat-value text-primary fw-bold">{{ $totalPagos }}</div>
                                     <div class="stat-label text-muted small">Total de Pagos</div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-6 col-md-3">
                                 <div class="stat-item">
                                     <div class="stat-value text-success fw-bold">{{ $pagosCompletados }}</div>
                                     <div class="stat-label text-muted small">Completados</div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-6 col-md-3">
                                 @php
                                     $totalGastado = auth()->user()->renovaciones()->completed()->sum('amount');
                                 @endphp
@@ -759,7 +854,7 @@
                                     <div class="stat-label text-muted small">Total Gastado</div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-6 col-md-3">
                                 @php
                                     $ultimoPago = auth()->user()->renovaciones()->completed()->latest()->first();
                                 @endphp

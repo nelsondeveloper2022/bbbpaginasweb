@@ -499,6 +499,6 @@ class AdminController extends Controller
     {
         $baseUrl = config('app.url');
         $slug = $empresa->slug ?: 'empresa-' . $empresa->idEmpresa;
-        return $baseUrl . '/landing/' . $slug;
+        return $baseUrl . '/' . $slug;
     }
 }

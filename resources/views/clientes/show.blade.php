@@ -4,13 +4,13 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-start mb-4">
-            <div>
-                <h1 class="h3 mb-1">
+        <div class="row align-items-start mb-4">
+            <div class="col-12 mb-3 mb-md-0">
+                <h1 class="h3 mb-2">
                     <i class="bi bi-person me-2"></i>
                     {{ $cliente->nombre }}
                 </h1>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center flex-wrap gap-2">
                     <span class="badge {{ $cliente->estado == 'activo' ? 'bg-success' : 'bg-secondary' }} fs-6">
                         <i class="bi bi-{{ $cliente->estado == 'activo' ? 'check-circle' : 'x-circle' }} me-1"></i>
                         {{ ucfirst($cliente->estado) }}
@@ -20,35 +20,36 @@
                     </small>
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('admin.clientes.edit', $cliente) }}" class="btn btn-primary-gold">
-                    <i class="bi bi-pencil me-1"></i> Editar
-                </a>
-                <a href="{{ route('admin.clientes.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Volver
-                </a>
+            <div class="col-12">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('admin.clientes.edit', $cliente) }}" class="btn btn-primary-gold flex-fill flex-sm-grow-0">
+                        <i class="bi bi-pencil me-1"></i> <span class="d-none d-sm-inline">Editar</span>
+                    </a>
+                    <a href="{{ route('admin.clientes.index') }}" class="btn btn-outline-secondary flex-fill flex-sm-grow-0">
+                        <i class="bi bi-arrow-left me-1"></i> <span class="d-none d-sm-inline">Volver</span>
+                    </a>
+                </div>
             </div>
         </div>
 
         <div class="row">
             <!-- Información del Cliente -->
-            <div class="col-xl-8 col-lg-7">
+            <div class="col-12 col-lg-7 col-xl-8 order-2 order-lg-1">
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">
                             <i class="bi bi-info-circle me-2"></i>
-                            Información del Cliente
+                            <span class="d-none d-md-inline">Información del </span>Cliente
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                     <label class="form-label text-muted small">NOMBRE COMPLETO</label>
                                     <div class="fw-medium">{{ $cliente->nombre }}</div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6 mb-3">
                                 <div class="mb-3">
                                     <label class="form-label text-muted small">CORREO ELECTRÓNICO</label>
                                     <div class="fw-medium">
@@ -63,7 +64,7 @@
 
                         @if($cliente->telefono)
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6 mb-3">
                                 <div class="mb-3">
                                     <label class="form-label text-muted small">TELÉFONO</label>
                                     <div class="fw-medium">
@@ -75,7 +76,7 @@
                                 </div>
                             </div>
                             @if($cliente->documento)
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6 mb-3">
                                 <div class="mb-3">
                                     <label class="form-label text-muted small">DOCUMENTO</label>
                                     <div class="fw-medium">{{ $cliente->documento }}</div>
@@ -101,7 +102,7 @@
 
                         @if($cliente->fecha_nacimiento)
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6 mb-3">
                                 <div class="mb-3">
                                     <label class="form-label text-muted small">FECHA DE NACIMIENTO</label>
                                     <div class="fw-medium">
@@ -131,20 +132,21 @@
 
                 <!-- Historial de Ventas -->
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
                         <h5 class="mb-0">
                             <i class="bi bi-cart-check me-2"></i>
-                            Historial de Ventas
+                            <span class="d-none d-md-inline">Historial de </span>Ventas
                         </h5>
                         @if($ventas->count() > 0)
-                        <a href="{{ route('admin.ventas.create') }}?cliente_id={{ $cliente->id }}" class="btn btn-sm btn-primary-gold">
+                        <a href="{{ route('admin.ventas.create') }}?cliente_id={{ $cliente->id }}" class="btn btn-sm btn-primary-gold w-100 w-sm-auto">
                             <i class="bi bi-plus me-1"></i> Nueva Venta
                         </a>
                         @endif
                     </div>
                     <div class="card-body">
                         @if($ventas->count() > 0)
-                        <div class="table-responsive">
+                        <!-- Vista Desktop -->
+                        <div class="table-responsive d-none d-md-block">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
@@ -207,6 +209,54 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Vista Mobile -->
+                        <div class="d-md-none">
+                            @foreach($ventas as $venta)
+                                <div class="venta-card-mobile mb-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <div class="fw-medium">{{ format_colombian_date($venta->fecha, 'j M Y') }}</div>
+                                            <div class="small text-muted">{{ format_colombian_date($venta->fecha, 'g:i A') }}</div>
+                                        </div>
+                                        @php
+                                            $badgeClass = match($venta->estado) {
+                                                'completada' => 'bg-success',
+                                                'pendiente' => 'bg-warning text-dark',
+                                                'cancelada' => 'bg-danger',
+                                                default => 'bg-secondary'
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">
+                                            {{ ucfirst($venta->estado) }}
+                                        </span>
+                                    </div>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Productos</small>
+                                            <div class="fw-medium">{{ $venta->detalles->count() }} producto(s)</div>
+                                            <div class="small text-muted">{{ $venta->detalles->sum('cantidad') }} unidades</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Total</small>
+                                            <div class="fw-bold text-success">{{ format_cop_price($venta->total) }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('admin.ventas.show', $venta) }}" 
+                                           class="btn btn-sm btn-outline-primary flex-fill">
+                                            <i class="bi bi-eye me-1"></i> Ver
+                                        </a>
+                                        @if($venta->estado != 'cancelada')
+                                        <a href="{{ route('admin.ventas.edit', $venta) }}" 
+                                           class="btn btn-sm btn-outline-warning flex-fill">
+                                            <i class="bi bi-pencil me-1"></i> Editar
+                                        </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                         @else
                         <div class="text-center py-4">
                             <i class="bi bi-cart-x display-4 text-muted mb-3 d-block"></i>
@@ -222,7 +272,7 @@
             </div>
 
             <!-- Panel Lateral - Estadísticas -->
-            <div class="col-xl-4 col-lg-5">
+            <div class="col-12 col-lg-5 col-xl-4 order-1 order-lg-2">
                 <!-- Estadísticas del Cliente -->
                 <div class="card mb-4">
                     <div class="card-header">
@@ -334,6 +384,65 @@
 }
 .bg-info-light {
     background-color: rgba(13, 202, 240, 0.1);
+}
+
+/* ============================================
+   MOBILE OPTIMIZATIONS - v2.0
+   ============================================ */
+
+.venta-card-mobile {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+@media (max-width: 767px) {
+    /* Header mobile */
+    .container-fluid > .row.align-items-start h1 {
+        font-size: 1.5rem !important;
+    }
+
+    /* Cards mobile */
+    .card-header h5 {
+        font-size: 1rem !important;
+    }
+
+    /* Stats grid mobile */
+    .bg-primary-light,
+    .bg-success-light,
+    .bg-warning-light,
+    .bg-info-light {
+        padding: 0.75rem !important;
+    }
+
+    .bg-primary-light .display-6,
+    .bg-success-light .display-6,
+    .bg-warning-light .display-6,
+    .bg-info-light .display-6 {
+        font-size: 1.5rem !important;
+    }
+
+    /* Form labels mobile */
+    .form-label.text-muted.small {
+        font-size: 0.75rem !important;
+    }
+
+    /* Botones mobile */
+    .btn {
+        min-height: 44px;
+    }
+
+    /* Venta card mobile */
+    .venta-card-mobile {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .flex-fill {
+        min-width: 100% !important;
+    }
 }
 </style>
 @endpush

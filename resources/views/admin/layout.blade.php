@@ -329,6 +329,80 @@
             padding: 0.25rem 0.5rem;
             border-radius: 12px;
         }
+
+        /* WhatsApp Styles */
+        .whatsapp-btn {
+            border-color: #25d366 !important;
+            color: #25d366 !important;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-btn:hover {
+            background-color: #25d366 !important;
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .template-preview {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .template-preview::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, #25d366, #128c7e);
+            border-radius: 12px;
+            z-index: -1;
+        }
+
+        .whatsapp-modal .modal-header {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            border-bottom: none;
+        }
+
+        .whatsapp-modal .btn-close {
+            filter: invert(1);
+        }
+
+        .parameter-input {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .parameter-input:focus {
+            border-color: #25d366;
+            box-shadow: 0 0 0 0.2rem rgba(37, 211, 102, 0.25);
+        }
+
+        .template-card {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            border-color: #25d366;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.15);
+        }
+
+        .template-card.selected {
+            border-color: #25d366;
+            background-color: rgba(37, 211, 102, 0.05);
+        }
     </style>
 </head>
 <body>
@@ -431,6 +505,9 @@
         </main>
     </div>
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -453,5 +530,6 @@
     </script>
 
     @yield('scripts')
+    @stack('scripts')
 </body>
 </html>

@@ -1371,7 +1371,7 @@
                                                 <i class="fas fa-shopping-cart me-2"></i>Agregar al carrito
                                             </button>
                                         @else
-                                            <a href="https://wa.me/{{ $empresa->whatsapp ?? $empresa->movil }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Estoy%20interesado%20en%20el%20producto:%20{{ urlencode($producto->nombre) }}%20¿Podrías%20darme%20más%20información?" 
+                                            <a href="https://wa.me/57{{ $empresa->whatsapp ?? $empresa->movil }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Quiero%20información%20sobre:%0A*Producto:*%20{{ urlencode($producto->nombre) }}%0A*Referencia:*%20{{ urlencode($producto->referencia) }}%0A*Precio:*%20{{ urlencode($producto->precio_formateado) }}" 
                                                class="btn-comprar" 
                                                target="_blank"
                                                onclick="event.stopPropagation();">
@@ -1543,7 +1543,7 @@
                                                 </button>
                                             @endif
                                             
-                                            <a href="https://wa.me/{{ $empresa->whatsapp ?? $empresa->movil }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Estoy%20interesado%20en%20el%20producto:%20{{ urlencode($producto->nombre) }}%20¿Podrías%20darme%20más%20información?" 
+                                            <a href="https://wa.me/57{{ $empresa->whatsapp ?? $empresa->movil }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Quiero%20información%20sobre:%0A*Producto:*%20{{ urlencode($producto->nombre) }}%0A*Referencia:*%20{{ urlencode($producto->referencia) }}%0A*Precio:*%20{{ urlencode($producto->precio_formateado) }}" 
                                                class="btn-whatsapp w-100" 
                                                target="_blank"
                                                onclick="setTimeout(() => { $('#productModal{{ $producto->idProducto }}').modal('hide'); }, 100);">
@@ -1590,7 +1590,7 @@
                         </div>
                     </div>
                     
-                    <a href="https://wa.me/{{ $empresa->whatsapp ?? $empresa->movil }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Estoy%20visitando%20su%20tienda%20virtual%20y%20me%20gustaría%20recibir%20más%20información%20sobre%20sus%20productos" 
+                    <a href="https://wa.me/57{{ $empresa->whatsapp ?? $empresa->movil }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Estoy%20visitando%20su%20tienda%20virtual%20y%20me%20gustaría%20recibir%20más%20información%20sobre%20sus%20productos" 
                        class="btn-whatsapp" 
                        target="_blank">
                         <i class="fab fa-whatsapp me-2"></i>Contactar por WhatsApp

@@ -171,6 +171,28 @@ class WompiController extends Controller
                 'customer_email' => $transactionData['customer_email'] ?? 'not_set'
             ]);
 
+            // ========== FILTRO PARA SISTEMA DE BARBERÍAS ==========
+            // Si la referencia empieza con BARBER-, pertenece al sistema de Barberías Vélez
+            // Este sistema (BBB Páginas Web) NO debe procesar esos pagos
+            if ($reference && str_starts_with($reference, 'BARBER-')) {
+                Log::info('Webhook pertenece al sistema de Barberías Vélez - IGNORANDO', [
+                    'reference' => $reference,
+                    'transaction_id' => $transactionId,
+                    'system' => 'barberiasvelez.com',
+                    'current_system' => 'bbbpaginasweb.com'
+                ]);
+                
+                // No procesar este webhook en el sistema BBB
+                return;
+            }
+            
+            // Si llegamos aquí, es un pago del sistema BBB Páginas Web
+            Log::info('Webhook pertenece al sistema BBB Páginas Web - PROCESANDO', [
+                'reference' => $reference,
+                'transaction_id' => $transactionId
+            ]);
+            // ========== FIN FILTRO ==========
+
             // Buscar la renovación por referencia o crearla si no existe
             $renovacion = BbbRenovacion::where('reference', $reference)->first();
 

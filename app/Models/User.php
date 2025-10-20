@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\CustomResetPassword;
 
 class User extends Authenticatable
 {
@@ -385,6 +386,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Send the password reset notification using the custom notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
+
+    /**
      * Obtener el mensaje de estado de verificación
      */
     public function getVerificationStatusMessage()
@@ -542,6 +554,7 @@ class User extends Authenticatable
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'movil' => $this->movil,
             'empresa' => $this->empresa_nombre,
             'plan' => $this->plan->nombre ?? 'Sin plan',
             'status' => $this->subscription_status,

@@ -706,6 +706,58 @@
                 align-items: flex-start;
                 gap: 0.25rem;
             }
+            
+            /* Fix header buttons overflow on mobile */
+            .content-header .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+            
+            .content-header .d-flex > div:last-child {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            .content-header .d-flex .gap-3 {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem !important;
+            }
+            
+            .content-header .text-end {
+                text-align: left !important;
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .content-header .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Extra small devices (phones, less than 576px) */
+        @media (max-width: 576px) {
+            .content-header {
+                padding: 1rem;
+            }
+            
+            .dashboard-title {
+                font-size: 1.25rem;
+            }
+            
+            .content-header .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+            
+            .content-header .btn i {
+                font-size: 0.875rem;
+            }
         }
 
         /* Toast notifications styles */

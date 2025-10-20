@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 header-landing-config">
                 <div>
                     <h1 class="h3 mb-1 text-gray-800">Configura tu Landing Page</h1>
                     <p class="text-muted">Personaliza el contenido y diseño de tu página de aterrizaje</p>
@@ -52,31 +52,22 @@
                         @endif
                     @endif
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap header-actions">
                     @if($landing->exists)
-                        @if($estadoLanding === 'en_construccion')
-                            {{-- <a href="{{ $empresa->getLandingUrl() }}" class="btn btn-outline-secondary" target="_blank">
-                                <i class="bi bi-eye me-1"></i>
-                                Ver Landing
-                            </a> --}}
-                        @else
+                        @if($estadoLanding !== 'en_construccion')
                             <a href="{{ route('admin.landing.preview') }}" class="btn btn-outline-secondary" target="_blank">
                                 <i class="bi bi-eye me-1"></i>
                                 Previsualizar
                             </a>
                         @endif
                     @endif
-                    {{-- <button type="button" id="revisar-campos-btn" class="btn btn-outline-info btn-sm" onclick="mostrarAlertaCamposFaltantes('Revisar progreso del formulario', 'info')" title="Ver qué campos faltan por completar">
-                        <i class="bi bi-list-check me-1"></i>
-                        Revisar Campos
-                    </button> --}}
                     <button type="button" id="limpiar-autoguardado-btn" class="btn btn-outline-warning btn-sm" onclick="confirmarLimpiarAutoguardado()" style="display: none;" title="Limpiar datos guardados automáticamente">
                         <i class="bi bi-trash3 me-1"></i>
                         Limpiar Borradores
                     </button>
                     <button type="submit" form="landing-form" class="btn btn-primary" id="guardar-btn" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }}>
                         <i class="bi bi-save me-1"></i>
-                        {{ ($estadoLanding === 'publicada') ? 'Guardar Info. Empresarial' : 'Guardar' }}
+                        Guardar
                     </button>
                     @if($landing->exists)
                         <button type="button" id="publicar-btn" class="btn btn-success" onclick="publishLanding()" {{ ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada' || !$profileComplete || !$empresaCompleta) ? 'disabled' : '' }}>
@@ -450,6 +441,7 @@
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-image text-primary me-2"></i>
                                         Logo de la Empresa
+                                        <span class="text-danger">*</span>
                                     </h5>
                                 </div>
                                 <div class="card-body text-center">
@@ -470,6 +462,7 @@
                                         id="logo" 
                                         name="logo" 
                                         accept="image/*"
+                                        required
                                         onchange="previewLogo(event)">
                                     @error('logo')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -484,6 +477,13 @@
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-images text-primary me-2"></i>
                                         Imágenes Adicionales
+                                        @php
+                                            // Verificar si ya hay imágenes cargadas
+                                            $tieneImagenesExistentes = $landing->exists && $landing->media && $landing->media->count() > 0;
+                                        @endphp
+                                        @if(!$tieneImagenesExistentes)
+                                            <span class="text-danger">*</span>
+                                        @endif
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -498,8 +498,21 @@
                                             <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('media-input').click()">
                                                 Seleccionar Archivos
                                             </button>
-                                            <input type="file" id="media-input" class="d-none" multiple accept="image/*" onchange="handleFileSelect(event)">
-                                            <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF, SVG (Max: 2MB por imagen)</small>
+                                            <input type="file" 
+                                                   id="media-input" 
+                                                   class="d-none" 
+                                                   multiple 
+                                                   accept="image/*" 
+                                                   {{ !$tieneImagenesExistentes ? 'required' : '' }} 
+                                                   onchange="handleFileSelect(event)">
+                                            <small class="text-muted d-block mt-2">
+                                                @if(!$tieneImagenesExistentes)
+                                                    <span class="text-danger fw-bold">* Requerido:</span> Sube al menos 1 imagen. 
+                                                @else
+                                                    <span class="text-info fw-bold">Opcional:</span> Puedes agregar más imágenes. 
+                                                @endif
+                                                Formatos: JPG, PNG, GIF, SVG, WEBP. Máx: 2MB por imagen
+                                            </small>
                                         </div>
                                     </div>
 
@@ -634,6 +647,7 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <label for="terminos_condiciones" class="form-label fw-bold">
                                                 <i class="bi bi-file-text me-2"></i>Términos y Condiciones
+                                                <span class="text-danger">*</span>
                                             </label>
                                             <button type="button" class="btn btn-outline-primary btn-sm" 
                                                     onclick="cargarTextoBase('terminos_condiciones')"
@@ -645,7 +659,8 @@
                                         <div id="terminos_condiciones_editor" style="height: 200px;"></div>
                                         <textarea class="d-none @error('terminos_condiciones') is-invalid @enderror" 
                                                 id="terminos_condiciones" 
-                                                name="terminos_condiciones">{{ old('terminos_condiciones', $empresa->terminos_condiciones ?? '') }}</textarea>
+                                                name="terminos_condiciones"
+                                                required>{{ old('terminos_condiciones', $empresa->terminos_condiciones ?? '') }}</textarea>
                                         @error('terminos_condiciones')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -661,6 +676,7 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <label for="politica_privacidad" class="form-label fw-bold">
                                                 <i class="bi bi-shield-check me-2"></i>Política de Privacidad
+                                                <span class="text-danger">*</span>
                                             </label>
                                             <button type="button" class="btn btn-outline-success btn-sm" 
                                                     onclick="cargarTextoBase('politica_privacidad')"
@@ -672,7 +688,8 @@
                                         <div id="politica_privacidad_editor" style="height: 200px;"></div>
                                         <textarea class="d-none @error('politica_privacidad') is-invalid @enderror" 
                                                 id="politica_privacidad" 
-                                                name="politica_privacidad">{{ old('politica_privacidad', $empresa->politica_privacidad ?? '') }}</textarea>
+                                                name="politica_privacidad"
+                                                required>{{ old('politica_privacidad', $empresa->politica_privacidad ?? '') }}</textarea>
                                         @error('politica_privacidad')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -798,12 +815,13 @@
                                                 @enderror
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="descripcion_objetivo" class="form-label fw-bold">Descripción del Objetivo</label>
+                                                <label for="descripcion_objetivo" class="form-label fw-bold">Descripción del Objetivo <span class="text-danger">*</span></label>
                                                 <textarea class="form-control @error('descripcion_objetivo') is-invalid @enderror" 
                                                         id="descripcion_objetivo" 
                                                         name="descripcion_objetivo" 
                                                         rows="3"
                                                         placeholder="Describe más detalladamente tu objetivo..."
+                                                        required
                                                         {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>{{ old('descripcion_objetivo', $landing->descripcion_objetivo) }}</textarea>
                                                 @error('descripcion_objetivo')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -826,24 +844,26 @@
 
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="audiencia_problemas" class="form-label fw-bold">Problemas que Resuelves</label>
+                                                <label for="audiencia_problemas" class="form-label fw-bold">Problemas que Resuelves <span class="text-danger">*</span></label>
                                                 <textarea class="form-control @error('audiencia_problemas') is-invalid @enderror" 
                                                         id="audiencia_problemas" 
                                                         name="audiencia_problemas" 
                                                         rows="4"
                                                         placeholder="¿Qué problemas o dolores tiene tu audiencia que tu producto/servicio puede resolver?"
+                                                        required
                                                         {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>{{ old('audiencia_problemas', $landing->audiencia_problemas) }}</textarea>
                                                 @error('audiencia_problemas')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="audiencia_beneficios" class="form-label fw-bold">Beneficios que Ofreces</label>
+                                                <label for="audiencia_beneficios" class="form-label fw-bold">Beneficios que Ofreces <span class="text-danger">*</span></label>
                                                 <textarea class="form-control @error('audiencia_beneficios') is-invalid @enderror" 
                                                         id="audiencia_beneficios" 
                                                         name="audiencia_beneficios" 
                                                         rows="4"
                                                         placeholder="¿Qué beneficios concretos obtiene tu audiencia al usar tu producto/servicio?"
+                                                        required
                                                         {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>{{ old('audiencia_beneficios', $landing->audiencia_beneficios) }}</textarea>
                                                 @error('audiencia_beneficios')
                                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -878,13 +898,14 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="subtitulo" class="form-label fw-bold">Subtítulo</label>
+                                            <label for="subtitulo" class="form-label fw-bold">Subtítulo <span class="text-danger">*</span></label>
                                             <input type="text" 
                                                 class="form-control @error('subtitulo') is-invalid @enderror" 
                                                 id="subtitulo" 
                                                 name="subtitulo" 
                                                 value="{{ old('subtitulo', $landing->subtitulo) }}"
                                                 placeholder="Ej. Sin conocimientos técnicos, con diseños profesionales"
+                                                required
                                                 {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
                                             @error('subtitulo')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -892,12 +913,13 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="descripcion" class="form-label fw-bold">Descripción Principal</label>
+                                            <label for="descripcion" class="form-label fw-bold">Descripción Principal <span class="text-danger">*</span></label>
                                             <textarea class="form-control @error('descripcion') is-invalid @enderror" 
                                                     id="descripcion" 
                                                     name="descripcion" 
                                                     rows="4"
                                                     placeholder="Describe tu producto o servicio de manera atractiva y clara..."
+                                                    required
                                                     {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>{{ old('descripcion', $landing->descripcion) }}</textarea>
                                             @error('descripcion')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -1026,18 +1048,19 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
-                                            <label for="color_principal" class="form-label fw-bold">Color Principal</label>
+                                            <label for="color_principal" class="form-label fw-bold">Color Principal <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <input type="color" 
                                                     class="form-control form-control-color @error('color_principal') is-invalid @enderror" 
                                                     id="color_principal" 
                                                     name="color_principal" 
-                                                    value="{{ old('color_principal', $landing->color_principal ?: '#007bff') }}"
+                                                    value="{{ old('color_principal', $landing->color_principal ?: '') }}"
                                                     title="Selecciona el color principal"
+                                                    required
                                                     {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
                                                 <input type="text" 
                                                     class="form-control" 
-                                                    value="{{ old('color_principal', $landing->color_principal ?: '#007bff') }}"
+                                                    value="{{ old('color_principal', $landing->color_principal ?: '') }}"
                                                     readonly>
                                             </div>
                                             @error('color_principal')
@@ -1046,18 +1069,19 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="color_secundario" class="form-label fw-bold">Color Secundario</label>
+                                            <label for="color_secundario" class="form-label fw-bold">Color Secundario <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <input type="color" 
                                                     class="form-control form-control-color @error('color_secundario') is-invalid @enderror" 
                                                     id="color_secundario" 
                                                     name="color_secundario" 
-                                                    value="{{ old('color_secundario', $landing->color_secundario ?: '#6c757d') }}"
+                                                    value="{{ old('color_secundario', $landing->color_secundario ?: '') }}"
                                                     title="Selecciona el color secundario"
+                                                    required
                                                     {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
                                                 <input type="text" 
                                                     class="form-control" 
-                                                    value="{{ old('color_secundario', $landing->color_secundario ?: '#6c757d') }}"
+                                                    value="{{ old('color_secundario', $landing->color_secundario ?: '') }}"
                                                     readonly>
                                             </div>
                                             @error('color_secundario')
@@ -1066,8 +1090,8 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="estilo" class="form-label fw-bold">Estilo de Diseño</label>
-                                            <select class="form-select @error('estilo') is-invalid @enderror" id="estilo" name="estilo" {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
+                                            <label for="estilo" class="form-label fw-bold">Estilo de Diseño <span class="text-danger">*</span></label>
+                                            <select class="form-select @error('estilo') is-invalid @enderror" id="estilo" name="estilo" required {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
                                                 <option value="">Selecciona un estilo</option>
                                                 @foreach($estiloOptions as $key => $value)
                                                     <option value="{{ $key }}" {{ old('estilo', $landing->estilo) == $key ? 'selected' : '' }}>
@@ -1081,8 +1105,8 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="tipografia" class="form-label fw-bold">Tipografía</label>
-                                            <select class="form-select @error('tipografia') is-invalid @enderror" id="tipografia" name="tipografia" {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
+                                            <label for="tipografia" class="form-label fw-bold">Tipografía <span class="text-danger">*</span></label>
+                                            <select class="form-select @error('tipografia') is-invalid @enderror" id="tipografia" name="tipografia" required {{ $landing->exists && ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada') ? 'disabled' : '' }}>
                                                 <option value="">Selecciona una tipografía</option>
                                                 <option value="Arial, sans-serif">Arial</option>
                                                 <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
@@ -1167,6 +1191,38 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Botones de Acción al Final del Formulario -->
+                <div class="card shadow-sm border-0 mt-4 sticky-bottom-actions">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <h6 class="mb-1 fw-bold">¿Listo para continuar?</h6>
+                                <small class="text-muted">Guarda tus cambios o publica tu landing page</small>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                @if($landing->exists)
+                                    @if($estadoLanding !== 'en_construccion')
+                                        <a href="{{ route('admin.landing.preview') }}" class="btn btn-outline-secondary" target="_blank">
+                                            <i class="bi bi-eye me-1"></i>
+                                            Previsualizar
+                                        </a>
+                                    @endif
+                                @endif
+                                <button type="submit" form="landing-form" class="btn btn-primary" id="guardar-btn-bottom" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }}>
+                                    <i class="bi bi-save me-1"></i>
+                                    Guardar
+                                </button>
+                                @if($landing->exists)
+                                    <button type="button" id="publicar-btn-bottom" class="btn btn-success" onclick="publishLanding()" {{ ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada' || !$profileComplete || !$empresaCompleta) ? 'disabled' : '' }}>
+                                        <i class="bi bi-rocket me-1"></i>
+                                        Publicar
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
             
             @if(!$profileComplete)
@@ -1184,6 +1240,89 @@
 
 <style>
     /* El layout ya no usa tabs; estilos eliminados */
+    
+    /* Botones de acción al final del formulario */
+    .sticky-bottom-actions {
+        background: white;
+        border-top: 3px solid #007bff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        margin-top: 2rem;
+    }
+    
+    .sticky-bottom-actions .card-body {
+        padding: 1.5rem 2rem;
+    }
+    
+    .sticky-bottom-actions .btn {
+        min-width: 120px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+    }
+    
+    .sticky-bottom-actions h6 {
+        color: var(--dark-bg, #2c3e50);
+        margin-bottom: 0.25rem;
+    }
+    
+    .sticky-bottom-actions small {
+        color: #6c757d;
+    }
+    
+    /* Responsive para botones de acción */
+    @media (max-width: 768px) {
+        .sticky-bottom-actions {
+            margin-top: 1.5rem;
+        }
+        
+        .sticky-bottom-actions .card-body {
+            padding: 1.25rem 1rem;
+        }
+        
+        .sticky-bottom-actions .d-flex {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        
+        .sticky-bottom-actions .gap-2 {
+            gap: 0.5rem !important;
+            width: 100%;
+        }
+        
+        .sticky-bottom-actions .btn {
+            width: 100%;
+            min-width: auto;
+            padding: 0.65rem 1rem;
+        }
+        
+        /* Header buttons responsive */
+        .header-landing-config {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+        
+        .header-landing-config .header-actions {
+            flex-direction: column;
+            width: 100%;
+            margin-top: 1rem;
+            gap: 0.5rem !important;
+        }
+        
+        .header-landing-config .header-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .sticky-bottom-actions h6 {
+            font-size: 0.95rem;
+        }
+        
+        .sticky-bottom-actions small {
+            font-size: 0.8rem;
+        }
+    }
     
     /* Estilos para el bloqueo del perfil */
     .profile-lock-overlay {
@@ -1248,39 +1387,64 @@
     }
     }
     
-    .media-item {
+    /* Estilos únicos para imágenes adicionales de landing */
+    .landing-media-item {
         position: relative;
         overflow: hidden;
         border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
-    .media-item img {
+    .landing-media-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .landing-media-item img {
         transition: transform 0.3s ease;
     }
     
-    .media-item:hover img {
+    .landing-media-item:hover img {
         transform: scale(1.05);
     }
     
-    .media-item .delete-btn {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: rgba(220, 53, 69, 0.9);
-        border: none;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+    /* Botón eliminar siempre visible en esquina superior derecha */
+    .landing-media-item .landing-delete-btn {
+        position: absolute !important;
+        top: 8px !important;
+        right: 8px !important;
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: rgba(220, 53, 69, 0.95) !important;
+        border: 2px solid white !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        z-index: 10 !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+        opacity: 1 !important; /* ⭐ SIEMPRE VISIBLE - NO HOVER */
+        visibility: visible !important; /* Asegurar visibilidad */
     }
     
-    .media-item:hover .delete-btn {
-        opacity: 1;
+    .landing-media-item .landing-delete-btn:hover {
+        background: rgba(220, 53, 69, 1) !important;
+        transform: scale(1.1) !important;
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.5) !important;
+        opacity: 1 !important; /* Mantener siempre visible en hover también */
+    }
+    
+    .landing-media-item .landing-delete-btn:active {
+        transform: scale(0.95) !important;
+    }
+    
+    /* Forzar que el botón sea visible incluso sin hover en el contenedor */
+    .landing-media-item .landing-delete-btn i {
+        pointer-events: none; /* El icono no interfiere con el click */
     }
     
     .form-control-color {
@@ -1466,19 +1630,21 @@ function verificarCamposFaltantes() {
     const campos = [
         { id: 'empresa_nombre', nombre: 'Nombre de la Empresa', obligatorio: true, tab: 'empresa' },
         { id: 'whatsapp', nombre: 'WhatsApp', obligatorio: true, tab: 'empresa' },
-        { id: 'logo', nombre: 'Logo de la Empresa', obligatorio: false, esArchivo: true, tab: 'contenido' },
-        { id: 'color_principal', nombre: 'Color Principal', obligatorio: false, tab: 'contenido' },
-        { id: 'color_secundario', nombre: 'Color Secundario', obligatorio: false, tab: 'contenido' },
-        { id: 'tipografia', nombre: 'Tipografía', obligatorio: false, tab: 'contenido' },
-        { id: 'estilo', nombre: 'Estilo de Diseño', obligatorio: false, tab: 'contenido' },
+        { id: 'logo', nombre: 'Logo de la Empresa', obligatorio: true, esArchivo: true, tab: 'contenido' },
+        { id: 'terminos_condiciones', nombre: 'Términos y Condiciones', obligatorio: true, tab: 'empresa' },
+        { id: 'politica_privacidad', nombre: 'Política de Privacidad', obligatorio: true, tab: 'empresa' },
+        { id: 'color_principal', nombre: 'Color Principal', obligatorio: true, tab: 'contenido' },
+        { id: 'color_secundario', nombre: 'Color Secundario', obligatorio: true, tab: 'contenido' },
+        { id: 'tipografia', nombre: 'Tipografía', obligatorio: true, tab: 'contenido' },
+        { id: 'estilo', nombre: 'Estilo de Diseño', obligatorio: true, tab: 'contenido' },
         { id: 'objetivo', nombre: 'Objetivo del Negocio', obligatorio: false, tab: 'contenido' },
-        { id: 'descripcion_objetivo', nombre: 'Descripción del Objetivo', obligatorio: false, tab: 'contenido' },
+        { id: 'descripcion_objetivo', nombre: 'Descripción del Objetivo', obligatorio: true, tab: 'contenido' },
         { id: 'audiencia_descripcion', nombre: 'Descripción de la Audiencia', obligatorio: false, tab: 'contenido' },
-        { id: 'audiencia_problemas', nombre: 'Problemas de la Audiencia', obligatorio: false, tab: 'contenido' },
-        { id: 'audiencia_beneficios', nombre: 'Beneficios para la Audiencia', obligatorio: false, tab: 'contenido' },
+        { id: 'audiencia_problemas', nombre: 'Problemas que Resuelves', obligatorio: true, tab: 'contenido' },
+        { id: 'audiencia_beneficios', nombre: 'Beneficios que Ofreces', obligatorio: true, tab: 'contenido' },
         { id: 'titulo_principal', nombre: 'Título Principal', obligatorio: false, tab: 'contenido' },
-        { id: 'subtitulo', nombre: 'Subtítulo', obligatorio: false, tab: 'contenido' },
-        { id: 'descripcion', nombre: 'Descripción', obligatorio: false, tab: 'contenido' }
+        { id: 'subtitulo', nombre: 'Subtítulo', obligatorio: true, tab: 'contenido' },
+        { id: 'descripcion', nombre: 'Descripción Principal', obligatorio: true, tab: 'contenido' }
     ];
     
     const faltantes = [];
@@ -1817,8 +1983,29 @@ function syncQuillEditorsWithHiddenFields() {
 function previewLogo(event) {
     const file = event.target.files[0];
     const preview = document.getElementById('logo-preview');
+    const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
     
     if (file) {
+        if (!file.type || !file.type.startsWith('image/')) {
+            Swal.fire({
+                title: 'Archivo inválido',
+                text: 'Debes seleccionar una imagen válida (JPG, PNG, GIF, SVG, WEBP).',
+                icon: 'warning',
+                confirmButtonText: 'Entendido'
+            });
+            event.target.value = '';
+            return;
+        }
+        if (file.size > MAX_SIZE_BYTES) {
+            Swal.fire({
+                title: 'Imagen demasiado grande',
+                text: 'La imagen debe ser máximo de 2MB.',
+                icon: 'warning',
+                confirmButtonText: 'Entendido'
+            });
+            event.target.value = '';
+            return;
+        }
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = `<img src="${e.target.result}" alt="Vista previa del logo" class="img-fluid rounded" style="max-height: 150px;">`;
@@ -1851,11 +2038,29 @@ function handleFileSelect(event) {
 }
 
 function handleFiles(files) {
+    const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
     // Permitir subida de imágenes en todos los estados ya que se cargan dinámicamente
     Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-            uploadMedia(file);
+        // Validación básica en frontend para mejorar UX
+        if (!file.type || !file.type.startsWith('image/')) {
+            Swal.fire({
+                title: 'Archivo inválido',
+                text: 'Debes seleccionar una imagen válida (JPG, PNG, GIF, SVG, WEBP).',
+                icon: 'warning',
+                confirmButtonText: 'Entendido'
+            });
+            return;
         }
+        if (file.size > MAX_SIZE_BYTES) {
+            Swal.fire({
+                title: 'Imagen demasiado grande',
+                text: 'La imagen debe ser máximo de 2MB.',
+                icon: 'warning',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+        uploadMedia(file);
     });
 }
 
@@ -1874,20 +2079,27 @@ function uploadMedia(file) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(async (response) => {
+        let data = {};
+        try { data = await response.json(); } catch (_) {}
         loadingItem.remove();
-        
-        if (data.success) {
-            addMediaToGallery(data.media);
-        } else {
+        if (!response.ok || !data.success) {
+            let msg = 'Hubo un problema al subir la imagen.';
+            if (data && data.errors) {
+                // Unir todos los mensajes de error del backend
+                msg = Object.values(data.errors).flat().join('\n');
+            } else if (data && data.message) {
+                msg = data.message;
+            }
             Swal.fire({
                 title: 'Error al subir imagen',
-                text: data.message || 'Error desconocido',
+                text: msg,
                 icon: 'error',
                 confirmButtonText: 'Entendido'
             });
+            return;
         }
+        addMediaToGallery(data.media);
     })
     .catch(error => {
         loadingItem.remove();
@@ -1905,7 +2117,7 @@ function createLoadingItem() {
     const col = document.createElement('div');
     col.className = 'col-md-6 col-lg-4';
     col.innerHTML = `
-        <div class="media-item border rounded p-3 text-center">
+        <div class="landing-media-item border rounded p-3 text-center">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
@@ -1922,9 +2134,9 @@ function addMediaToGallery(media) {
     col.setAttribute('data-media-id', media.id);
     
     col.innerHTML = `
-        <div class="media-item border rounded overflow-hidden">
+        <div class="landing-media-item border rounded overflow-hidden">
             <img src="${media.url}" alt="${media.descripcion || 'Imagen'}" class="img-fluid w-100" style="height: 150px; object-fit: cover;">
-            <button type="button" class="delete-btn btn" onclick="deleteMedia(${media.id})">
+            <button type="button" class="landing-delete-btn btn" onclick="deleteMedia(${media.id})" title="Eliminar imagen">
                 <i class="bi bi-trash"></i>
             </button>
         </div>
@@ -2244,8 +2456,6 @@ function inicializarAutoguardado() {
     
     // Actualizar botón de limpiar borradores al inicializar
     actualizarBotonLimpiarBorradores();
-    
-    console.log('✅ Sistema de autoguardado inicializado');
 }
 
 // Función para guardar un campo en localStorage
@@ -2470,7 +2680,6 @@ function limpiarDatosGuardados() {
     localStorage.removeItem(AUTOGUARDADO_KEY);
     localStorage.removeItem(AUTOGUARDADO_TIMESTAMP_KEY);
     actualizarBotonLimpiarBorradores();
-    console.log('🗑️ Datos de autoguardado limpiados');
 }
 
 // Función para confirmar limpieza de autoguardado
@@ -2788,58 +2997,70 @@ function validarCamposRequeridos() {
             !camposCompletosPublicar
         );
         
-        if (debeDeshabilitarse) {
-            publicarBtn.classList.add('disabled');
-            publicarBtn.disabled = true;
-            
-            // Determinar el motivo específico del bloqueo
-            if (estadoLanding === 'en_construccion') {
-                publicarBtn.innerHTML = '<i class="bi bi-tools me-1"></i>En Construcción';
-                publicarBtn.title = 'Tu landing ya está en construcción';
-            } else if (estadoLanding === 'publicada') {
-                publicarBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Ya Publicada';
-                publicarBtn.title = 'Tu landing ya está publicada';
-            } else if (!profileComplete) {
-                publicarBtn.innerHTML = '<i class="bi bi-person-x me-1"></i>Perfil Incompleto';
-                publicarBtn.title = 'Completa tu perfil para publicar';
-            } else if (!camposCompletosPublicar) {
-                publicarBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Campos Incompletos';
-                publicarBtn.title = 'Completa el nombre de la empresa y WhatsApp para publicar';
+        // Sincronizar botón inferior también
+        const publicarBtnBottom = document.getElementById('publicar-btn-bottom');
+        const botonesPublicar = [publicarBtn, publicarBtnBottom].filter(btn => btn);
+        
+        botonesPublicar.forEach(botonPublicar => {
+            if (debeDeshabilitarse) {
+                botonPublicar.classList.add('disabled');
+                botonPublicar.disabled = true;
+                
+                // Determinar el motivo específico del bloqueo
+                if (estadoLanding === 'en_construccion') {
+                    botonPublicar.innerHTML = '<i class="bi bi-tools me-1"></i>En Construcción';
+                    botonPublicar.title = 'Tu landing ya está en construcción';
+                } else if (estadoLanding === 'publicada') {
+                    botonPublicar.innerHTML = '<i class="bi bi-check-circle me-1"></i>Ya Publicada';
+                    botonPublicar.title = 'Tu landing ya está publicada';
+                } else if (!profileComplete) {
+                    botonPublicar.innerHTML = '<i class="bi bi-person-x me-1"></i>Perfil Incompleto';
+                    botonPublicar.title = 'Completa tu perfil para publicar';
+                } else if (!camposCompletosPublicar) {
+                    botonPublicar.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Campos Incompletos';
+                    botonPublicar.title = 'Completa el nombre de la empresa y WhatsApp para publicar';
+                }
+            } else {
+                botonPublicar.classList.remove('disabled');
+                botonPublicar.disabled = false;
+                botonPublicar.innerHTML = '<i class="bi bi-rocket me-1"></i>Publicar';
+                botonPublicar.title = 'Tu landing está lista para publicar';
             }
-        } else {
-            publicarBtn.classList.remove('disabled');
-            publicarBtn.disabled = false;
-            publicarBtn.innerHTML = '<i class="bi bi-rocket me-1"></i>Publicar';
-            publicarBtn.title = 'Tu landing está lista para publicar';
-        }
+        });
     }
     
     // Nueva lógica para el botón guardar - siempre habilitado excepto casos específicos
-    if (guardarBtn) {
-        const estadoLanding = '{{ $estadoLanding }}';
-        const profileComplete = {{ $profileComplete ? 'true' : 'false' }};
-        
-        // Solo deshabilitar en casos muy específicos
-        const debeDeshabilitarseGuardar = (
-            estadoLanding === 'en_construccion' || 
-            !profileComplete
-        );
-        
-        if (debeDeshabilitarseGuardar) {
-            guardarBtn.classList.add('disabled');
-            guardarBtn.disabled = true;
+    // Sincronizar ambos botones (superior e inferior)
+    const guardarBtnBottom = document.getElementById('guardar-btn-bottom');
+    const botones = [guardarBtn, guardarBtnBottom].filter(btn => btn); // Filtrar null
+    
+    botones.forEach(boton => {
+        if (boton) {
+            const estadoLanding = '{{ $estadoLanding }}';
+            const profileComplete = {{ $profileComplete ? 'true' : 'false' }};
             
-            if (estadoLanding === 'en_construccion') {
-                guardarBtn.title = 'No se puede modificar mientras está en construcción';
-            } else if (!profileComplete) {
-                guardarBtn.title = 'Completa tu perfil para continuar';
+            // Solo deshabilitar en casos muy específicos
+            const debeDeshabilitarseGuardar = (
+                estadoLanding === 'en_construccion' || 
+                !profileComplete
+            );
+            
+            if (debeDeshabilitarseGuardar) {
+                boton.classList.add('disabled');
+                boton.disabled = true;
+                
+                if (estadoLanding === 'en_construccion') {
+                    boton.title = 'No se puede modificar mientras está en construcción';
+                } else if (!profileComplete) {
+                    boton.title = 'Completa tu perfil para continuar';
+                }
+            } else {
+                boton.classList.remove('disabled');
+                boton.disabled = false;
+                boton.title = '';
             }
-        } else {
-            guardarBtn.classList.remove('disabled');
-            guardarBtn.disabled = false;
-            guardarBtn.title = '';
         }
-    }
+    });
     
     // Mostrar/ocultar alerta de formulario completo
     if (formularioCompletoAlert) {

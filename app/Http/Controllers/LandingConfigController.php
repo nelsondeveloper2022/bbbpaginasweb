@@ -84,6 +84,10 @@ class LandingConfigController extends Controller
         $estadoLanding = $empresa->estado ?? 'sin_configurar';
         $isPublished = ($estadoLanding === 'publicada');
         
+        // Verificar si ya existe una landing con logo
+        $landingExistente = BbbLanding::where('idEmpresa', $user->idEmpresa)->first();
+        $tieneLogoExistente = $landingExistente && $landingExistente->logo_url;
+        
         // Definir reglas de validación dinámicamente
         $validationRules = [
             // Company fields (siempre requeridos)
@@ -117,7 +121,13 @@ class LandingConfigController extends Controller
                 'color_secundario' => 'nullable|string|max:50',
                 'estilo' => 'nullable|string|max:100',
                 'tipografia' => 'nullable|string|max:100',
-                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                // Logo: solo requerido si no existe uno previamente
+                'logo' => [
+                    $tieneLogoExistente ? 'nullable' : 'required',
+                    'image',
+                    'mimes:jpeg,png,jpg,gif,svg,webp',
+                    'max:2048'
+                ],
                 'titulo_principal' => 'required|string|max:255',
                 'subtitulo' => 'nullable|string|max:255',
                 'descripcion' => 'nullable|string',
@@ -164,8 +174,9 @@ class LandingConfigController extends Controller
             'color_secundario.max' => 'El color secundario no puede tener más de 50 caracteres.',
             'estilo.max' => 'El estilo no puede tener más de 100 caracteres.',
             'tipografia.max' => 'La tipografía no puede tener más de 100 caracteres.',
+            'logo.required' => 'El logo de la empresa es obligatorio.',
             'logo.image' => 'El logo debe ser una imagen válida.',
-            'logo.mimes' => 'El logo debe ser un archivo de tipo: jpeg, png, jpg, gif, svg.',
+            'logo.mimes' => 'El logo debe ser un archivo de tipo: JPG, PNG, GIF, SVG o WEBP.',
             'logo.max' => 'El logo no puede ser mayor a 2MB.',
             'slug.min' => 'El slug debe tener al menos 3 caracteres.',
             'slug.max' => 'El slug no puede tener más de 50 caracteres.',
@@ -377,11 +388,23 @@ class LandingConfigController extends Controller
     {
         $user = Auth::user();
         
-        $validator = Validator::make($request->all(), [
-            'media' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'tipo' => 'required|in:imagen,icono',
-            'descripcion' => 'nullable|string|max:255',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                // Admite imágenes comunes; image valida tipo MIME imagen. Límite de 2MB
+                'media' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+                'tipo' => 'required|in:imagen,icono',
+                'descripcion' => 'nullable|string|max:255',
+            ],
+            [
+                'media.required' => 'Debes seleccionar una imagen.',
+                'media.image' => 'La imagen debe ser un archivo de imagen válido.',
+                'media.mimes' => 'La imagen debe ser de tipo: JPG, PNG, GIF, SVG o WEBP.',
+                'media.max' => 'La imagen debe ser máximo de 2MB.',
+                'tipo.required' => 'El tipo de archivo es obligatorio.',
+                'tipo.in' => 'El tipo de archivo es inválido.',
+            ]
+        );
 
         if ($validator->fails()) {
             return response()->json([

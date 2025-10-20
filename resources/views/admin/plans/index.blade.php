@@ -52,18 +52,20 @@
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-md-auto flex-grow-1">
                     <h1 class="h2 mb-1">
                         <i class="bi bi-credit-card-2-front me-2 text-primary"></i>
-                        Gestión de Planes
+                        <span class="d-none d-md-inline">Gestión de </span>Planes
                     </h1>
-                    <p class="text-muted mb-0">Administra tu suscripción y elige el plan ideal para tu negocio</p>
+                    <p class="text-muted mb-0 small">Administra tu suscripción<span class="d-none d-md-inline"> y elige el plan ideal para tu negocio</span></p>
                 </div>
-                <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i>
-                    Volver al Dashboard
-                </a>
+                <div class="col-12 col-md-auto">
+                    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary w-100 w-md-auto" style="min-height: 44px;">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Volver<span class="d-none d-md-inline"> al Dashboard</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -82,17 +84,17 @@
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <div class="bg-light rounded-3 p-4">
-                        <div class="row text-center">
-                            <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="bg-light rounded-3 p-3 p-md-4">
+                        <div class="row text-center g-2">
+                            <div class="col-12 col-md-4">
                                 <i class="bi bi-check-circle-fill text-success me-2"></i>
                                 <small class="fw-semibold">Configuración completa</small>
                             </div>
-                            <div class="col-md-4 mb-2 mb-md-0">
+                            <div class="col-12 col-md-4">
                                 <i class="bi bi-headset text-success me-2"></i>
                                 <small class="fw-semibold">Soporte técnico</small>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-md-4">
                                 <i class="bi bi-shield-check text-success me-2"></i>
                                 <small class="fw-semibold">Pago seguro</small>
                             </div>
@@ -667,6 +669,21 @@
     
     .carousel-control-next-custom {
         right: 0;
+    }
+    
+    .btn {
+        min-height: 44px;
+        font-size: 0.875rem;
+    }
+    
+    .btn-lg {
+        min-height: 48px;
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
     }
 }
 </style>

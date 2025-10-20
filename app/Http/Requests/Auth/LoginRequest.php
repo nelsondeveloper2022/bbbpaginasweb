@@ -33,6 +33,8 @@ class LoginRequest extends FormRequest
         ];
 
         // Agregar validación de reCAPTCHA Enterprise si está configurado
+        // Temporalmente deshabilitado para debugging
+        /*
         $recaptchaService = app(RecaptchaEnterpriseService::class);
         if ($recaptchaService->isConfigured()) {
             $rules['recaptcha_token'] = [
@@ -40,6 +42,7 @@ class LoginRequest extends FormRequest
                 $recaptchaService->validationRule('LOGIN', 0.5)
             ];
         }
+        */
 
         return $rules;
     }

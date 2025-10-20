@@ -137,29 +137,150 @@
     /* Responsive YouTube embeds */
     .yt-responsive { position: relative; padding-bottom: 56.25%; height: 0; }
     .yt-responsive iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 767px) {
+        .academy-header {
+            border-radius: 12px;
+            padding: 1.5rem !important;
+            margin-bottom: 2rem !important;
+        }
+        
+        .academy-header h1 {
+            font-size: 1.75rem !important;
+        }
+        
+        .academy-header p {
+            font-size: 0.9rem !important;
+        }
+        
+        .academy-header .btn-lg {
+            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+        }
+        
+        .academy-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .academy-card .card-body {
+            padding: 1.25rem !important;
+        }
+        
+        .academy-card h5 {
+            font-size: 1.1rem;
+        }
+        
+        .academy-card p {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .academy-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+        
+        .academy-icon i {
+            font-size: 1.75rem !important;
+        }
+        
+        .btn {
+            min-height: 44px;
+            font-size: 0.875rem;
+        }
+        
+        .flex-fill {
+            flex: 1 1 auto;
+        }
+        
+        .level-badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            top: 0.75rem;
+            right: 0.75rem;
+        }
+        
+        .d-flex.gap-2 .btn {
+            width: 100%;
+        }
+        
+        .quick-actions {
+            padding: 1rem !important;
+        }
+    }
+    
+    @media (max-width: 575px) {
+        .academy-header {
+            padding: 1rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .academy-header h1 {
+            font-size: 1.5rem !important;
+        }
+        
+        .academy-header p {
+            font-size: 0.85rem !important;
+        }
+        
+        .academy-header .btn-lg {
+            font-size: 0.85rem;
+            padding: 0.65rem 1.25rem;
+        }
+        
+        .academy-icon {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .academy-icon i {
+            font-size: 1.5rem !important;
+        }
+        
+        .academy-card .card-body {
+            padding: 1rem !important;
+        }
+        
+        .academy-card h5 {
+            font-size: 1rem;
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
 <!-- Academy Header -->
-<div class="academy-header p-4 mb-5">
+<div class="academy-header p-3 p-md-4 mb-4 mb-md-5">
     <div class="position-relative">
         <div class="row align-items-center">
-            <div class="col-lg-8">
+            <div class="col-12 col-lg-8">
                 <div class="d-flex align-items-center mb-3">
-                    <div class="academy-icon bg-white bg-opacity-20 me-3" style="width: 60px; height: 60px; border-radius: 15px;">
+                    <div class="academy-icon bg-white bg-opacity-20 me-2 me-md-3 d-none d-sm-flex" style="width: 60px; height: 60px; border-radius: 15px; flex-shrink: 0;">
                         <i class="bi bi-mortarboard-fill fs-2"></i>
                     </div>
                     <div>
-                        <h1 class="mb-1 fw-bold" style="font-size: 2.5rem;">BBB Academy</h1>
-                        <p class="mb-0 opacity-90" style="font-size: 1.1rem;">Tu centro de aprendizaje paso a paso</p>
+                        <h1 class="mb-1 fw-bold" style="font-size: clamp(1.5rem, 5vw, 2.5rem);">BBB Academy</h1>
+                        <p class="mb-0 opacity-90" style="font-size: clamp(0.875rem, 3vw, 1.1rem);">Tu centro de aprendizaje paso a paso</p>
                     </div>
                 </div>
-                <p class="mb-4 opacity-80 fs-5">
+                <p class="mb-3 mb-md-4 opacity-80" style="font-size: clamp(0.875rem, 2.5vw, 1.25rem); line-height: 1.5;">
                     Aprende a usar cada módulo de tu plataforma con guías visuales y sencillas. 
                     <strong>¡Todo pensado para principiantes!</strong>
                 </p>
-                <div class="d-flex gap-3">
+                <div class="d-flex flex-column flex-sm-row gap-2 gap-sm-3">
                     <a href="#empezar" class="btn btn-light btn-lg px-4 feature-highlight">
                         <i class="bi bi-play-circle me-2"></i>
                         Empezar ahora
@@ -171,8 +292,8 @@
                     </a>
                 </div>
             </div>
-            <div class="col-lg-4 text-center">
-                <div class="academy-icon bg-white bg-opacity-20 mx-auto" style="width: 120px; height: 120px; border-radius: 30px;">
+            <div class="col-lg-4 text-center d-none d-lg-flex justify-content-center align-items-center">
+                <div class="academy-icon bg-white bg-opacity-20" style="width: 120px; height: 120px; border-radius: 30px;">
                     <i class="bi bi-rocket-takeoff" style="font-size: 3rem;"></i>
                 </div>
             </div>
@@ -181,26 +302,47 @@
 </div>
 
 <!-- Quick Actions -->
-<div id="empezar" class="quick-actions p-4 mb-5">
-    <div class="row align-items-center">
-        <div class="col-lg-8">
-            <h3 class="text-success mb-2">
+<div id="empezar" class="quick-actions p-3 p-md-4 mb-4 mb-md-5">
+    <div class="row align-items-center g-3">
+        <div class="col-12 col-lg-8">
+            <h3 class="text-success mb-2" style="font-size: clamp(1.25rem, 4vw, 1.75rem);">
                 <i class="bi bi-lightning-charge me-2"></i>
                 ¿Primera vez en BBB? ¡Perfecto!
             </h3>
-            <p class="mb-3 text-muted">Te recomendamos seguir estos pasos en orden para tener tu sitio web funcionando en minutos.</p>
-            <div class="d-flex gap-2 flex-wrap">
+            <p class="mb-3 text-muted" style="font-size: clamp(0.875rem, 2.5vw, 1rem);">Te recomendamos seguir estos pasos en orden para tener tu sitio web funcionando en minutos.</p>
+            
+            <!-- Desktop: horizontal flow -->
+            <div class="d-none d-md-flex gap-2 flex-wrap align-items-center">
                 <span class="badge bg-success">1. Configura tu Landing</span>
-                <i class="bi bi-arrow-right text-success mx-1"></i>
+                <i class="bi bi-arrow-right text-success"></i>
                 <span class="badge bg-info">2. Añade Productos</span>
-                <i class="bi bi-arrow-right text-success mx-1"></i>
+                <i class="bi bi-arrow-right text-success"></i>
                 <span class="badge bg-warning">3. Configura Pagos</span>
-                <i class="bi bi-arrow-right text-success mx-1"></i>
+                <i class="bi bi-arrow-right text-success"></i>
                 <span class="badge bg-primary">4. ¡Listo para vender!</span>
             </div>
+            
+            <!-- Mobile: vertical flow -->
+            <div class="d-md-none">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-success me-2">1. Configura tu Landing</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-arrow-down text-success me-2"></i>
+                    <span class="badge bg-info me-2">2. Añade Productos</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-arrow-down text-success me-2"></i>
+                    <span class="badge bg-warning me-2">3. Configura Pagos</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-arrow-down text-success me-2"></i>
+                    <span class="badge bg-primary">4. ¡Listo para vender!</span>
+                </div>
+            </div>
         </div>
-        <div class="col-lg-4 text-center">
-            <a href="{{ route('admin.landing.configurar') }}" class="btn btn-success btn-lg px-4">
+        <div class="col-12 col-lg-4 text-center text-lg-end">
+            <a href="{{ route('admin.landing.configurar') }}" class="btn btn-success btn-lg px-4 w-100 w-lg-auto">
                 <i class="bi bi-rocket me-2"></i>
                 ¡Empezar configuración!
             </a>
@@ -209,23 +351,27 @@
 </div>
 
 <!-- Video Tutoriales -->
-<div id="tutoriales" class="mb-5">
+<div id="tutoriales" class="mb-4 mb-md-5">
     <div class="card border-0" style="border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.08);">
-        <div class="card-body p-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="academy-icon me-3" style="background: linear-gradient(135deg, #ff4d4f, #ff9f43); width: 50px; height: 50px; border-radius: 12px;">
-                        <i class="bi bi-youtube fs-4 text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="mb-0 fw-bold">Video tutoriales</h4>
-                        <small class="text-muted">Aprende más rápido viendo los videos</small>
+        <div class="card-body p-3 p-md-4">
+            <div class="row align-items-center g-3 mb-3">
+                <div class="col-12 col-md-auto flex-grow-1">
+                    <div class="d-flex align-items-center">
+                        <div class="academy-icon me-2 me-md-3" style="background: linear-gradient(135deg, #ff4d4f, #ff9f43); width: 50px; height: 50px; border-radius: 12px;">
+                            <i class="bi bi-youtube fs-4 text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 fw-bold" style="font-size: clamp(1.1rem, 3vw, 1.5rem);">Video tutoriales</h4>
+                            <small class="text-muted d-none d-sm-block">Aprende más rápido viendo los videos</small>
+                        </div>
                     </div>
                 </div>
-                <a href="{{ config('app.youtube.channel_url') }}" target="_blank" class="btn btn-danger">
-                    <i class="bi bi-play-btn-fill me-1"></i>
-                    Ver todos los videos
-                </a>
+                <div class="col-12 col-md-auto">
+                    <a href="{{ config('app.youtube.channel_url') }}" target="_blank" class="btn btn-danger w-100 w-md-auto">
+                        <i class="bi bi-play-btn-fill me-1"></i>
+                        Ver todos los videos
+                    </a>
+                </div>
             </div>
 
             @php

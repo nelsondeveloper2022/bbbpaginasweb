@@ -4,14 +4,18 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 mb-0">
-                <i class="bi bi-cart-plus me-2"></i>
-                Nueva Venta
-            </h1>
-            <a href="{{ route('admin.ventas.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Volver
-            </a>
+        <div class="row align-items-center mb-4">
+            <div class="col-12 col-md-auto flex-grow-1 mb-3 mb-md-0">
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-cart-plus me-2"></i>
+                    Nueva Venta
+                </h1>
+            </div>
+            <div class="col-12 col-md-auto">
+                <a href="{{ route('admin.ventas.index') }}" class="btn btn-outline-secondary w-100 w-md-auto">
+                    <i class="bi bi-arrow-left me-1"></i> Volver
+                </a>
+            </div>
         </div>
 
         <form action="{{ route('admin.ventas.store') }}" method="POST" id="ventaForm">
@@ -22,12 +26,12 @@
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-person me-2"></i>
-                        Información del Cliente
+                        <span class="d-none d-md-inline">Información del </span>Cliente
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-12 col-md-8 mb-3 mb-md-0">
                             <div class="mb-3">
                                 <label for="idCliente" class="form-label">Cliente <span class="text-danger">*</span></label>
                                 <select class="form-select @error('idCliente') is-invalid @enderror" 
@@ -72,11 +76,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">&nbsp;</label>
+                                <label class="form-label d-none d-md-block">&nbsp;</label>
                                 <div>
-                                    <a href="{{ route('admin.clientes.create') }}" class="btn btn-outline-primary" target="_blank">
+                                    <a href="{{ route('admin.clientes.create') }}" class="btn btn-outline-primary w-100" target="_blank">
                                         <i class="bi bi-plus-lg me-1"></i> Nuevo Cliente
                                     </a>
                                 </div>
@@ -91,13 +95,13 @@
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-box me-2"></i>
-                        Productos de la Venta
+                        Productos<span class="d-none d-md-inline"> de la Venta</span>
                     </h5>
                 </div>
                 <div class="card-body">
                     <!-- Buscador de productos -->
                     <div class="row mb-4">
-                        <div class="col-md-8">
+                        <div class="col-12 col-md-8 mb-3 mb-md-0">
                             <label for="producto-search" class="form-label">Buscar y Agregar Producto</label>
                             <select class="form-select" id="producto-search">
                                 <option value="">Buscar producto por nombre, referencia o descripción...</option>
@@ -109,10 +113,10 @@
                                 </small>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">&nbsp;</label>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label d-none d-md-block">&nbsp;</label>
                             <div>
-                                <a href="{{ route('admin.productos.create') }}" class="btn btn-outline-success" target="_blank">
+                                <a href="{{ route('admin.productos.create') }}" class="btn btn-outline-success w-100" target="_blank">
                                     <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
                                 </a>
                             </div>
@@ -144,7 +148,8 @@
                     <script type="text/template" id="producto-template">
                         <div class="producto-item border-bottom">
                             <div class="p-3">
-                                <div class="row align-items-center">
+                                <!-- Vista Desktop -->
+                                <div class="row align-items-center d-none d-md-flex">
                                     <div class="col-md-5">
                                         <div class="d-flex align-items-center">
                                             <div class="producto-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -193,6 +198,58 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <!-- Vista Mobile -->
+                                <div class="d-md-none">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="d-flex align-items-start flex-grow-1">
+                                            <div class="producto-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; flex-shrink: 0;">
+                                                <i class="bi bi-box"></i>
+                                            </div>
+                                            <div style="min-width: 0;">
+                                                <h6 class="mb-1 producto-nombre" style="font-size: 0.9rem;"></h6>
+                                                <small class="text-muted producto-referencia d-block"></small>
+                                                <input type="hidden" name="productos[INDEX][idProducto]" class="producto-id-input">
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-producto ms-2" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label text-muted small mb-1">Cantidad</label>
+                                            <div class="input-group input-group-sm">
+                                                <button class="btn btn-outline-secondary btn-cantidad-menos" type="button">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+                                                <input type="number" 
+                                                       class="form-control text-center cantidad-input" 
+                                                       name="productos[INDEX][cantidad]" 
+                                                       min="1" 
+                                                       value="1"
+                                                       required>
+                                                <button class="btn btn-outline-secondary btn-cantidad-mas" type="button">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </div>
+                                            <small class="text-muted stock-info d-block mt-1"></small>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label text-muted small mb-1">Precio Unit.</label>
+                                            <input type="text" 
+                                                   class="form-control form-control-sm precio-unitario" 
+                                                   readonly>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label text-muted small mb-1">Subtotal</label>
+                                            <input type="text" 
+                                                   class="form-control form-control-sm fw-bold subtotal" 
+                                                   readonly>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </script>
@@ -204,12 +261,12 @@
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-calculator me-2"></i>
-                        Resumen de Venta
+                        Resumen<span class="d-none d-md-inline"> de Venta</span>
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6 mb-3 mb-md-0">
                             <div class="mb-3">
                                 <label for="metodo_pago" class="form-label">Método de Pago</label>
                                 <select class="form-select @error('metodo_pago') is-invalid @enderror" 
@@ -225,7 +282,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label for="estado" class="form-label">Estado</label>
                                 <select class="form-select @error('estado') is-invalid @enderror" 
@@ -265,7 +322,7 @@
                     
                     <!-- Total -->
                     <div class="row">
-                        <div class="col-md-6 offset-md-6">
+                        <div class="col-12 col-md-6 offset-md-6">
                             <div class="bg-light p-3 rounded">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal:</span>
@@ -297,11 +354,11 @@
             </div>
 
             <!-- Botones -->
-            <div class="d-flex justify-content-end gap-2">
-                <a href="{{ route('admin.ventas.index') }}" class="btn btn-secondary">
+            <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
+                <a href="{{ route('admin.ventas.index') }}" class="btn btn-secondary order-2 order-sm-1">
                     <i class="bi bi-x-lg me-1"></i> Cancelar
                 </a>
-                <button type="submit" class="btn btn-primary-gold">
+                <button type="submit" class="btn btn-primary-gold order-1 order-sm-2">
                     <i class="bi bi-check-lg me-1"></i> Crear Venta
                 </button>
             </div>
@@ -428,6 +485,85 @@
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 500;
+}
+
+/* ============================================
+   MOBILE OPTIMIZATIONS - v2.0
+   ============================================ */
+
+@media (max-width: 767px) {
+    /* Header mobile */
+    .container-fluid > .row.align-items-center h1 {
+        font-size: 1.5rem !important;
+    }
+
+    /* Cards mobile */
+    .card-header h5 {
+        font-size: 1rem !important;
+    }
+
+    /* Productos list mobile */
+    .producto-item {
+        margin-bottom: 0 !important;
+    }
+
+    .producto-item .p-3 {
+        padding: 0.75rem !important;
+    }
+
+    /* Botones de cantidad móvil */
+    .btn-cantidad-menos,
+    .btn-cantidad-mas {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0.75rem;
+    }
+
+    .cantidad-input {
+        width: 50px !important;
+        font-size: 0.875rem;
+    }
+
+    /* Inputs mobile */
+    .form-control,
+    .form-select {
+        font-size: 0.875rem !important;
+    }
+
+    /* Total resumen */
+    .bg-light.p-3 {
+        padding: 1rem !important;
+    }
+
+    /* Botones finales */
+    .btn {
+        min-height: 44px;
+    }
+
+    /* Select2 mobile */
+    .select2-container {
+        font-size: 0.875rem;
+    }
+
+    .select2-results__option {
+        padding: 0.5rem !important;
+    }
+
+    /* Empty products */
+    .empty-products {
+        padding: 2rem 1rem !important;
+    }
+
+    .empty-products .display-4 {
+        font-size: 2rem !important;
+    }
+}
+
+@media (max-width: 575px) {
+    /* Full width buttons on small mobile */
+    .d-flex.gap-2 > .btn {
+        width: 100%;
+    }
 }
 </style>
 @endpush

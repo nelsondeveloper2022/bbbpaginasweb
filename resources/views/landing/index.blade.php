@@ -208,6 +208,35 @@
         color: white;
     }
 
+    /* Floating WhatsApp Button */
+    .floating-whatsapp {
+        position: fixed;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1030; /* above most content, below modals */
+    }
+    .floating-whatsapp a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: #25D366; /* WhatsApp green */
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+        transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+        text-decoration: none;
+    }
+    .floating-whatsapp a:hover {
+        background-color: #1ebe57;
+        box-shadow: 0 14px 32px rgba(0,0,0,0.25);
+        transform: scale(1.06);
+        color: #fff;
+    }
+    .floating-whatsapp i { font-size: 26px; line-height: 1; }
+
     /* Responsive Design */
     
     /* For medium-large screens (1024px - 1400px) */
@@ -284,6 +313,7 @@
     
     /* For small screens (mobile) */
     @media (max-width: 768px) {
+        .floating-whatsapp { top: auto; bottom: 20px; transform: none; }
         .hero-title {
             font-size: 2.5rem;
             line-height: 1.2;
@@ -338,6 +368,11 @@
                         <a href="{{ route('plans') }}" class="btn btn-outline-custom">
                             Ver Planes y Precios
                         </a>
+                        @auth
+                        <a href="{{ route('admin.landing.configurar') }}" class="btn btn-primary-custom">
+                            <i class="fas fa-tools me-2"></i>Configura tu página
+                        </a>
+                        @endauth
                     </div>
                 </div>
             </div>
@@ -347,6 +382,15 @@
         </div>
     </div>
 </section>
+
+<!-- Floating WhatsApp Button -->
+<div class="floating-whatsapp">
+    <a href="https://wa.me/{{ config('app.support.mobile') }}?text={{ urlencode('Hola, estoy interesado en los servicios de BBB') }}"
+       target="_blank" rel="noopener noreferrer" aria-label="Chatea con nosotros por WhatsApp">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+    </a>
+    
+</div>
 
 <!-- Comercios Destacados (Slider) -->
 <section class="py-5 bg-light">

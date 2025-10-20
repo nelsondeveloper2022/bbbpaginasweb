@@ -377,8 +377,8 @@
                                             </div>
                                         @endif
                                         <div class="col-12">
-                                            <strong>Creada:</strong> {{ $landing->created_at->format('d/m/Y H:i') }}
-                                            <strong class="ms-3">Última actualización:</strong> {{ $landing->updated_at->format('d/m/Y H:i') }}
+                                            <strong>Creada:</strong> {{ $landing->created_at ? $landing->created_at->format('d/m/Y H:i') : 'No disponible' }}
+                                            <strong class="ms-3">Última actualización:</strong> {{ $landing->updated_at ? $landing->updated_at->format('d/m/Y H:i') : 'No disponible' }}
                                         </div>
                                     </div>
 

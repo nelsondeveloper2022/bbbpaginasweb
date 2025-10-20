@@ -23,9 +23,9 @@ class LandingController extends Controller
     {
         // Obtener los planes para mostrar en la sección de planes del home
         $plans = BbbPlan::where('idEmpresa', 1)
-                        ->where('idioma', 'spanish')
-                        ->orderBy('orden')
-                        ->get();
+        ->where('idioma', 'spanish')
+        ->orderBy('orden')
+        ->get();
         
         return view('landing.index', compact('plans'));
     }

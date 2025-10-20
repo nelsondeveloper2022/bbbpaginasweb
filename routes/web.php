@@ -6,9 +6,12 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LandingConfigController;
 use App\Http\Controllers\PublicLandingController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\SupportChatController;
 use App\Http\Controllers\TestRecaptchaController;
 use App\Http\Controllers\ComerciosController;
+use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -63,6 +66,19 @@ Route::middleware('guest')->group(function() {
     Route::post('/login', [AuthController::class, 'login'])
         ->middleware('recaptcha')
         ->name('login.post');
+
+    // Password reset (Breeze-style) routes
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+        ->name('password.request');
+
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->name('password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+        ->name('password.reset');
+
+    Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->name('password.store');
 });
 
 Route::middleware('auth')->group(function() {
@@ -142,6 +158,11 @@ Route::middleware('auth')->group(function() {
             Route::get('/', [\App\Http\Controllers\ProductoController::class, 'index'])->name('index');
             Route::get('/data', [\App\Http\Controllers\ProductoController::class, 'getData'])->name('data');
             Route::get('/create', [\App\Http\Controllers\ProductoController::class, 'create'])->name('create');
+            // Importación masiva (ANTES de las rutas con parámetros dinámicos)
+            Route::get('/import', [\App\Http\Controllers\ProductoController::class, 'import'])->name('import');
+            Route::post('/import-excel', [\App\Http\Controllers\ProductoController::class, 'importExcel'])->name('import-excel');
+            Route::post('/import-images', [\App\Http\Controllers\ProductoController::class, 'importImages'])->name('import-images');
+            // Rutas con parámetros dinámicos (deben ir al final)
             Route::post('/', [\App\Http\Controllers\ProductoController::class, 'store'])->name('store');
             Route::get('/{producto}', [\App\Http\Controllers\ProductoController::class, 'show'])->name('show');
             Route::get('/{producto}/edit', [\App\Http\Controllers\ProductoController::class, 'edit'])->name('edit');
@@ -239,6 +260,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/impersonate/{id}', [\App\Http\Controllers\AdminController::class, 'impersonate'])->name('impersonate');
     Route::get('/impersonate-login/{token}', [\App\Http\Controllers\AdminController::class, 'impersonateLogin'])->name('impersonate.login');
     Route::get('/stop-impersonating', [\App\Http\Controllers\AdminController::class, 'stopImpersonating'])->name('stop-impersonating');
+    
+    // WhatsApp para usuarios
+    Route::get('/whatsapp/templates', [\App\Http\Controllers\WhatsAppController::class, 'getTemplates'])->name('whatsapp.templates');
+    Route::get('/whatsapp/template/{templateName}', [\App\Http\Controllers\WhatsAppController::class, 'getTemplateDetails'])->name('whatsapp.template.details');
+    Route::post('/whatsapp/send-template', [\App\Http\Controllers\WhatsAppController::class, 'sendTemplate'])->name('whatsapp.send.template');
+    Route::get('/whatsapp/modal/{userId}', [\App\Http\Controllers\WhatsAppController::class, 'showModal'])->name('whatsapp.modal');
+    Route::get('/whatsapp/user-data/{userId}', [\App\Http\Controllers\WhatsAppController::class, 'getUserData'])->name('whatsapp.user.data');
     
     // Gestión de administradores
     Route::get('/admins', [\App\Http\Controllers\AdminController::class, 'admins'])->name('admins');

@@ -4,7 +4,10 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "deploy": "./deploy.sh",
+        "update": "./update.sh",
+        "update:dry": "DRY_RUN=1 ./update.sh"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
