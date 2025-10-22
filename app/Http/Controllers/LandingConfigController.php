@@ -48,7 +48,7 @@ class LandingConfigController extends Controller
         $estiloOptions = BbbLanding::getEstiloOptions();
         $tipografiaOptions = BbbLanding::getTipografiaOptions();
 
-        return view('landing.configurar', compact(
+        return view('landing.configurar_simple', compact(
             'empresa', 
             'landing', 
             'objetivoOptions', 
@@ -61,7 +61,7 @@ class LandingConfigController extends Controller
     }
 
     /**
-     * Store or update a landing page configuration.
+     * Store or update a landing page configuration (Simplified version).
      */
     public function store(Request $request)
     {
@@ -73,43 +73,144 @@ class LandingConfigController extends Controller
                 ->with('error', 'Debes completar los datos de tu empresa antes de configurar la landing page.');
         }
         
-        // Obtener la empresa para verificar el estado
+        // Obtener la empresa
         $empresa = BbbEmpresa::find($user->idEmpresa);
-        if($empresa == null){
+        if(!$empresa) {
             $empresa = BbbEmpresa::where('nombre', $user->empresa_nombre)
-                ->where('estado' , null)
+                ->where('estado', null)
                 ->first();
+            
+            if($empresa) {
+                $user->idEmpresa = $empresa->idEmpresa;
+                $user->save();
+            }
         }
         
-        $estadoLanding = $empresa->estado ?? 'sin_configurar';
-        $isPublished = ($estadoLanding === 'publicada');
+        if (!$empresa) {
+            return redirect()->back()
+                ->with('error', 'No se pudo encontrar la información de tu empresa.');
+        }
         
-        // Verificar si ya existe una landing con logo
-        $landingExistente = BbbLanding::where('idEmpresa', $user->idEmpresa)->first();
-        $tieneLogoExistente = $landingExistente && $landingExistente->logo_url;
+        $isPublished = ($empresa->estado === 'publicada');
         
-        // Definir reglas de validación dinámicamente
+        // Verificar si ya existe una landing
+        $landing = BbbLanding::where('idEmpresa', $user->idEmpresa)->first();
+        
+        // Validación simplificada para formulario básico
         $validationRules = [
-            // Company fields (siempre requeridos)
             'empresa_nombre' => 'required|string|max:255',
-            'empresa_email' => 'required|email|max:255',
-            'empresa_movil' => 'nullable|string|max:20',
-            'whatsapp' => 'nullable|string|max:20',
-            'empresa_direccion' => 'nullable|string',
-            'website' => 'nullable|string|max:255',
+            'whatsapp' => 'required|string|max:20',
+            'titulo_principal' => 'required|string|max:255',
+            'color_principal' => 'nullable|string|max:7',
+            'color_secundario' => 'nullable|string|max:7',
             'facebook' => 'nullable|url|max:255',
             'instagram' => 'nullable|url|max:255',
-            'linkedin' => 'nullable|url|max:255',
             'twitter' => 'nullable|url|max:255',
-            'tiktok' => 'nullable|url|max:255',
-            'youtube' => 'nullable|url|max:255',
-            'terminos_condiciones' => 'nullable|string',
-            'politica_privacidad' => 'nullable|string',
-            'politica_cookies' => 'nullable|string',
         ];
         
-        // Solo agregar validaciones de landing si NO está publicada
+        // Solo validar logo si no está publicada o no existe uno
         if (!$isPublished) {
+            $validationRules['logo'] = 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048';
+        }
+        
+        $request->validate($validationRules, [
+            'empresa_nombre.required' => 'El nombre de la empresa es obligatorio.',
+            'whatsapp.required' => 'El número de WhatsApp es obligatorio.',
+            'titulo_principal.required' => 'El título principal es obligatorio.',
+            'logo.image' => 'El logo debe ser una imagen válida.',
+            'logo.mimes' => 'El logo debe ser JPG, PNG, GIF, SVG o WEBP.',
+            'logo.max' => 'El logo no puede ser mayor a 2MB.',
+            'facebook.url' => 'La URL de Facebook debe ser válida.',
+            'instagram.url' => 'La URL de Instagram debe ser válida.',
+            'twitter.url' => 'La URL de Twitter debe ser válida.',
+        ]);
+
+        try {
+            // Actualizar empresa
+            $empresa->nombre = $request->empresa_nombre;
+            $empresa->whatsapp = $request->whatsapp;
+            $empresa->facebook = $request->facebook;
+            $empresa->instagram = $request->instagram;
+            $empresa->twitter = $request->twitter;
+            
+            // Manejar logo si se subió uno nuevo
+            if ($request->hasFile('logo')) {
+                // Eliminar logo anterior si existe
+                if ($empresa->logo && Storage::exists($empresa->logo)) {
+                    Storage::delete($empresa->logo);
+                }
+                
+                $logoPath = $request->file('logo')->store('logos', 'public');
+                $empresa->logo = $logoPath;
+            }
+            
+            $empresa->save();
+            
+            // Crear o actualizar landing
+            if (!$landing) {
+                $landing = new BbbLanding();
+                $landing->idEmpresa = $user->idEmpresa;
+            }
+            
+            $landing->titulo_principal = $request->titulo_principal;
+            $landing->color_principal = $request->color_principal ?? '#007bff';
+            $landing->color_secundario = $request->color_secundario ?? '#6c757d';
+            
+            // Solo actualizar estos campos si no está publicada
+            if (!$isPublished) {
+                $landing->objetivo = 'generar_contactos'; // Valor fijo para formulario básico
+                $landing->subtitulo = $request->titulo_principal . ' - Contáctanos';
+                $landing->descripcion = 'Empresa dedicada a brindar servicios de calidad. Contáctanos para más información.';
+                $landing->estilo = 'moderno';
+                $landing->tipografia = 'inter';
+            }
+            
+            $landing->save();
+            
+            // Manejar imágenes adicionales si se subieron
+            if ($request->hasFile('media')) {
+                foreach ($request->file('media') as $mediaFile) {
+                    $mediaPath = $mediaFile->store('landing-media', 'public');
+                    
+                    BbbLandingMedia::create([
+                        'idLanding' => $landing->idLanding,
+                        'tipo' => 'imagen',
+                        'ruta' => $mediaPath,
+                        'nombre_original' => $mediaFile->getClientOriginalName(),
+                    ]);
+                }
+            }
+            
+            // Auto-publicar como se solicitó
+            if (!$isPublished) {
+                $empresa->estado = 'publicada';
+                $empresa->fecha_publicacion = now();
+                $empresa->save();
+                
+                $landing->estado = 'publicada';
+                $landing->save();
+                
+                // Enviar notificación por email
+                try {
+                    Mail::to($user->email)->send(new LandingPublishedNotification($landing, $empresa));
+                } catch (\Exception $e) {
+                    Log::error('Error enviando email de landing publicada: ' . $e->getMessage());
+                }
+                
+                return redirect()->route('admin.landing.configurar')
+                    ->with('success', '¡Landing page guardada y publicada exitosamente! Recibirás un email con los detalles.');
+            } else {
+                return redirect()->route('admin.landing.configurar')
+                    ->with('success', 'Landing page actualizada exitosamente.');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Error guardando landing: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Hubo un error al guardar la configuración. Por favor intenta nuevamente.')
+                ->withInput();
+        }
+    }
             $validationRules = array_merge($validationRules, [
                 // Landing fields
                 'objetivo' => 'required|string|max:200',
@@ -152,10 +253,10 @@ class LandingConfigController extends Controller
             'subtitulo.max' => 'El subtítulo no puede tener más de 255 caracteres.',
             'empresa_nombre.required' => 'El nombre de la empresa es obligatorio.',
             'empresa_nombre.max' => 'El nombre de la empresa no puede tener más de 255 caracteres.',
-            'empresa_email.required' => 'El email corporativo es obligatorio.',
             'empresa_email.email' => 'El email corporativo debe tener un formato válido.',
             'empresa_email.max' => 'El email corporativo no puede tener más de 255 caracteres.',
             'empresa_movil.max' => 'El teléfono móvil no puede tener más de 20 caracteres.',
+            'whatsapp.required' => 'El número de WhatsApp es obligatorio.',
             'whatsapp.max' => 'El número de WhatsApp no puede tener más de 20 caracteres.',
             'website.max' => 'La URL del sitio web no puede tener más de 255 caracteres.',
             'facebook.url' => 'La URL de Facebook debe ser válida.',
@@ -324,6 +425,51 @@ class LandingConfigController extends Controller
             $user->empresa_email = $request->empresa_email;
             $user->empresa_direccion = $request->empresa_direccion;
             $user->save();
+
+            // Automaticamente publicar la landing si NO está ya publicada
+            if (!$isPublished) {
+                try {
+                    // Obtener datos actualizados
+                    $empresa = BbbEmpresa::find($user->idEmpresa);
+                    $landing = BbbLanding::where('idEmpresa', $user->idEmpresa)->first();
+                    
+                    if ($empresa && $landing) {
+                        // Generar/actualizar slug si es necesario
+                        $empresa->updateSlug();
+
+                        // Cambiar estado a "en construcción"
+                        $empresa->setLandingUnderConstruction();
+
+                        // Cargar relaciones necesarias (incluyendo imágenes adicionales del modelo BbbLandingMedia)
+                        $landing->load(['media', 'images', 'icons']);
+
+                        // Crear directorio de vistas y archivo index con todas las imágenes
+                        $empresa->createLandingViews();
+                        $this->createLandingIndexView($empresa);
+
+                        // Enviar email de notificación
+                        try {
+                            Mail::to(config('app.support.email'))->send(new LandingPublishedNotification($empresa, $landing));
+                        } catch (\Exception $e) {
+                            // Log error but don't fail the process
+                            Log::warning('Failed to send landing publication email: ' . $e->getMessage());
+                        }
+
+                        // Mensaje de éxito con publicación automática
+                        return redirect()->route('admin.landing.configurar')
+                            ->with('success', 'Configuración guardada y landing page publicada exitosamente.')
+                            ->with('published', true)
+                            ->with('landing_url', $empresa->getLandingUrl());
+                    }
+                } catch (\Exception $e) {
+                    // Si falla la publicación, no falla todo el proceso
+                    Log::warning('Failed to auto-publish landing: ' . $e->getMessage());
+                    
+                    return redirect()->route('admin.landing.configurar')
+                        ->with('success', 'Configuración guardada exitosamente, pero hubo un problema al publicar automáticamente. Puedes publicar manualmente.')
+                        ->with('warning', 'Error en publicación automática: ' . $e->getMessage());
+                }
+            }
 
             // Mensaje de éxito personalizado según lo que se guardó
             $successMessage = $isPublished 

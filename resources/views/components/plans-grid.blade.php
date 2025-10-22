@@ -1,7 +1,8 @@
 <!-- Plans Carousel Component -->
 @push('styles')
-<!-- Swiper CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<!-- Owl Carousel CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
 
 <style>
     :root {
@@ -11,11 +12,33 @@
     .plans-carousel {
         padding: 2rem 0;
         position: relative;
+        background: transparent; /* Asegurar fondo transparente */
     }
     
-    .plans-swiper {
-        overflow: hidden; /* evita desbordes que dañan el layout */
+    .plans-owl {
         padding: 0 20px;
+        background: transparent !important; /* Eliminar cualquier fondo gris */
+    }
+    
+    .owl-stage-outer {
+        background: transparent !important; /* Eliminar fondo del contenedor owl */
+    }
+    
+    .owl-stage {
+        background: transparent !important; /* Eliminar fondo del stage */
+    }
+    
+    .owl-item {
+        background: transparent !important; /* Eliminar fondo de los items */
+        height: auto; /* Permitir altura automática en items */
+        display: flex; /* Flexbox para igualar alturas */
+        align-items: stretch; /* Estirar items para igualar alturas */
+    }
+    
+    .owl-item .item {
+        width: 100%;
+        display: flex;
+        align-items: stretch;
     }
     
     .plan-card {
@@ -24,21 +47,27 @@
         padding: 2rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
-        height: 100%;
+        width: 100%;
+        height: auto; /* Será controlada por JavaScript */
+        min-height: 100%;
         position: relative;
         overflow: hidden;
         display: flex;
         flex-direction: column;
+        justify-content: space-between; /* Distribuir contenido uniformemente */
+        margin: 0 12px;
+        z-index: 1; /* Base z-index */
     }
 
     .plan-card:hover {
         transform: translateY(-10px);
         box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        z-index: 999 !important; /* Z-index muy alto para hover */
+        position: relative;
     }
 
     .plan-card.featured {
         border: 3px solid var(--primary-gold);
-        /* quitar escala para no romper el flujo del carrusel */
     }
 
     .plan-card.featured::before {
@@ -60,11 +89,6 @@
         color: var(--primary-gold);
         margin-bottom: 1rem;
     }
-
-    /* Ajustes de carrusel para alturas consistentes */
-    .plans-carousel { overflow: hidden; }
-    .plans-swiper .swiper-wrapper { align-items: stretch; }
-    .plans-swiper .swiper-slide { height: auto; }
 
     .plan-name {
         font-size: 1.5rem;
@@ -173,46 +197,79 @@
         background: #d4a855;
     }
     
-    /* Carousel Navigation */
-    .swiper-button-next,
-    .swiper-button-prev {
-        color: var(--primary-gold);
-        background: white;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
+    /* Eliminar fondos grises de Owl Carousel */
+    .owl-carousel,
+    .owl-carousel .owl-stage-outer,
+    .owl-carousel .owl-stage,
+    .owl-carousel .owl-item,
+    .owl-carousel .owl-wrapper,
+    .owl-carousel .owl-wrapper-outer {
+        background: white !important;
+        min-height: auto;
+        padding-top: 20px;
     }
     
-    .swiper-button-next:hover,
-    .swiper-button-prev:hover {
-        background: var(--primary-gold);
-        color: white;
+    /* Asegurar que no hay overlays o fondos interferentes */
+    .owl-carousel::before,
+    .owl-carousel::after {
+        display: none !important;
+    }
+    
+    /* Owl Carousel Navigation */
+    .owl-nav {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .owl-nav button {
+        background: white !important;
+        color: var(--primary-gold) !important;
+        border-radius: 50% !important;
+        width: 50px !important;
+        height: 50px !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+        transition: all 0.3s ease !important;
+        margin: 0 10px !important;
+        font-size: 20px !important;
+        border: none !important;
+    }
+    
+    .owl-nav button:hover {
+        background: var(--primary-gold) !important;
+        color: white !important;
         transform: scale(1.1);
     }
     
-    .swiper-button-next::after,
-    .swiper-button-prev::after {
-        font-size: 20px;
-        font-weight: bold;
+    .owl-nav button.owl-prev:after {
+        content: '‹';
     }
     
-    /* Pagination */
-    .swiper-pagination {
-        position: relative;
-        margin-top: 2rem;
+    .owl-nav button.owl-next:after {
+        content: '›';
     }
     
-    .swiper-pagination-bullet {
+    /* Owl Carousel Dots */
+    .owl-dots {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .owl-dots .owl-dot {
+        display: inline-block;
+        margin: 0 5px;
+    }
+    
+    .owl-dots .owl-dot span {
         width: 12px;
         height: 12px;
         background: var(--medium-gray);
-        opacity: 0.5;
+        border-radius: 50%;
+        display: block;
         transition: all 0.3s ease;
+        opacity: 0.5;
     }
     
-    .swiper-pagination-bullet-active {
+    .owl-dots .owl-dot.active span {
         background: var(--primary-gold);
         opacity: 1;
         transform: scale(1.2);
@@ -220,29 +277,35 @@
     
     /* Responsive adjustments */
     @media (max-width: 768px) {
-        .plans-swiper {
+        .plans-owl {
             padding: 0 10px;
+            background: transparent !important;
         }
         
-        .swiper-button-next,
-        .swiper-button-prev {
-            width: 40px;
-            height: 40px;
-        }
-        
-        .swiper-button-next::after,
-        .swiper-button-prev::after {
-            font-size: 16px;
+        .owl-nav button {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 16px !important;
         }
         
         .plan-card {
             padding: 1.5rem;
+            margin: 0 6px;
+        }
+        
+        .plan-card:hover {
+            z-index: 999 !important;
         }
     }
     
     @media (max-width: 480px) {
-        .plans-swiper {
+        .plans-owl {
             padding: 0 5px;
+            background: transparent !important;
+        }
+        
+        .plan-card:hover {
+            z-index: 999 !important;
         }
     }
 </style>
@@ -250,74 +313,71 @@
 
 <!-- Plans Carousel -->
 <div class="plans-carousel">
-    <div class="swiper plans-swiper">
-        <div class="swiper-wrapper">
-            @foreach($plans as $plan)
-            <div class="swiper-slide">
-                <div class="plan-card {{ $plan->destacado ? 'featured' : '' }}">
-                    <div class="text-center">
-                        <div class="plan-icon">
-                            <i class="{{ $plan->icono }}"></i>
+    <div class="owl-carousel owl-theme plans-owl">
+        @foreach($plans as $plan)
+        <div class="item">
+            <div class="plan-card {{ $plan->destacado ? 'featured' : '' }}">
+                <div class="text-center">
+                    <div class="plan-icon">
+                        <i class="{{ $plan->icono }}"></i>
+                    </div>
+                    <h3 class="plan-name">{{ $plan->nombre }}</h3>
+                   <div class="plan-badges">
+                        @if(stripos($plan->slug ?? '', 'free') !== false)
+                            <span class="plan-badge primary"><i class="fas fa-check-circle me-1"></i>Pago Único</span>
+                            <span class="plan-badge"><i class="fas fa-globe me-1"></i>Hosting Incluido</span>
+                        @elseif(stripos($plan->slug ?? '', 'mensual') !== false)
+                            <span class="plan-badge primary"><i class="fas fa-sync-alt me-1"></i>Pago Mensual</span>
+                            <span class="plan-badge"><i class="fas fa-globe me-1"></i>Hosting Incluido</span>
+                        @else
+                            <span class="plan-badge primary"><i class="fas fa-sync-alt me-1"></i>Pago Trimestral</span>
+                            <span class="plan-badge"><i class="fas fa-globe me-1"></i>Hosting Incluido</span>
+                        @endif
+                    </div>
+
+                    
+                    <!-- Precio en COP -->
+                    <div class="price-cop" style="display: block;">
+                        <div class="plan-price cop">
+                            ${{ number_format($plan->precioPesos, 0, ',', '.') }}
                         </div>
-                        <h3 class="plan-name">{{ $plan->nombre }}</h3>
-                        <div class="plan-badges">
-                            @if($plan->slug === 'plan-pagina-web-arriendo' || $plan->slug === 'plan-free-15')
-                                <span class="plan-badge primary"><i class="fas fa-sync-alt me-1"></i>Pago Trimestral</span>
-                                <span class="plan-badge"><i class="fas fa-globe me-1"></i>Subdominio incluido</span>
-                            @else
-                                <span class="plan-badge primary"><i class="fas fa-check-circle me-1"></i>Pago Único</span>
-                                <span class="plan-badge"><i class="fas fa-globe me-1"></i>Hosting Incluido</span>
-                            @endif
-                        </div>
-                        
-                        <!-- Precio en COP -->
-                        <div class="price-cop" style="display: block;">
-                            <div class="plan-price cop">
-                                ${{ number_format($plan->precioPesos, 0, ',', '.') }}
-                            </div>
-                            <div class="plan-currency">COP</div>
-                            @if($plan->slug === 'web-en-arriendo')
-                                <div class="plan-note">trimestral</div>
-                            @else
-                                <div class="plan-note">único pago inicial</div>
-                            @endif
-                        </div>
-                        
-                        <!-- Precio en USD -->
-                        <div class="price-usd" style="display: none;">
-                            <div class="plan-price usd">
-                                ${{ number_format($plan->preciosDolar, 0, ',', '.') }}
-                            </div>
-                            <div class="plan-currency">USD</div>
-                            @if($plan->slug === 'web-en-arriendo')
-                                <div class="plan-note">quarterly</div>
-                            @else
-                                <div class="plan-note">one-time setup</div>
-                            @endif
-                        </div>
+                        <div class="plan-currency">COP</div>
+                        @if(stripos($plan->slug ?? '', 'free') !== false)
+                            <div class="plan-note">Único pago inicial</div>
+                        @elseif(stripos($plan->slug ?? '', 'mensual') !== false)
+                            <div class="plan-note">Mensual</div>
+                        @else
+                            <div class="plan-note">Trimestral</div>
+                        @endif
                     </div>
                     
-                    <div class="plan-features">
-                        {!! $plan->descripcion !!}
-                    </div>
-                    
-                    <div class="text-center mt-auto">
-                        <a href="{{ route('acquire', ['planSlug' => $plan->slug]) }}" 
-                           class="select-plan-btn">
-                            <i class="fas fa-rocket me-2"></i>Seleccionar Plan
-                        </a>
+                    <!-- Precio en USD -->
+                    <div class="price-usd" style="display: none;">
+                        <div class="plan-price usd">
+                            ${{ number_format($plan->preciosDolar, 0, ',', '.') }}
+                        </div>
+                        <div class="plan-currency">USD</div>
+                        @if($plan->slug === 'web-en-arriendo')
+                            <div class="plan-note">quarterly</div>
+                        @else
+                            <div class="plan-note">one-time setup</div>
+                        @endif
                     </div>
                 </div>
+                
+                <div class="plan-features">
+                    {!! $plan->descripcion !!}
+                </div>
+                
+                <div class="text-center mt-auto">
+                    <a href="{{ route('acquire', ['planSlug' => $plan->slug]) }}" 
+                       class="select-plan-btn">
+                        <i class="fas fa-rocket me-2"></i>Seleccionar Plan
+                    </a>
+                </div>
             </div>
-            @endforeach
         </div>
-        
-        <!-- Navigation buttons -->
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-        
-        <!-- Pagination -->
-        <div class="swiper-pagination"></div>
+        @endforeach
     </div>
 </div>
 
@@ -334,90 +394,80 @@
 @endif
 
 @push('scripts')
-<!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<!-- Owl Carousel JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const plansSwiper = new Swiper('.plans-swiper', {
-        slidesPerView: 1,
-        spaceBetween: 24,
+$(document).ready(function(){
+    // Inicializar Owl Carousel
+    $('.plans-owl').owlCarousel({
         loop: false,
-        centeredSlides: false,
-        
-        // Responsive breakpoints
-        breakpoints: {
-            // when window width is >= 480px
-            480: {
-                slidesPerView: 1,
-                spaceBetween: 20
+        margin: 24,
+        nav: true,
+        dots: true,
+        autoHeight: false,
+        smartSpeed: 600,
+        navText: ['‹', '›'],
+        responsive: {
+            0: {
+                items: 1,
+                margin: 10
             },
-            // when window width is >= 768px
             768: {
-                slidesPerView: 2,
-                spaceBetween: 24
+                items: 2,
+                margin: 20
             },
-            // when window width is >= 1024px
             1024: {
-                slidesPerView: 3,
-                spaceBetween: 24
+                items: 3,
+                margin: 24
             },
             1400: {
-                slidesPerView: 4,
-                spaceBetween: 24
+                items: 4,
+                margin: 24
             }
         },
-        
-        // Navigation arrows
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
+        onInitialized: function() {
+            equalizeCardHeights();
         },
-        
-        // Pagination
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-            dynamicBullets: true,
-        },
-        
-        // Auto height
-    autoHeight: true,
-        
-        // Smooth transitions
-        speed: 600,
-        
-        // Enable grab cursor
-        grabCursor: true,
-        
-        // Keyboard control
-        keyboard: {
-            enabled: true,
-        },
-        
-        // Mousewheel control
-        mousewheel: {
-            enabled: false,
-        },
-        
-        // Auto play (optional - uncomment if you want auto-play)
-        // autoplay: {
-        //     delay: 5000,
-        //     disableOnInteraction: false,
-        // },
+        onResized: function() {
+            equalizeCardHeights();
+        }
     });
     
-    // Optional: Pause autoplay on hover (if autoplay is enabled)
-    // const swiperContainer = document.querySelector('.plans-swiper');
-    // if (swiperContainer) {
-    //     swiperContainer.addEventListener('mouseenter', () => {
-    //         plansSwiper.autoplay.stop();
-    //     });
-    //     
-    //     swiperContainer.addEventListener('mouseleave', () => {
-    //         plansSwiper.autoplay.start();
-    //     });
-    // }
+    // Función para igualar las alturas de las tarjetas
+    function equalizeCardHeights() {
+        setTimeout(function() {
+            let maxHeight = 0;
+            
+            // Resetear altura para calcular correctamente
+            $('.plan-card').css('height', 'auto');
+            
+            // Encontrar la altura máxima
+            $('.plan-card').each(function() {
+                const currentHeight = $(this).outerHeight();
+                if (currentHeight > maxHeight) {
+                    maxHeight = currentHeight;
+                }
+            });
+            
+            // Aplicar la altura máxima a todas las tarjetas
+            $('.plan-card').css('height', maxHeight + 'px');
+        }, 100); // Pequeño delay para asegurar que el DOM esté listo
+    }
+    
+    // También igualar alturas en resize de ventana
+    $(window).resize(function() {
+        clearTimeout(window.resizeTimeout);
+        window.resizeTimeout = setTimeout(function() {
+            equalizeCardHeights();
+        }, 250);
+    });
+    
+    // Igualar alturas cuando se cambie de slide (si se añaden nuevas tarjetas dinámicamente)
+    $('.plans-owl').on('changed.owl.carousel', function(event) {
+        equalizeCardHeights();
+    });
 });
 </script>
 @endpush

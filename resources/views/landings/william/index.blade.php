@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="{{ $landing->descripcion }}">
-	<meta name="keywords" content="landing, tienda virtual, {{ $empresa->nombre }}, accesorios, productos, servicios">
-	<title>{{ $landing->titulo_principal }} - {{ $empresa->nombre }}</title>
+	<meta name="keywords" content="william, promoción, productos, publicaciones, ventas, marketing">
+	<title>{{ $landing->titulo_principal }} - Promoción y Ventas</title>
 
 	<!-- Favicon / App Icons -->
 	<link rel="icon" type="image/png" href="{{ asset('storage/' . $landing->logo_url) }}">
@@ -214,11 +214,11 @@
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav ms-auto align-items-center">
 					<li class="nav-item"><a class="nav-link" href="#home">Inicio</a></li>
-					<li class="nav-item"><a class="nav-link" href="#about">Nosotros</a></li>
-					<li class="nav-item"><a class="nav-link" href="#problems">Problemas</a></li>
+					<li class="nav-item"><a class="nav-link" href="#about">Sobre Mí</a></li>
+					<li class="nav-item"><a class="nav-link" href="#problems">Desafíos</a></li>
 					<li class="nav-item"><a class="nav-link" href="#benefits">Beneficios</a></li>
-					<li class="nav-item"><a class="nav-link" href="#gallery">Galería</a></li>
-					<li class="nav-item"><a class="nav-link" href="#community">Comunidad</a></li>
+					<li class="nav-item"><a class="nav-link" href="#gallery">Trabajos</a></li>
+					<li class="nav-item"><a class="nav-link" href="#community">Testimonios</a></li>
 					<li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
 					@if($tiendaActiva)
 						<li class="nav-item">
@@ -229,8 +229,8 @@
 					@endif
 					<li class="nav-item">
 						@if($hasWhats)
-							<a class="btn btn-cta-header" href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Quisiera%20más%20información" target="_blank">
-								<i class="fab fa-whatsapp me-2"></i>WhatsApp
+							<a class="btn btn-cta-header" href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20William!%20Quiero%20información%20sobre%20promociones%20y%20ventas" target="_blank">
+								<i class="fab fa-whatsapp me-2"></i>Contactar
 							</a>
 						@elseif($hasEmail)
 							<a class="btn btn-cta-header" href="mailto:{{ $empresa->email }}?subject=Quiero%20información%20sobre%20{{ urlencode($landing->titulo_principal) }}">
@@ -250,18 +250,18 @@
 				<div class="col-lg-6" data-aos="fade-right">
 					<div class="hero-content">
 						<h1 class="hero-title animate__animated animate__fadeInUp">{{ $landing->titulo_principal }}</h1>
-						<h2 class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">{{ $landing->subtitulo }}</h2>
+						<h2 class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">Tu Socio en Promoción y Ventas</h2>
 						<p class="hero-description animate__animated animate__fadeInUp animate__delay-2s">{{ $landing->descripcion }}</p>
 						<div class="animate__animated animate__fadeInUp animate__delay-3s">
 							<a href="#about" class="btn-primary-custom">
-								<i class="fas fa-rocket me-2"></i>Descubre Más
+								<i class="fas fa-bullhorn me-2"></i>Comenzar Promoción
 							</a>
 							@if($hasWhats)
-								<a href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Quisiera%20más%20información" target="_blank" class="btn-outline-custom">
-									<i class="fab fa-whatsapp me-2"></i>Contactar
+								<a href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20William!%20Quiero%20información%20sobre%20promociones%20y%20ventas" target="_blank" class="btn-outline-custom">
+									<i class="fab fa-whatsapp me-2"></i>Contactar Ahora
 								</a>
 							@elseif($hasEmail)
-								<a href="mailto:{{ $empresa->email }}?subject=Quiero%20información%20sobre%20{{ urlencode($landing->titulo_principal) }}" class="btn-outline-custom">
+								<a href="mailto:{{ $empresa->email }}?subject=Información%20sobre%20promociones%20con%20William" class="btn-outline-custom">
 									<i class="fas fa-envelope me-2"></i>Contactar
 								</a>
 							@endif
@@ -286,15 +286,15 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-6" data-aos="fade-right">
-					<h2 class="section-title text-start">Sobre {{ $empresa->nombre }}</h2>
-					<p class="section-subtitle text-start">{{ $landing->descripcion_objetivo }}</p>
+					<h2 class="section-title text-start">Sobre William</h2>
+					<p class="section-subtitle text-start">Especialista en promoción y marketing de productos</p>
 					<div class="about-card">
 						<div class="about-icon">
-							<i class="fas fa-star"></i>
+							<i class="fas fa-megaphone"></i>
 						</div>
-						<h4>Compromiso y Calidad</h4>
-						<p>En <strong>{{ $empresa->nombre }}</strong> trabajamos para ofrecerte una experiencia de compra confiable, con productos y servicios pensados para tu necesidad. Te acompañamos con atención personalizada y respuestas rápidas.</p>
-						<p class="mt-3">Encuéntranos en <strong>{{ $empresa->direccion }}</strong>. Escríbenos si deseas más información o asesoría sin costo.</p>
+						<h4>Mi Compromiso Contigo</h4>
+						<p>Soy <strong>William</strong> y mi objetivo es ayudarte a hacer crecer tus ventas a través de estrategias de promoción efectivas. Trabajo de manera personalizada para que puedas recibir tu producto y hacer las mejores publicaciones que generen ventas reales.</p>
+						<p class="mt-3">Mi experiencia se enfoca en crear contenido promocional que convierte visitantes en clientes. Te acompaño en todo el proceso para que logres el éxito que buscas.</p>
 					</div>
 				</div>
 				<div class="col-lg-6" data-aos="fade-left">
@@ -311,16 +311,16 @@
 	<!-- Problems Section -->
 	<section id="problems" class="section problems-section">
 		<div class="container">
-			<h2 class="section-title" data-aos="fade-up">Problemas que Resolvemos</h2>
-			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">{{ $landing->audiencia_problemas }}</p>
+			<h2 class="section-title" data-aos="fade-up">Problemas que Entiendo</h2>
+			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Desafíos comunes en promoción y ventas que todos enfrentamos</p>
 
 			<div class="row">
 				@php
 					$problems = [
-						[ 'icon' => 'fas fa-exclamation-triangle', 'title' => 'Falta de información', 'description' => 'Incertidumbre al elegir el producto o servicio adecuado para tus objetivos.' ],
-						[ 'icon' => 'fas fa-clock', 'title' => 'Poco tiempo', 'description' => 'Necesitas soluciones rápidas y confiables, con atención oportuna.' ],
-						[ 'icon' => 'fas fa-shield-alt', 'title' => 'Confianza y garantía', 'description' => 'Preocupación por la garantía, soporte y seriedad postventa.' ],
-						[ 'icon' => 'fas fa-wallet', 'title' => 'Presupuesto limitado', 'description' => 'Buscas una excelente relación calidad-precio sin sorpresas.' ],
+						[ 'icon' => 'fas fa-chart-line', 'title' => 'Pocas ventas', 'description' => 'Tienes un buen producto pero las ventas no despegan como esperabas.' ],
+						[ 'icon' => 'fas fa-eye-slash', 'title' => 'Poca visibilidad', 'description' => 'Tu contenido no llega a las personas correctas o no genera interés.' ],
+						[ 'icon' => 'fas fa-edit', 'title' => 'Contenido poco efectivo', 'description' => 'No sabes cómo crear publicaciones que realmente conviertan en ventas.' ],
+						[ 'icon' => 'fas fa-target', 'title' => 'Audiencia incorrecta', 'description' => 'Llegas a muchas personas pero no son las que compran tu producto.' ],
 					];
 				@endphp
 
@@ -342,16 +342,16 @@
 	<!-- Benefits Section -->
 	<section id="benefits" class="section benefits-section">
 		<div class="container">
-			<h2 class="section-title" data-aos="fade-up">Beneficios</h2>
-			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">{{ $landing->audiencia_beneficios }}</p>
+			<h2 class="section-title" data-aos="fade-up">Beneficios de Trabajar Conmigo</h2>
+			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Resultados reales para hacer crecer tu negocio</p>
 
 			<div class="row">
 				@php
 					$benefits = [
-						[ 'icon' => 'fas fa-handshake', 'title' => 'Atención personalizada', 'description' => 'Te asesoramos para que tomes la mejor decisión y te sientas acompañado en todo momento.' ],
-						[ 'icon' => 'fas fa-bolt', 'title' => 'Respuesta rápida', 'description' => 'Recibe atención ágil por WhatsApp o email con soluciones claras.' ],
-						[ 'icon' => 'fas fa-shield-check', 'title' => 'Confianza y respaldo', 'description' => 'Garantía y soporte postventa para tu tranquilidad.' ],
-						[ 'icon' => 'fas fa-tags', 'title' => 'Precio justo', 'description' => 'Opciones pensadas para tu presupuesto, manteniendo la calidad.' ],
+						[ 'icon' => 'fas fa-rocket', 'title' => 'Aumenta tus ventas', 'description' => 'Estrategias probadas que convierten visitas en ventas reales y constantes.' ],
+						[ 'icon' => 'fas fa-users', 'title' => 'Alcanza más clientes', 'description' => 'Te ayudo a llegar exactamente a las personas que necesitan tu producto.' ],
+						[ 'icon' => 'fas fa-lightbulb', 'title' => 'Contenido que convierte', 'description' => 'Creamos publicaciones que generan interés y mueven a la acción de compra.' ],
+						[ 'icon' => 'fas fa-trophy', 'title' => 'Resultados medibles', 'description' => 'Verás el crecimiento en tus ventas y en el reconocimiento de tu marca.' ],
 					];
 				@endphp
 
@@ -373,8 +373,8 @@
 	<!-- Gallery Section -->
 	<section id="gallery" class="section gallery-section">
 		<div class="container">
-			<h2 class="section-title" data-aos="fade-up">Galería</h2>
-			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Explora las imágenes destacadas de {{ $empresa->nombre }}</p>
+			<h2 class="section-title" data-aos="fade-up">Trabajos Realizados</h2>
+			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Ejemplos de promociones exitosas y campañas que han generado resultados</p>
 
 			<div class="row">
 				@if($landing->media && $landing->media->count() > 0)
@@ -417,15 +417,15 @@
 	<!-- Community Section -->
 	<section id="community" class="section community-section">
 		<div class="container">
-			<h2 class="section-title" data-aos="fade-up">Comunidad {{ $empresa->nombre }}</h2>
-			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">{{ $landing->objetivo }}</p>
+			<h2 class="section-title" data-aos="fade-up">Testimonios de Clientes</h2>
+			<p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Lo que dicen quienes ya han trabajado conmigo</p>
 
 			<div class="row">
 				@php
 					$testimonials = [
-						[ 'name' => 'Laura G.', 'avatar' => 'L', 'profession' => 'Emprendedora', 'comment' => 'Excelente experiencia. La atención fue rápida y clara. Recomiendo a {{ $empresa->nombre }} con los ojos cerrados.', 'rating' => 5 ],
-						[ 'name' => 'Carlos R.', 'avatar' => 'C', 'profession' => 'Comerciante', 'comment' => 'Obtuvimos justo lo que necesitábamos. Buen precio y soporte postventa.', 'rating' => 5 ],
-						[ 'name' => 'María P.', 'avatar' => 'M', 'profession' => 'Freelancer', 'comment' => 'Muy atentos y profesionales. Resolvieron mis dudas por WhatsApp de inmediato.', 'rating' => 5 ],
+						[ 'name' => 'Laura G.', 'avatar' => 'L', 'profession' => 'Emprendedora', 'comment' => 'William me ayudó a duplicar mis ventas en solo 2 meses. Sus estrategias de promoción realmente funcionan. ¡Totalmente recomendado!', 'rating' => 5 ],
+						[ 'name' => 'Carlos R.', 'avatar' => 'C', 'profession' => 'Comerciante', 'comment' => 'Gracias a William mis publicaciones ahora generan más interés y ventas. El contenido que creamos juntos realmente convierte.', 'rating' => 5 ],
+						[ 'name' => 'María P.', 'avatar' => 'M', 'profession' => 'Freelancer', 'comment' => 'Trabajar con William fue la mejor decisión. Me enseñó cómo promocionar mis servicios de manera efectiva y ahora tengo más clientes.', 'rating' => 5 ],
 					];
 				@endphp
 
@@ -461,7 +461,7 @@
 							<div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
 							<h5>WhatsApp</h5>
 							<p>{{ $whatsNumber }}</p>
-							<a href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Quisiera%20más%20información" target="_blank" class="btn btn-outline-light btn-sm">Enviar Mensaje</a>
+							<a href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20William!%20Quiero%20información%20sobre%20promociones%20y%20ventas" target="_blank" class="btn btn-outline-light btn-sm">Enviar Mensaje</a>
 						</div>
 					</div>
 				@endif
@@ -508,7 +508,7 @@
 					<div class="footer-logo">
 						<img src="{{ asset('storage/' . $landing->logo_url) }}" alt="{{ $empresa->nombre }}">
 					</div>
-					<p>Calidad, confianza y atención personalizada. Construimos una experiencia pensada para conversión.</p>
+					<p>Especialista en promoción y marketing. Te ayudo a hacer crecer tus ventas con estrategias probadas y contenido que convierte.</p>
 					<div class="social-links">
 						@if(!empty($empresa->facebook))
 							<a href="{{ $empresa->facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -540,9 +540,9 @@
 					<h5>Enlaces</h5>
 					<ul class="list-unstyled">
 						<li><a href="#home" class="footer-link">Inicio</a></li>
-						<li><a href="#about" class="footer-link">Nosotros</a></li>
+						<li><a href="#about" class="footer-link">Sobre Mí</a></li>
 						<li><a href="#benefits" class="footer-link">Beneficios</a></li>
-						<li><a href="#gallery" class="footer-link">Galería</a></li>
+						<li><a href="#gallery" class="footer-link">Trabajos</a></li>
 						<li><a href="#contact" class="footer-link">Contacto</a></li>
 						@if($tiendaActiva)
 							<li><a href="{{ route('public.tienda', $empresa->slug) }}" target="_blank" class="footer-link">Tienda Virtual</a></li>
@@ -596,7 +596,7 @@
 
 	<!-- WhatsApp Floating Button -->
 	@if($hasWhats)
-	<a href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20{{ urlencode($empresa->nombre) }}!%20Quisiera%20más%20información" class="whatsapp-float" target="_blank" aria-label="WhatsApp">
+	<a href="https://wa.me/57{{ $whatsNumber }}?text=Hola%20William!%20Quiero%20información%20sobre%20promociones%20y%20ventas" class="whatsapp-float" target="_blank" aria-label="WhatsApp">
 		<i class="fab fa-whatsapp"></i>
 	</a>
 	@endif

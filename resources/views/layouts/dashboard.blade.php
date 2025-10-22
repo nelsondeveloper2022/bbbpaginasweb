@@ -791,36 +791,67 @@
         </div>
         
         @php
-            $user = auth()->user();
-            $isLicenseExpired = $user->trial_ends_at && $user->trial_ends_at->isPast();
-            $isTrialExpired = $user->trial_ends_at && $user->trial_ends_at->isPast();
-            $hasActiveLicense = $user->hasActiveLicense();
+            // Variables de estado existentes
+            $user = Auth::user();
+            $isTrialExpired = $user->trialExpired();
+            $isLicenseExpired = !$user->canAccessPlatform();
+            $hasActiveLicense = $user->hasActiveSubscription();
             
-            // Verificar si el plan actual permite productos
+            // Nueva lógica: verificar si el usuario necesita configurar landing
+            $needsLandingSetup = false;
+            $landingSetupMessage = '';
+            
+            // Verificar si no tiene empresa asignada
+            if (!$user->idEmpresa || !$user->empresa) {
+                $needsLandingSetup = true;
+                $landingSetupMessage = 'Debes asignar tu cuenta a una empresa';
+            }
+            // Verificar si no tiene landing configurada
+            elseif (!$user->empresa->landing || !$user->empresa->landing->exists) {
+                $needsLandingSetup = true;
+                $landingSetupMessage = 'Debes configurar tu landing page';
+            }
+            // Verificar si la landing no está completa (sin título principal)
+            elseif (!$user->empresa->landing->titulo_principal) {
+                $needsLandingSetup = true;
+                $landingSetupMessage = 'Debes completar la configuración de tu landing page';
+            }
+            
+            // Verificar permisos de productos
             $planPermiteProductos = false;
             if ($user->plan && $user->plan->aplicaProductos) {
                 $planPermiteProductos = true;
             }
-        @endphp
-        
-        <ul class="sidebar-nav list-unstyled">
+        @endphp        <ul class="sidebar-nav list-unstyled">
             <li class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link {{ Request::routeIs('dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
+                @if($needsLandingSetup)
+                    <a href="#" class="nav-link disabled" onclick="showLandingSetupRequired(); return false;" title="{{ $landingSetupMessage }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                        <i class="bi bi-exclamation-triangle ms-auto text-warning" style="font-size: 0.8rem;"></i>
+                    </a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ Request::routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                @endif
             </li>
             <li class="nav-item">
-                @if($isLicenseExpired)
+                {{-- Landing siempre debe estar disponible para configurar --}}
+                @if($isLicenseExpired && !$needsLandingSetup)
                     <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
                         <i class="bi bi-palette"></i>
                         <span>Configura tu Landing</span>
                         <i class="bi bi-lock-fill ms-auto text-danger" style="font-size: 0.8rem;"></i>
                     </a>
                 @else
-                    <a href="{{ route('admin.landing.configurar') }}" class="nav-link {{ Request::routeIs('admin.landing.*') ? 'active' : '' }}">
-                        <i class="bi bi-palette"></i>
+                    <a href="{{ route('admin.landing.configurar') }}" class="nav-link {{ Request::routeIs('admin.landing.*') ? 'active' : '' }} {{ $needsLandingSetup ? 'text-warning fw-bold' : '' }}">
+                        <i class="bi bi-palette {{ $needsLandingSetup ? 'text-warning' : '' }}"></i>
                         <span>Configura tu Landing</span>
+                        @if($needsLandingSetup)
+                            <span class="badge bg-warning text-dark ms-auto" style="font-size: 0.6rem;">¡REQUERIDO!</span>
+                        @endif
                     </a>
                 @endif
             </li>
@@ -828,7 +859,13 @@
             <!-- Módulo de Clientes -->
             @if($planPermiteProductos)
             <li class="nav-item">
-                @if($isTrialExpired && !$hasActiveLicense)
+                @if($needsLandingSetup)
+                    <a href="#" class="nav-link disabled" onclick="showLandingSetupRequired(); return false;" title="{{ $landingSetupMessage }}">
+                        <i class="bi bi-people"></i>
+                        <span>Clientes</span>
+                        <i class="bi bi-exclamation-triangle ms-auto text-warning" style="font-size: 0.8rem;"></i>
+                    </a>
+                @elseif($isTrialExpired && !$hasActiveLicense)
                     <a href="#" class="nav-link disabled" onclick="showTrialExpiredMessage(); return false;" title="Trial vencido - Gestiona tu plan para acceder">
                         <i class="bi bi-people"></i>
                         <span>Clientes</span>
@@ -852,7 +889,13 @@
             <!-- Módulo de Productos -->
             @if($planPermiteProductos)
             <li class="nav-item">
-                @if($isLicenseExpired)
+                @if($needsLandingSetup)
+                    <a href="#" class="nav-link disabled" onclick="showLandingSetupRequired(); return false;" title="{{ $landingSetupMessage }}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Productos</span>
+                        <i class="bi bi-exclamation-triangle ms-auto text-warning" style="font-size: 0.8rem;"></i>
+                    </a>
+                @elseif($isLicenseExpired)
                     <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
                         <i class="bi bi-box-seam"></i>
                         <span>Productos</span>
@@ -870,7 +913,13 @@
             <!-- Módulo de Ventas Online -->
             @if($planPermiteProductos)
             <li class="nav-item">
-                @if($isLicenseExpired)
+                @if($needsLandingSetup)
+                    <a href="#" class="nav-link disabled" onclick="showLandingSetupRequired(); return false;" title="{{ $landingSetupMessage }}">
+                        <i class="bi bi-cart-check"></i>
+                        <span>Ventas Online</span>
+                        <i class="bi bi-exclamation-triangle ms-auto text-warning" style="font-size: 0.8rem;"></i>
+                    </a>
+                @elseif($isLicenseExpired)
                     <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
                         <i class="bi bi-cart-check"></i>
                         <span>Ventas Online</span>
@@ -888,7 +937,13 @@
             <!-- Módulo de Configuración de Pagos Wompi -->
             @if($planPermiteProductos)
             <li class="nav-item">
-                @if($isLicenseExpired)
+                @if($needsLandingSetup)
+                    <a href="#" class="nav-link disabled" onclick="showLandingSetupRequired(); return false;" title="{{ $landingSetupMessage }}">
+                        <i class="bi bi-credit-card-2-back"></i>
+                        <span>Configuración de Pagos</span>
+                        <i class="bi bi-exclamation-triangle ms-auto text-warning" style="font-size: 0.8rem;"></i>
+                    </a>
+                @elseif($isLicenseExpired)
                     <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
                         <i class="bi bi-credit-card-2-back"></i>
                         <span>Configuración de Pagos</span>
@@ -904,7 +959,13 @@
             @endif
             
             <li class="nav-item">
-                @if($isLicenseExpired)
+                @if($needsLandingSetup)
+                    <a href="#" class="nav-link disabled" onclick="showLandingSetupRequired(); return false;" title="{{ $landingSetupMessage }}">
+                        <i class="bi bi-building-gear"></i>
+                        <span>Perfil y Empresa</span>
+                        <i class="bi bi-exclamation-triangle ms-auto text-warning" style="font-size: 0.8rem;"></i>
+                    </a>
+                @elseif($isLicenseExpired)
                     <a href="#" class="nav-link disabled" onclick="showLicenseExpiredMessage(); return false;" title="Licencia vencida - Gestiona tu plan para acceder">
                         <i class="bi bi-building-gear"></i>
                         <span>Perfil y Empresa</span>
@@ -1244,6 +1305,41 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = '{{ route("admin.plans.index") }}';
+                }
+            });
+        }
+
+        // Function to show landing setup required message
+        function showLandingSetupRequired() {
+            Swal.fire({
+                title: '⚠️ Configuración Requerida',
+                html: `
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-palette text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <p class="mb-3"><strong>{{ $landingSetupMessage }}</strong></p>
+                        <p class="text-muted">Debes completar la configuración de tu landing page antes de acceder a otras funciones del dashboard.</p>
+                        <div class="alert alert-info border-0 mt-3" style="background: rgba(102, 126, 234, 0.1);">
+                            <small>
+                                <i class="bi bi-lightbulb me-1"></i>
+                                Una vez configurada tu landing page, tendrás acceso completo a todas las funcionalidades.
+                            </small>
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-palette me-1"></i> Configurar Landing',
+                cancelButtonText: 'Cerrar',
+                confirmButtonColor: '#f0ac21',
+                cancelButtonColor: '#6c757d',
+                customClass: {
+                    popup: 'landing-setup-modal'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route("admin.landing.configurar") }}';
                 }
             });
         }

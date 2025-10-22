@@ -37,6 +37,7 @@ fi
 # Construir lista de rutas a sincronizar, solo las solicitadas
 SYNC_PATHS=(
     "app"
+    "bootstrap"
     "routes"
     "resources"
     "config"
@@ -98,13 +99,13 @@ php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
-echo "📝 Regenerando cachés optimizados..."
+echo "� Optimizando autoloader de Composer..."
+composer dump-autoload --optimize
+
+echo "�📝 Regenerando cachés optimizados..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-
-echo "🔄 Optimizando autoloader de Composer..."
-composer dump-autoload --optimize
 
 echo "✅ Comandos ejecutados correctamente"
 ENDSSH

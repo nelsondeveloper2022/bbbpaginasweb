@@ -84,9 +84,9 @@ Route::middleware('guest')->group(function() {
 Route::middleware('auth')->group(function() {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
-    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('check.trial')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['check.trial', 'landing.configured'])->name('dashboard');
     
-    // Admin routes (con middleware de trial)
+    // Admin routes (con middleware de trial y configuración de landing)
     Route::prefix('admin')->name('admin.')->middleware('check.trial')->group(function () {
         
         // Dashboard (requiere autenticación y check.trial)
@@ -105,7 +105,7 @@ Route::middleware('auth')->group(function() {
             Route::get('/check-status', [\App\Http\Controllers\SubscriptionController::class, 'checkStatus'])->name('check-status');
         });
         
-        // Perfil de usuario
+        // Perfil de usuario (sin middleware landing.configured para permitir configuración inicial)
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
@@ -140,21 +140,19 @@ Route::middleware('auth')->group(function() {
         
         // Configuración de Landing Page (requiere trial activo o suscripción)
         Route::prefix('landing')->name('landing.')->middleware('check.trial')->group(function () {
-            Route::get('/configurar', [LandingConfigController::class, 'index'])->name('configurar');
-            Route::post('/guardar', [LandingConfigController::class, 'store'])->name('guardar');
-            Route::put('/actualizar/{id}', [LandingConfigController::class, 'update'])->name('actualizar');
-            Route::delete('/eliminar/{id}', [LandingConfigController::class, 'destroy'])->name('eliminar');
-            Route::get('/preview', [LandingConfigController::class, 'preview'])->name('preview');
-            Route::post('/publicar', [LandingConfigController::class, 'publish'])->name('publicar');
+            Route::get('/configurar', [\App\Http\Controllers\LandingSimpleController::class, 'index'])->name('configurar');
+            Route::post('/guardar', [\App\Http\Controllers\LandingSimpleController::class, 'store'])->name('guardar');
+            Route::post('/publicar', [\App\Http\Controllers\LandingSimpleController::class, 'publish'])->name('publicar');
+            Route::get('/preview', [\App\Http\Controllers\LandingSimpleController::class, 'preview'])->name('preview');
             
-            // Gestión de medios
-            Route::post('/media/subir', [LandingConfigController::class, 'mediaStore'])->name('media.subir');
-            Route::delete('/media/eliminar/{id}', [LandingConfigController::class, 'mediaDestroy'])->name('media.eliminar');
-            Route::get('/media/obtener', [LandingConfigController::class, 'getMedia'])->name('media.obtener');
+            // Rutas para manejo de medios
+            Route::prefix('media')->name('media.')->group(function () {
+                Route::delete('/{media}', [\App\Http\Controllers\LandingSimpleController::class, 'deleteMedia'])->name('eliminar');
+            });
         });
     
-        // Productos (requiere trial activo o suscripción)
-        Route::prefix('productos')->name('productos.')->middleware('check.trial')->group(function () {
+        // Productos (requiere trial activo o suscripción y landing configurada)
+        Route::prefix('productos')->name('productos.')->middleware(['check.trial', 'landing.configured'])->group(function () {
             Route::get('/', [\App\Http\Controllers\ProductoController::class, 'index'])->name('index');
             Route::get('/data', [\App\Http\Controllers\ProductoController::class, 'getData'])->name('data');
             Route::get('/create', [\App\Http\Controllers\ProductoController::class, 'create'])->name('create');
@@ -173,8 +171,8 @@ Route::middleware('auth')->group(function() {
             Route::post('/{producto}/remove-image', [\App\Http\Controllers\ProductoController::class, 'removeImage'])->name('remove-image');
         });
     
-        // Clientes (requiere trial activo o suscripción)
-        Route::prefix('clientes')->name('clientes.')->middleware('check.trial')->group(function () {
+        // Clientes (requiere trial activo o suscripción y landing configurada)
+        Route::prefix('clientes')->name('clientes.')->middleware(['check.trial', 'landing.configured'])->group(function () {
             Route::get('/', [\App\Http\Controllers\ClienteController::class, 'index'])->name('index');
             Route::get('/data', [\App\Http\Controllers\ClienteController::class, 'getData'])->name('data');
             Route::get('/create', [\App\Http\Controllers\ClienteController::class, 'create'])->name('create');
@@ -185,8 +183,8 @@ Route::middleware('auth')->group(function() {
             Route::delete('/{cliente}', [\App\Http\Controllers\ClienteController::class, 'destroy'])->name('destroy');
         });
 
-        // Ventas Online (requiere trial activo o suscripción)
-        Route::prefix('ventas')->name('ventas.')->middleware('check.trial')->group(function () {
+        // Ventas Online (requiere trial activo o suscripción y landing configurada)
+        Route::prefix('ventas')->name('ventas.')->middleware(['check.trial', 'landing.configured'])->group(function () {
             Route::get('/', [\App\Http\Controllers\VentaController::class, 'index'])->name('index');
             Route::get('/data', [\App\Http\Controllers\VentaController::class, 'getData'])->name('data');
             Route::get('/create', [\App\Http\Controllers\VentaController::class, 'create'])->name('create');
@@ -200,8 +198,8 @@ Route::middleware('auth')->group(function() {
             Route::post('/{venta}/change-status', [\App\Http\Controllers\VentaController::class, 'changeStatus'])->name('change-status');
         });
     
-        // Configuración de Pagos (requiere trial activo o suscripción)
-        Route::prefix('pagos')->name('pagos.')->middleware('check.trial')->group(function () {
+        // Configuración de Pagos (requiere trial activo o suscripción y landing configurada)
+        Route::prefix('pagos')->name('pagos.')->middleware(['check.trial', 'landing.configured'])->group(function () {
             // Rutas nuevas de Wompi - Admin Controller
             Route::get('/', [\App\Http\Controllers\Admin\PagosController::class, 'index'])->name('index');
             Route::post('/wompi/store', [\App\Http\Controllers\Admin\PagosController::class, 'storeWompi'])->name('wompi.store');

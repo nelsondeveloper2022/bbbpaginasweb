@@ -65,16 +65,22 @@
                         <i class="bi bi-trash3 me-1"></i>
                         Limpiar Borradores
                     </button>
-                    <button type="submit" form="landing-form" class="btn btn-primary" id="guardar-btn" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }}>
-                        <i class="bi bi-save me-1"></i>
-                        Guardar
+                    <button type="submit" form="landing-form-basico" class="btn btn-primary" id="guardar-btn-basico" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }} style="display: none;">
+                        <i class="bi bi-rocket me-1"></i>
+                        {{ $estadoLanding === 'publicada' ? 'Actualizar' : 'Guardar y Publicar' }} (Básico)
                     </button>
+                    <button type="submit" form="landing-form-avanzado" class="btn btn-primary" id="guardar-btn-avanzado-top" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }} style="display: none;">
+                        <i class="bi bi-rocket me-1"></i>
+                        {{ $estadoLanding === 'publicada' ? 'Actualizar' : 'Guardar y Publicar' }} (Avanzado)
+                    </button>
+                    {{-- Botón de publicar separado ya no es necesario, se hace automáticamente
                     @if($landing->exists)
                         <button type="button" id="publicar-btn" class="btn btn-success" onclick="publishLanding()" {{ ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada' || !$profileComplete || !$empresaCompleta) ? 'disabled' : '' }}>
                             <i class="bi bi-rocket me-1"></i>
                             Publicar
                         </button>
                     @endif
+                    --}}
                 </div>
             </div>
 
@@ -297,8 +303,10 @@
                 <div class="profile-lock-overlay" style="position: relative; pointer-events: none; opacity: 0.6; padding: 20px;">
             @endif
 
-            <form id="landing-form" action="{{ route('admin.landing.guardar') }}" method="POST" enctype="multipart/form-data" {{ !$profileComplete ? 'style=pointer-events:none;' : '' }}>
+            <!-- FORMULARIO PARA MODO BÁSICO -->
+            <form id="landing-form-basico" action="{{ route('admin.landing.guardar') }}" method="POST" enctype="multipart/form-data" {{ !$profileComplete ? 'style=pointer-events:none;' : '' }} style="display: none;">
                 @csrf
+                <input type="hidden" name="modo_formulario" value="basico">
 
                 <!-- Información Empresarial (Primero) -->
                 <div id="seccion-empresa" class="mb-4">
@@ -333,8 +341,434 @@
                                 </div>
                             </div>
                             @endif
-                            <!-- Información Empresarial -->
+
+                            <!-- Tabs para Principiantes y Avanzados -->
                             <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-3">
+                                        <i class="bi bi-person-workspace text-primary me-2"></i>
+                                        Configuración de Landing Page
+                                    </h5>
+                                    <!-- Navigation Tabs -->
+                                    <ul class="nav nav-tabs card-header-tabs" id="configTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active text-black" 
+                                                    id="principiantes-tab" 
+                                                    data-bs-toggle="tab" 
+                                                    data-bs-target="#principiantes" 
+                                                    type="button" 
+                                                    role="tab" 
+                                                    aria-controls="principiantes" 
+                                                    aria-selected="true">
+                                                <i class="bi bi-emoji-smile me-2"></i>
+                                                Para Principiantes
+                                                <span class="badge bg-success ms-2 small">Recomendado</span>
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link text-black" 
+                                                    id="avanzados-tab" 
+                                                    data-bs-toggle="tab" 
+                                                    data-bs-target="#avanzados" 
+                                                    type="button" 
+                                                    role="tab" 
+                                                    aria-controls="avanzados" 
+                                                    aria-selected="false">
+                                                <i class="bi bi-gear me-2"></i>
+                                                Para Avanzados
+                                                <span class="badge bg-warning ms-2 small">Más opciones</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Tab Content -->
+                                    <div class="tab-content" id="configTabsContent">
+                                        <!-- Tab Principiantes -->
+                                        <div class="tab-pane fade show active" id="principiantes" role="tabpanel" aria-labelledby="principiantes-tab">
+                                            <div class="alert alert-info border-0 mb-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-lightbulb me-3 fs-4"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">¡Perfecto para empezar! 🚀</h6>
+                                                        <p class="mb-0 small">Solo necesitas completar los campos básicos para tener tu landing page lista.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Campos básicos -->
+                                            <div class="row g-4">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold">Nombre de la Empresa <span class="text-danger">*</span></label>
+                                                    <input type="text" 
+                                                           class="form-control @error('empresa_nombre') is-invalid @enderror" 
+                                                           name="empresa_nombre"
+                                                           value="{{ old('empresa_nombre', $empresa->nombre ?? auth()->user()->empresa_nombre) }}"
+                                                           placeholder="Mi Empresa"
+                                                           required>
+                                                    @error('empresa_nombre')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold">WhatsApp <span class="text-danger">*</span></label>
+                                                    <input type="tel" 
+                                                           class="form-control @error('whatsapp') is-invalid @enderror" 
+                                                           name="whatsapp"
+                                                           value="{{ old('whatsapp', $empresa->whatsapp ?? '') }}"
+                                                           placeholder="+57 300 123 4567"
+                                                           required>
+                                                    @error('whatsapp')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-bold">Título Principal <span class="text-danger">*</span></label>
+                                                    <input type="text" 
+                                                           class="form-control @error('titulo_principal') is-invalid @enderror" 
+                                                           name="titulo_principal"
+                                                           value="{{ old('titulo_principal', $landing->titulo_principal ?? '') }}"
+                                                           placeholder="Tu título aquí"
+                                                           required>
+                                                    @error('titulo_principal')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-bold">
+                                                        Descripción del negocio <span class="text-danger">*</span>
+                                                        <small class="text-muted d-block mt-1">
+                                                            Cuéntanos en detalle a qué se dedica tu empresa, qué ofreces y por qué te eligen tus clientes. 
+                                                            Entre más completa sea esta descripción, mejor se verá tu landing y más fácil será conectar con tus visitantes.
+                                                        </small>
+                                                    </label>
+                                                    <textarea class="form-control @error('descripcion') is-invalid @enderror" 
+                                                              name="descripcion" 
+                                                              rows="3" 
+                                                              placeholder="Ejemplo: Somos una barbería moderna especializada en cortes y estilos personalizados..."
+                                                              required>{{ old('descripcion', $landing->descripcion ?? '') }}</textarea>
+                                                    @error('descripcion')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo objetivo oculto para formulario básico -->
+                                            <input type="hidden" name="objetivo" value="{{ old('objetivo', $landing->objetivo ?? 'generar_contactos') }}">
+                                            
+                                            <!-- Email por defecto del usuario para formulario básico -->
+                                            <input type="hidden" name="empresa_email" value="{{ old('empresa_email', $empresa->email ?? auth()->user()->email) }}">
+
+                                            <!-- Secciones Opcionales -->
+                                            
+                                            <!-- Logo de la Empresa (Opcional) -->
+                                            <div class="card mt-4 mb-4">
+                                                <div class="card-header">
+                                                    <h5 class="card-title mb-0">
+                                                        <i class="bi bi-image text-primary me-2"></i>
+                                                        Logo de la Empresa
+                                                        <span class="badge bg-info ms-2">Opcional</span>
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body text-center">
+                                                    <div class="logo-preview mb-3" id="logo-preview-simple">
+                                                        <div class="logo-placeholder bg-light border-2 border-dashed border-secondary rounded d-flex align-items-center justify-content-center" style="height: 150px;">
+                                                            <div class="text-center">
+                                                                <i class="bi bi-image display-4 text-muted"></i>
+                                                                <p class="text-muted mt-2 mb-0">Sube tu logo aquí</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <input type="file" 
+                                                           class="form-control @error('logo') is-invalid @enderror" 
+                                                           id="logo-simple" 
+                                                           name="logo"
+                                                           accept="image/*" 
+                                                           onchange="previewLogoSimple(event)">
+                                                    @error('logo')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    <small class="text-muted">Recomendado: PNG transparente, 300x100px</small>
+                                                </div>
+                                            </div>
+
+                                            <!-- Imágenes Adicionales (Opcional) -->
+                                            <div class="card mb-4">
+                                                <div class="card-header">
+                                                    <h5 class="card-title mb-0">
+                                                        <i class="bi bi-images text-primary me-2"></i>
+                                                        Imágenes Adicionales
+                                                        <span class="badge bg-info ms-2">Opcional</span>
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="upload-zone border-2 border-dashed border-secondary rounded p-4 text-center" 
+                                                        id="media-upload-zone-simple"
+                                                        ondrop="handleDropSimple(event)" 
+                                                        ondragover="handleDragOverSimple(event)"
+                                                        ondragleave="handleDragLeaveSimple(event)">
+                                                        <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+                                                        <p class="mb-2">Arrastra y suelta imágenes aquí o</p>
+                                                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('media-input-simple').click()">
+                                                            Seleccionar Archivos
+                                                        </button>
+                                                        <input type="file" 
+                                                               id="media-input-simple" 
+                                                               class="d-none" 
+                                                               multiple 
+                                                               accept="image/*" 
+                                                               onchange="handleFileSelectSimple(event)">
+                                                        <small class="text-muted d-block mt-2">
+                                                            Formatos: JPG, PNG, GIF, SVG, WEBP. Máx: 2MB por imagen
+                                                        </small>
+                                                    </div>
+                                                    <!-- Gallery simple -->
+                                                    <div id="media-gallery-simple" class="row g-3 mt-3">
+                                                        <!-- Las imágenes se cargarán aquí dinámicamente -->
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Redes Sociales (Opcional) -->
+                                            <div class="card mb-4">
+                                                <div class="card-header">
+                                                    <h5 class="card-title mb-0">
+                                                        <i class="bi bi-share text-primary me-2"></i>
+                                                        Redes Sociales
+                                                        <span class="badge bg-info ms-2">Opcional</span>
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row g-3">
+                                                        <!-- Facebook -->
+                                                        <div class="col-md-6">
+                                                            <label for="facebook-simple" class="form-label fw-bold">
+                                                                <i class="bi bi-facebook me-2"></i>Facebook
+                                                            </label>
+                                                            <input type="url" 
+                                                                   class="form-control @error('facebook') is-invalid @enderror" 
+                                                                   id="facebook-simple" 
+                                                                   name="facebook"
+                                                                   value="{{ old('facebook', $empresa->facebook ?? '') }}"
+                                                                   placeholder="https://facebook.com/tu-empresa">
+                                                            @error('facebook')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <!-- Instagram -->
+                                                        <div class="col-md-6">
+                                                            <label for="instagram-simple" class="form-label fw-bold">
+                                                                <i class="bi bi-instagram me-2"></i>Instagram
+                                                            </label>
+                                                            <input type="url" 
+                                                                   class="form-control @error('instagram') is-invalid @enderror" 
+                                                                   id="instagram-simple" 
+                                                                   name="instagram"
+                                                                   value="{{ old('instagram', $empresa->instagram ?? '') }}"
+                                                                   placeholder="https://instagram.com/tu-empresa">
+                                                            @error('instagram')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <!-- WhatsApp Business (adicional) -->
+                                                        <div class="col-md-6">
+                                                            <label for="whatsapp-business-simple" class="form-label fw-bold">
+                                                                <i class="bi bi-whatsapp me-2"></i>WhatsApp Business
+                                                            </label>
+                                                            <input type="url" 
+                                                                   class="form-control" 
+                                                                   id="whatsapp-business-simple" 
+                                                                   placeholder="https://wa.me/57300123456">
+                                                        </div>
+                                                        <!-- TikTok -->
+                                                        <div class="col-md-6">
+                                                            <label for="tiktok-simple" class="form-label fw-bold">
+                                                                <i class="bi bi-tiktok me-2"></i>TikTok
+                                                            </label>
+                                                            <input type="url" 
+                                                                   class="form-control @error('tiktok') is-invalid @enderror" 
+                                                                   id="tiktok-simple" 
+                                                                   name="tiktok"
+                                                                   value="{{ old('tiktok', $empresa->tiktok ?? '') }}"
+                                                                   placeholder="https://tiktok.com/@tu-empresa">
+                                                            @error('tiktok')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Branding y Estilo (Opcional) -->
+                                            <div class="card mb-4">
+                                                <div class="card-header">
+                                                    <h5 class="card-title mb-0">
+                                                        <i class="bi bi-palette text-primary me-2"></i>
+                                                        Branding y Estilo
+                                                        <span class="badge bg-info ms-2">Opcional</span>
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row g-4">
+                                                        <!-- Color Principal -->
+                                                        <div class="col-md-6">
+                                                            <label for="color_principal_simple" class="form-label fw-bold">Color Principal</label>
+                                                            <div class="input-group">
+                                                                <input type="color" 
+                                                                       class="form-control form-control-color @error('color_principal') is-invalid @enderror" 
+                                                                       id="color_principal_simple" 
+                                                                       name="color_principal"
+                                                                       value="{{ old('color_principal', $landing->color_principal ?? '#007bff') }}"
+                                                                       title="Selecciona el color principal">
+                                                                <input type="text" 
+                                                                       class="form-control" 
+                                                                       id="color_principal_simple_text" 
+                                                                       value="{{ old('color_principal', $landing->color_principal ?? '#007bff') }}" 
+                                                                       readonly>
+                                                            </div>
+                                                            <small class="text-muted">Color principal de tu marca</small>
+                                                            @error('color_principal')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+
+                                                        <!-- Color Secundario -->
+                                                        <div class="col-md-6">
+                                                            <label for="color_secundario_simple" class="form-label fw-bold">Color Secundario</label>
+                                                            <div class="input-group">
+                                                                <input type="color" 
+                                                                       class="form-control form-control-color @error('color_secundario') is-invalid @enderror" 
+                                                                       id="color_secundario_simple" 
+                                                                       name="color_secundario"
+                                                                       value="{{ old('color_secundario', $landing->color_secundario ?? '#6c757d') }}"
+                                                                       title="Selecciona el color secundario">
+                                                                <input type="text" 
+                                                                       class="form-control" 
+                                                                       id="color_secundario_simple_text" 
+                                                                       value="{{ old('color_secundario', $landing->color_secundario ?? '#6c757d') }}" 
+                                                                       readonly>
+                                                            </div>
+                                                            <small class="text-muted">Color secundario para acentos</small>
+                                                            @error('color_secundario')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+
+                                                        <!-- Estilo de Diseño -->
+                                                        <div class="col-md-6">
+                                                            <label for="estilo_simple" class="form-label fw-bold">Estilo de Diseño</label>
+                                                            <select class="form-select @error('estilo') is-invalid @enderror" 
+                                                                    id="estilo_simple" 
+                                                                    name="estilo">
+                                                                <option value="">Selecciona un estilo</option>
+                                                                <option value="moderno" {{ old('estilo', $landing->estilo ?? '') == 'moderno' ? 'selected' : '' }}>Moderno</option>
+                                                                <option value="clasico" {{ old('estilo', $landing->estilo ?? '') == 'clasico' ? 'selected' : '' }}>Clásico</option>
+                                                                <option value="minimalista" {{ old('estilo', $landing->estilo ?? '') == 'minimalista' ? 'selected' : '' }}>Minimalista</option>
+                                                                <option value="elegante" {{ old('estilo', $landing->estilo ?? '') == 'elegante' ? 'selected' : '' }}>Elegante</option>
+                                                                <option value="divertido" {{ old('estilo', $landing->estilo ?? '') == 'divertido' ? 'selected' : '' }}>Divertido</option>
+                                                            </select>
+                                                            <small class="text-muted">Estilo general de tu landing</small>
+                                                            @error('estilo')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+
+                                                        <!-- Tipografía -->
+                                                        <div class="col-md-6">
+                                                            <label for="tipografia_simple" class="form-label fw-bold">Tipografía</label>
+                                                            <select class="form-select @error('tipografia') is-invalid @enderror" 
+                                                                    id="tipografia_simple" 
+                                                                    name="tipografia">
+                                                                <option value="">Selecciona una tipografía</option>
+                                                                <option value="Arial, sans-serif" {{ old('tipografia', $landing->tipografia ?? '') == 'Arial, sans-serif' ? 'selected' : '' }}>Arial</option>
+                                                                <option value="'Roboto', sans-serif" {{ old('tipografia', $landing->tipografia ?? '') == "'Roboto', sans-serif" ? 'selected' : '' }}>Roboto (Moderna)</option>
+                                                                <option value="'Open Sans', sans-serif" {{ old('tipografia', $landing->tipografia ?? '') == "'Open Sans', sans-serif" ? 'selected' : '' }}>Open Sans (Limpia)</option>
+                                                                <option value="'Montserrat', sans-serif" {{ old('tipografia', $landing->tipografia ?? '') == "'Montserrat', sans-serif" ? 'selected' : '' }}>Montserrat (Elegante)</option>
+                                                                <option value="'Lato', sans-serif" {{ old('tipografia', $landing->tipografia ?? '') == "'Lato', sans-serif" ? 'selected' : '' }}>Lato (Amigable)</option>
+                                                                <option value="Georgia, serif" {{ old('tipografia', $landing->tipografia ?? '') == 'Georgia, serif' ? 'selected' : '' }}>Georgia (Clásica)</option>
+                                                            </select>
+                                                            <small class="text-muted">Fuente para tu contenido</small>
+                                                            @error('tipografia')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+
+                                                        <!-- Vista previa de colores -->
+                                                        <div class="col-12">
+                                                            <label class="form-label fw-bold">Vista previa de colores</label>
+                                                            <div class="d-flex gap-3 align-items-center p-3 border rounded">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div id="color-preview-primary" class="rounded-circle me-2" style="width: 30px; height: 30px; background-color: #007bff;"></div>
+                                                                    <span class="small">Principal</span>
+                                                                </div>
+                                                                <div class="d-flex align-items-center">
+                                                                    <div id="color-preview-secondary" class="rounded-circle me-2" style="width: 30px; height: 30px; background-color: #6c757d;"></div>
+                                                                    <span class="small">Secundario</span>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <div class="p-2 rounded text-white text-center" id="color-preview-sample" style="background: linear-gradient(135deg, #007bff, #6c757d);">
+                                                                        Tu marca aquí
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-4">
+                                                <button type="submit" class="btn btn-primary" id="submit-basico">
+                                                    <i class="bi bi-save me-1"></i>
+                                                    Guardar Configuración Básica
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary ms-2" onclick="switchToAdvanced()">
+                                                    <i class="bi bi-gear me-1"></i>
+                                                    Cambiar a Modo Avanzado
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+            </form>
+            <!-- FIN FORMULARIO BÁSICO -->
+
+            <!-- FORMULARIO PARA MODO AVANZADO -->
+            <form id="landing-form-avanzado" action="{{ route('admin.landing.guardar') }}" method="POST" enctype="multipart/form-data" {{ !$profileComplete ? 'style=pointer-events:none;' : '' }} style="display: none;">
+                @csrf
+                <input type="hidden" name="modo_formulario" value="avanzado">
+                
+                <!-- Tabs para modo avanzado -->
+                <div id="seccion-empresa-avanzada" class="mb-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="mb-0">
+                                        <i class="bi bi-gear me-2"></i>
+                                        Configuración Avanzada
+                                    </h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content" id="configTabsContentAvanzado">
+                                        <!-- Tab Avanzados -->
+                                        <div class="tab-pane fade" id="avanzados" role="tabpanel" aria-labelledby="avanzados-tab">
+                                            <div class="alert alert-warning border-0 mb-4">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-tools me-3 fs-4"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">Configuración Avanzada ⚙️</h6>
+                                                        <p class="mb-0 small">Aquí tienes acceso a todas las opciones de personalización.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información Empresarial -->
+                            <div class="card mb-4 d-none" id="advanced-section-1">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-building text-primary me-2"></i>
@@ -436,7 +870,7 @@
                             </div>
 
                             <!-- Logo de la Empresa -->
-                            <div class="card mb-4">
+                            <div class="card mb-4 d-none" id="advanced-section-2">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-image text-primary me-2"></i>
@@ -472,7 +906,7 @@
                             </div>
 
                             <!-- Imágenes Adicionales -->
-                            <div class="card mb-4">
+                            <div class="card mb-4 d-none" id="advanced-section-3">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-images text-primary me-2"></i>
@@ -524,7 +958,7 @@
                             </div>
 
                             <!-- Redes Sociales -->
-                            <div class="card mb-4">
+                            <div class="card mb-4 d-none" id="advanced-section-4">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-share text-primary me-2"></i>
@@ -633,7 +1067,7 @@
                             </div>
 
                             <!-- Documentos Legales -->
-                            <div class="card mb-4">
+                            <div class="card mb-4 d-none" id="advanced-section-5">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="bi bi-file-text text-primary me-2"></i>
@@ -733,7 +1167,7 @@
                 </div>
 
                 <!-- Contenido y Diseño (Después) -->
-                <div id="seccion-contenido">
+                <div id="seccion-contenido" class="d-none">
                     <div class="row">
                             <!-- Columna Principal -->
                             <div class="col-lg-8">
@@ -970,6 +1404,16 @@
                                     #typography-test-text:focus {
                                         border-color: #007bff;
                                         box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+                                    }
+                                    
+                                    
+                                    /* Asegurar que las secciones se oculten/muestren correctamente */
+                                    .form-section-hidden {
+                                        display: none !important;
+                                    }
+                                    
+                                    .form-section-visible {
+                                        display: block !important;
                                     }
                                 </style>
 
@@ -1209,21 +1653,32 @@
                                         </a>
                                     @endif
                                 @endif
-                                <button type="submit" form="landing-form" class="btn btn-primary" id="guardar-btn-bottom" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }}>
-                                    <i class="bi bi-save me-1"></i>
-                                    Guardar
+                                <button type="submit" class="btn btn-primary" id="guardar-btn-avanzado" {{ ($estadoLanding === 'en_construccion' || !$profileComplete) ? 'disabled' : '' }}>
+                                    <i class="bi bi-rocket me-1"></i>
+                                    {{ $estadoLanding === 'publicada' ? 'Actualizar' : 'Guardar y Publicar' }}
                                 </button>
+                                <button type="button" class="btn btn-outline-secondary ms-2" onclick="switchToBasic()">
+                                    <i class="bi bi-arrow-left me-1"></i>
+                                    Volver a Modo Básico
+                                </button>
+                                {{-- Botón de publicar separado ya no es necesario, se hace automáticamente
                                 @if($landing->exists)
                                     <button type="button" id="publicar-btn-bottom" class="btn btn-success" onclick="publishLanding()" {{ ($estadoLanding === 'en_construccion' || $estadoLanding === 'publicada' || !$profileComplete || !$empresaCompleta) ? 'disabled' : '' }}>
                                         <i class="bi bi-rocket me-1"></i>
                                         Publicar
                                     </button>
                                 @endif
+                                --}}
                             </div>
                         </div>
                     </div>
                 </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </form>
+            <!-- FIN FORMULARIO AVANZADO -->
             
             @if(!$profileComplete)
                 </div> <!-- Cierre del overlay de bloqueo -->
@@ -3114,11 +3569,289 @@ function actualizarBotonRevisarCampos() {
     }
 }
 
+// JavaScript simplificado para tabs
+function switchToAdvanced() {
+    // Activar el tab de avanzados
+    const avanzadosTab = document.getElementById('avanzados-tab');
+    if (avanzadosTab) {
+        avanzadosTab.click();
+    }
+}
+
+// Manejar cambio de tabs
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Inicializando tabs básicos...');
+    
+    const principiantesTab = document.getElementById('principiantes-tab');
+    const avanzadosTab = document.getElementById('avanzados-tab');
+    
+    if (principiantesTab) {
+        principiantesTab.addEventListener('shown.bs.tab', function (e) {
+            console.log('Mostrando tab principiantes');
+            // Ocultar secciones avanzadas
+            const advancedSections = document.querySelectorAll('[id^="advanced-section-"]');
+            advancedSections.forEach(section => {
+                section.classList.add('d-none');
+            });
+            
+            // Ocultar sección de contenido
+            const contenidoSection = document.getElementById('seccion-contenido');
+            if (contenidoSection) {
+                contenidoSection.classList.add('d-none');
+            }
+        });
+    }
+    
+    if (avanzadosTab) {
+        avanzadosTab.addEventListener('shown.bs.tab', function (e) {
+            console.log('Mostrando tab avanzados');
+            // Mostrar secciones avanzadas
+            const advancedSections = document.querySelectorAll('[id^="advanced-section-"]');
+            advancedSections.forEach(section => {
+                section.classList.remove('d-none');
+            });
+            
+            // Mostrar sección de contenido
+            const contenidoSection = document.getElementById('seccion-contenido');
+            if (contenidoSection) {
+                contenidoSection.classList.remove('d-none');
+            }
+        });
+    }
+    
+    console.log('Tabs inicializados correctamente');
+});
+
+// ============ FUNCIONES PARA SECCIONES OPCIONALES DEL FORMULARIO BÁSICO ============
+
+// Preview del logo simple
+function previewLogoSimple(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('logo-preview-simple');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Logo Preview" class="img-fluid rounded" style="max-height: 150px;">`;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Manejo de imágenes adicionales simple
+function handleDropSimple(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const zone = document.getElementById('media-upload-zone-simple');
+    zone.classList.remove('drag-over');
+    
+    const files = e.dataTransfer.files;
+    handleFilesSimple(files);
+}
+
+function handleDragOverSimple(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const zone = document.getElementById('media-upload-zone-simple');
+    zone.classList.add('drag-over');
+}
+
+function handleDragLeaveSimple(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const zone = document.getElementById('media-upload-zone-simple');
+    zone.classList.remove('drag-over');
+}
+
+function handleFileSelectSimple(e) {
+    const files = e.target.files;
+    handleFilesSimple(files);
+}
+
+function handleFilesSimple(files) {
+    const gallery = document.getElementById('media-gallery-simple');
+    
+    Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const col = document.createElement('div');
+                col.className = 'col-md-3 col-sm-4 col-6';
+                col.innerHTML = `
+                    <div class="media-item position-relative">
+                        <img src="${e.target.result}" alt="${file.name}" class="img-fluid rounded shadow-sm" style="height: 120px; width: 100%; object-fit: cover;">
+                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" onclick="removeImageSimple(this)" title="Eliminar">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                `;
+                gallery.appendChild(col);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function removeImageSimple(button) {
+    const col = button.closest('.col-md-3');
+    if (col) {
+        col.remove();
+    }
+}
+
+// Manejo de colores en branding simple
+function initializeColorPickers() {
+    // Color principal
+    const colorPrincipal = document.getElementById('color_principal_simple');
+    const colorPrincipalText = document.getElementById('color_principal_simple_text');
+    const previewPrimary = document.getElementById('color-preview-primary');
+    
+    if (colorPrincipal && colorPrincipalText && previewPrimary) {
+        colorPrincipal.addEventListener('input', function() {
+            colorPrincipalText.value = this.value;
+            previewPrimary.style.backgroundColor = this.value;
+            updateColorPreview();
+        });
+    }
+
+    // Color secundario
+    const colorSecundario = document.getElementById('color_secundario_simple');
+    const colorSecundarioText = document.getElementById('color_secundario_simple_text');
+    const previewSecondary = document.getElementById('color-preview-secondary');
+    
+    if (colorSecundario && colorSecundarioText && previewSecondary) {
+        colorSecundario.addEventListener('input', function() {
+            colorSecundarioText.value = this.value;
+            previewSecondary.style.backgroundColor = this.value;
+            updateColorPreview();
+        });
+    }
+
+    function updateColorPreview() {
+        const sample = document.getElementById('color-preview-sample');
+        if (sample && colorPrincipal && colorSecundario) {
+            sample.style.background = `linear-gradient(135deg, ${colorPrincipal.value}, ${colorSecundario.value})`;
+        }
+    }
+}
+
+// Función para cambiar entre formularios independientes
+function switchToBasic() {
+    console.log('Cambiando a modo básico');
+    
+    // Ocultar formulario avanzado y sus botones
+    document.getElementById('landing-form-avanzado').style.display = 'none';
+    document.getElementById('guardar-btn-avanzado-top').style.display = 'none';
+    
+    // Mostrar formulario básico y sus botones  
+    document.getElementById('landing-form-basico').style.display = 'block';
+    document.getElementById('guardar-btn-basico').style.display = 'inline-block';
+    
+    // Actualizar tabs activos
+    document.querySelector('#principiantes-tab').classList.add('active');
+    document.querySelector('#avanzados-tab').classList.remove('active');
+}
+
+function switchToAdvanced() {
+    console.log('Cambiando a modo avanzado');
+    
+    // Ocultar formulario básico y sus botones
+    document.getElementById('landing-form-basico').style.display = 'none';
+    document.getElementById('guardar-btn-basico').style.display = 'none';
+    
+    // Mostrar formulario avanzado y sus botones
+    document.getElementById('landing-form-avanzado').style.display = 'block';
+    document.getElementById('guardar-btn-avanzado-top').style.display = 'inline-block';
+    
+    // Actualizar tabs activos
+    document.querySelector('#avanzados-tab').classList.add('active');
+    document.querySelector('#principiantes-tab').classList.remove('active');
+}
+
+// Función simplificada - ya no necesitamos manejar campos requeridos
+function updateRequiredFields() {
+    // Esta función ya no es necesaria con formularios separados
+    console.log('Formularios independientes - no se requiere manejo de campos');
+}
+
+// Función para forzar actualización de campos (mantenida para compatibilidad)
+function forceUpdateFields() {
+    console.log('Formularios independientes - no se requiere actualización forzada');
+}
+
+// Inicializar formularios cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    initializeColorPickers();
+    
+    // Configurar listeners para los tabs
+    const principiantesTabBtn = document.querySelector('#principiantes-tab');
+    const avanzadosTabBtn = document.querySelector('#avanzados-tab');
+    
+    if (principiantesTabBtn) {
+        principiantesTabBtn.addEventListener('click', function() {
+            switchToBasic();
+        });
+    }
+    
+    if (avanzadosTabBtn) {
+        avanzadosTabBtn.addEventListener('click', function() {
+            switchToAdvanced();
+        });
+    }
+    
+    // Mostrar formulario básico por defecto
+    setTimeout(() => {
+        switchToBasic();
+    }, 500);
+});
+
+// Agregar estilos CSS para drag and drop y efectos
+const simpleFormStyles = document.createElement('style');
+simpleFormStyles.textContent = `
+    .drag-over {
+        border-color: #007bff !important;
+        background-color: rgba(0, 123, 255, 0.1) !important;
+    }
+    
+    .media-item {
+        transition: transform 0.2s ease;
+    }
+    
+    .media-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .form-control-color {
+        width: 50px !important;
+        height: 38px !important;
+        padding: 4px !important;
+    }
+    
+    .badge.bg-info {
+        background-color: #17a2b8 !important;
+    }
+`;
+document.head.appendChild(simpleFormStyles);
+
 // Exponer funciones globalmente para uso desde atributos onclick en el HTML
 window.verificarCamposFaltantes = verificarCamposFaltantes;
 window.mostrarAlertaCamposFaltantes = mostrarAlertaCamposFaltantes;
 window.irACampo = irACampo;
 window.mostrarTooltipCampo = mostrarTooltipCampo;
+window.switchToAdvanced = switchToAdvanced;
+window.switchToBasic = switchToBasic;
+window.previewLogoSimple = previewLogoSimple;
+window.handleDropSimple = handleDropSimple;
+window.handleDragOverSimple = handleDragOverSimple;
+window.handleDragLeaveSimple = handleDragLeaveSimple;
+window.handleFileSelectSimple = handleFileSelectSimple;
+window.removeImageSimple = removeImageSimple;
+window.updateRequiredFields = updateRequiredFields;
+window.switchTab = switchTab;
+window.forceUpdateFields = forceUpdateFields;
 </script>
 @endpush
 @endsection

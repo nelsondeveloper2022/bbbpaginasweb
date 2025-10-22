@@ -512,7 +512,7 @@
 
 <!-- Plans Section -->
 <section id="planes" class="plans-content">
-    <div class="container">
+    <div class="container-fluid">
         <h2 class="section-title">
             Planes pensados para <span class="highlight">crecer</span>
         </h2>

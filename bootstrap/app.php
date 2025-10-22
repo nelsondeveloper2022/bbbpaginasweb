@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.trial' => \App\Http\Middleware\CheckTrialStatus::class,
             'admin' => \App\Http\Middleware\IsAdmin::class,
             'recaptcha' => \App\Http\Middleware\RecaptchaMiddleware::class,
+            'landing.configured' => \App\Http\Middleware\EnsureLandingConfigured::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

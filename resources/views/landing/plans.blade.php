@@ -167,7 +167,7 @@
 
 <!-- Plans Content -->
 <section class="plans-content">
-    <div class="container">
+    <div class="container-fluid">
         <!-- Plans Grid Component -->
         @include('components.plans-grid')
     </div>
