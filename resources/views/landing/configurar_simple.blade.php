@@ -63,7 +63,7 @@
                         <i class="bi bi-check-circle me-3 fs-4"></i>
                         <div class="flex-grow-1">
                             <h6 class="mb-1">¡Tu landing page está publicada! 🎉</h6>
-                            <p class="mb-2">Puedes modificar: imágenes, colores, redes sociales y WhatsApp.</p>
+                            <p class="mb-2">Puedes modificar: imágenes, colores, redes sociales, WhatsApp y teléfono.</p>
                                                                         <small class="text-success">
                                 <i class="bi bi-link-45deg me-1"></i>
                                 <strong>URL:</strong> 
@@ -97,9 +97,9 @@
             @endif
 
             <!-- Overlay de bloqueo para estado en construcción -->
-            @if($estadoLanding === 'en_construccion')
+            {{-- @if($estadoLanding === 'en_construccion')
                 <div class="form-blocked-overlay">
-            @endif
+            @endif --}}
 
             <!-- Formulario Principal -->
             <form id="landing-form" action="{{ route('admin.landing.guardar') }}" method="POST" enctype="multipart/form-data">
@@ -142,8 +142,7 @@
                                                class="form-control @error('whatsapp') is-invalid @enderror" 
                                                name="whatsapp"
                                                value="{{ old('whatsapp', $empresa->whatsapp ?? '') }}"
-                                               placeholder="+57 300 123 4567"
-                                               {{ $estadoLanding === 'en_construccion' ? 'readonly' : 'required' }}>
+                                               placeholder="+57 300 123 4567">
                                         @error('whatsapp')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -163,6 +162,21 @@
                                         @error('titulo_principal')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            Teléfono para Llamadas
+                                        </label>
+                                        <input type="tel" 
+                                               class="form-control @error('movil') is-invalid @enderror" 
+                                               name="movil"
+                                               value="{{ old('movil', $empresa->movil ?? '') }}"
+                                               placeholder="+57 1 234 5678">
+                                        @error('movil')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <small class="text-muted">Número de teléfono fijo o móvil para llamadas directas</small>
                                     </div>
                                     
                                     <div class="col-12">
@@ -213,8 +227,7 @@
                                        class="form-control @error('logo') is-invalid @enderror" 
                                        name="logo"
                                        accept="image/*" 
-                                       onchange="previewLogo(event)"
-                                       {{ $estadoLanding === 'en_construccion' ? 'disabled' : '' }}>
+                                       onchange="previewLogo(event)">
                                 @error('logo')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -305,8 +318,7 @@
                                                class="form-control @error('facebook') is-invalid @enderror" 
                                                name="facebook"
                                                value="{{ old('facebook', $empresa->facebook ?? '') }}"
-                                               placeholder="https://facebook.com/tuempresa"
-                                               {{ $estadoLanding === 'en_construccion' ? 'readonly' : '' }}>
+                                               placeholder="https://facebook.com/tuempresa">
                                         @error('facebook')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -321,8 +333,7 @@
                                                class="form-control @error('instagram') is-invalid @enderror" 
                                                name="instagram"
                                                value="{{ old('instagram', $empresa->instagram ?? '') }}"
-                                               placeholder="https://instagram.com/tuempresa"
-                                               {{ $estadoLanding === 'en_construccion' ? 'readonly' : '' }}>
+                                               placeholder="https://instagram.com/tuempresa">
                                         @error('instagram')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -337,8 +348,7 @@
                                                class="form-control @error('twitter') is-invalid @enderror" 
                                                name="twitter"
                                                value="{{ old('twitter', $empresa->twitter ?? '') }}"
-                                               placeholder="https://twitter.com/tuempresa"
-                                               {{ $estadoLanding === 'en_construccion' ? 'readonly' : '' }}>
+                                               placeholder="https://twitter.com/tuempresa">
                                         @error('twitter')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -369,13 +379,11 @@
                                                    class="form-control form-control-color" 
                                                    id="color_principal" 
                                                    name="color_principal"
-                                                   value="{{ old('color_principal', $landing->color_principal ?? '#007bff') }}"
-                                                   {{ $estadoLanding === 'en_construccion' ? 'disabled' : '' }}>
+                                                   value="{{ old('color_principal', $landing->color_principal ?? '#007bff') }}">
                                             <input type="text" 
                                                    class="form-control" 
                                                    id="color_principal_text"
-                                                   value="{{ old('color_principal', $landing->color_principal ?? '#007bff') }}"
-                                                   readonly>
+                                                   value="{{ old('color_principal', $landing->color_principal ?? '#007bff') }}">
                                         </div>
                                     </div>
                                     
@@ -386,13 +394,11 @@
                                                    class="form-control form-control-color" 
                                                    id="color_secundario" 
                                                    name="color_secundario"
-                                                   value="{{ old('color_secundario', $landing->color_secundario ?? '#6c757d') }}"
-                                                   {{ $estadoLanding === 'en_construccion' ? 'disabled' : '' }}>
+                                                   value="{{ old('color_secundario', $landing->color_secundario ?? '#6c757d') }}">
                                             <input type="text" 
                                                    class="form-control" 
                                                    id="color_secundario_text"
-                                                   value="{{ old('color_secundario', $landing->color_secundario ?? '#6c757d') }}"
-                                                   readonly>
+                                                   value="{{ old('color_secundario', $landing->color_secundario ?? '#6c757d') }}">
                                         </div>
                                     </div>
                                     
@@ -438,20 +444,11 @@
                     <!-- Botón de envío -->
                     <div class="col-12">
                         <div class="text-center">
-                            @if($estadoLanding === 'publicada')
+                            @if($estadoLanding === 'publicada' || $estadoLanding === 'en_construccion')
                                 <button type="submit" class="btn btn-warning btn-lg">
                                     <i class="bi bi-arrow-clockwise me-2"></i>
                                     Actualizar Landing Page
                                 </button>
-                            @elseif($estadoLanding === 'en_construccion')
-                                <button type="button" class="btn btn-secondary btn-lg" disabled title="Landing en construcción - No se puede editar">
-                                    <i class="bi bi-lock me-2"></i>
-                                    Formulario Bloqueado
-                                </button>
-                                {{-- <button type="button" class="btn btn-warning btn-lg ms-2" onclick="publicarLanding()">
-                                    <i class="bi bi-rocket-takeoff me-2"></i>
-                                    Publicar para Editar
-                                </button> --}}
                             @else
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="bi bi-save me-2"></i>
@@ -464,9 +461,9 @@
             </form>
             
             <!-- Cerrar overlay de bloqueo -->
-            @if($estadoLanding === 'en_construccion')
+            {{-- @if($estadoLanding === 'en_construccion')
                 </div> <!-- .form-blocked-overlay -->
-            @endif
+            @endif --}}
         </div>
     </div>
 </div>
@@ -643,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (estadoLanding === 'publicada') {
         // Resaltar campos editables
-        const editableFields = ['whatsapp', 'facebook', 'instagram', 'twitter', 'color_principal', 'color_secundario'];
+        const editableFields = ['whatsapp', 'movil', 'facebook', 'instagram', 'twitter', 'color_principal', 'color_secundario'];
         
         editableFields.forEach(fieldName => {
             const field = document.querySelector(`[name="${fieldName}"]`);
@@ -678,6 +675,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Estilos CSS -->
 <style>
+
+input[readonly],
+textarea[readonly] {
+    background-color: #f0f0f0;   /* gris claro */
+    color: #555;                 /* texto gris oscuro */
+    border: 1px solid #ccc;      /* borde suave */
+    cursor: not-allowed;         /* cursor de "no permitido" */
+    opacity: 0.8;                /* leve transparencia */
+}
 .form-control-color {
     width: 50px !important;
     height: 38px !important;

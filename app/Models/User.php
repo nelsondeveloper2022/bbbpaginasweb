@@ -178,15 +178,46 @@ class User extends Authenticatable
      */
     public function isPlanExpiringSoon()
     {
-        if (!$this->trial_ends_at) {
+        $expirationDate = $this->getEffectiveExpirationDate();
+
+        // Si no hay fecha de expiración, no está por vencer
+        if (!$expirationDate) {
             return false;
         }
-        
+
         // Verificar si está entre hoy y los próximos 5 días
         $now = now();
         $fiveDaysFromNow = $now->copy()->addDays(5);
+
+        return $expirationDate->between($now, $fiveDaysFromNow) && $expirationDate->isFuture();
+    }
+
+    /**
+     * Obtener la fecha de expiración efectiva del plan (subscription_ends_at o trial_ends_at)
+     */
+    public function getEffectiveExpirationDate()
+    {
+        // Priorizar subscription_ends_at si existe (suscripción pagada)
+        if ($this->subscription_ends_at) {
+            return $this->subscription_ends_at;
+        }
         
-        return $this->trial_ends_at->between($now, $fiveDaysFromNow) && $this->trial_ends_at->isFuture();
+        // Si no hay suscripción, usar trial_ends_at (periodo de prueba)
+        return $this->trial_ends_at;
+    }
+
+    /**
+     * Verificar si el plan/suscripción está activo
+     */
+    public function hasActivePlan()
+    {
+        $expirationDate = $this->getEffectiveExpirationDate();
+        
+        if (!$expirationDate) {
+            return false;
+        }
+        
+        return $expirationDate->isFuture();
     }
 
     /**

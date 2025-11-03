@@ -70,7 +70,7 @@ class EnsureLandingConfigured
             $landingSetupMessage = '';
             
             // Verificar si no tiene empresa asignada
-            if (!$user || !property_exists($user, 'idEmpresa') || !$user->idEmpresa) {
+            if ($user->idEmpresa == 0 || $user->idEmpresa == null) {
                 $needsLandingSetup = true;
                 $landingSetupMessage = 'Debes asignar tu cuenta a una empresa';
             } else {
@@ -90,9 +90,9 @@ class EnsureLandingConfigured
                         $landingSetupMessage = 'Debes configurar tu landing page';
                     }
                     // Verificar si la landing no está completa (sin título principal)
-                    elseif (!$empresa->landing->titulo_principal) {
+                    elseif (is_null($empresa->landing->titulo_principal) || trim($empresa->landing->titulo_principal) === '') {
                         $needsLandingSetup = true;
-                        $landingSetupMessage = 'Debes completar la configuración de tu landing page';
+                        $landingSetupMessage = 'Debes completar la configuración de tu landing page - falta el título principal';
                     }
                 } catch (\Exception $empresaException) {
                     Log::warning('Error al cargar empresa en middleware', [
@@ -108,7 +108,6 @@ class EnsureLandingConfigured
                     $landingSetupMessage = 'Debes configurar tu landing page';
                 }
             }
-            
             // Si necesita configurar la landing, redirigir
             if ($needsLandingSetup) {
                 return redirect()->route('admin.landing.configurar')
@@ -123,7 +122,7 @@ class EnsureLandingConfigured
                 'line' => $e->getLine(),
                 'user_id' => Auth::id(),
                 'impersonating' => session()->has('impersonating_admin_id'),
-                'route' => $request->route()?->getName(),
+                'route' => $request->route() ? $request->route()->getName() : 'NO_ROUTE',
                 'url' => $request->url()
             ]);
             

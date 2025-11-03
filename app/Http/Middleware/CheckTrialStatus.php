@@ -59,14 +59,22 @@ class CheckTrialStatus
             return $next($request);
         }
 
+        
         // Para todos los planes con días (incluye plan 6 - Free 15 días, y plan 5 - Arriendo)
         if ($dias > 0) {
-            $expires = $user->trial_ends_at ? Carbon::parse($user->trial_ends_at) : null;
-            
-            // Si no tiene fecha de expiración o ya expiró
-            if (!$expires || $expires->isPast()) {
-                // Marcar trial como expirado en sesión
-                session()->flash('trial_expired', true);
+            // Verificar si el usuario tiene un plan activo
+            if (!$user->hasActivePlan()) {
+                // Determinar el mensaje según el tipo de expiración
+                $expirationMessage = 'Tu plan ha expirado. Adquiere un nuevo plan para continuar.';
+                
+                if ($user->subscription_ends_at && $user->subscription_ends_at->isPast()) {
+                    $expirationMessage = 'Tu suscripción ha expirado. Renueva tu plan para continuar.';
+                } elseif ($user->trial_ends_at && $user->trial_ends_at->isPast()) {
+                    $expirationMessage = 'Tu periodo de prueba ha expirado. Adquiere un plan para continuar.';
+                }
+                
+                // Marcar como expirado en sesión
+                session()->flash('plan_expired', true);
                 
                 // Solo permitir rutas específicas cuando está expirado
                 if (in_array($request->route()->getName(), $allowedRoutesWhenExpired)) {
@@ -75,12 +83,12 @@ class CheckTrialStatus
                 
                 // Redirigir a gestión de planes para renovar/comprar
                 return redirect()->route('admin.plans.index')
-                    ->with('error', 'Tu plan ha expirado. Adquiere un nuevo plan para continuar.');
+                    ->with('error', $expirationMessage);
             }
             
             // Si el plan está próximo a vencer (5 días o menos)
             if ($user->isPlanExpiringSoon()) {
-                session()->flash('trial_expiring_soon', true);
+                session()->flash('plan_expiring_soon', true);
             }
         }
 

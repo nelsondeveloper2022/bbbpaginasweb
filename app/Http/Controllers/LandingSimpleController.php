@@ -59,7 +59,7 @@ class LandingSimpleController extends Controller
         // Definir campos editables cuando está publicada
         $editableFieldsWhenPublished = [
             'logo', 'media', 'color_principal', 'color_secundario', 
-            'whatsapp', 'facebook', 'instagram', 'twitter'
+            'whatsapp', 'movil', 'facebook', 'instagram', 'twitter'
         ];
 
         // Cargar imágenes adicionales existentes
@@ -92,12 +92,6 @@ class LandingSimpleController extends Controller
         Log::info('=== USANDO LANDING SIMPLE CONTROLLER ===');
         
         $user = Auth::user();
-        
-        // Verificar si el perfil está completo
-        if (!$user->hasCompleteProfile() || !$user->isEmailVerified()) {
-            return redirect()->route('admin.landing.configurar')
-                ->with('error', 'Debes completar los datos de tu empresa antes de configurar la landing page.');
-        }
         
         // Obtener la empresa
         $empresa = BbbEmpresa::find($user->idEmpresa);
@@ -136,6 +130,7 @@ class LandingSimpleController extends Controller
             // Si está publicada, solo validar campos editables
             $validationRules = [
                 'whatsapp' => 'required|string|max:20',
+                'movil' => 'nullable|string|max:20',
                 'color_principal' => 'nullable|string|max:7',
                 'color_secundario' => 'nullable|string|max:7',
                 'facebook' => 'nullable|url|max:255',
@@ -149,6 +144,7 @@ class LandingSimpleController extends Controller
             $validationRules = [
                 'empresa_nombre' => 'required|string|max:255',
                 'whatsapp' => 'required|string|max:20',
+                'movil' => 'nullable|string|max:20',
                 'titulo_principal' => 'required|string|max:255',
                 'descripcion' => 'required|string|max:1000',
                 'color_principal' => 'nullable|string|max:7',
@@ -190,6 +186,7 @@ class LandingSimpleController extends Controller
             if ($isPublished) {
                 // Si está publicada, solo actualizar campos permitidos
                 $empresa->whatsapp = $request->whatsapp;
+                $empresa->movil = $request->movil;
                 $empresa->facebook = $request->facebook;
                 $empresa->instagram = $request->instagram;
                 $empresa->twitter = $request->twitter;
@@ -202,6 +199,7 @@ class LandingSimpleController extends Controller
                 // Si no está publicada, actualizar todos los campos
                 $empresa->nombre = $request->empresa_nombre;
                 $empresa->whatsapp = $request->whatsapp;
+                $empresa->movil = $request->movil;
                 $empresa->facebook = $request->facebook;
                 $empresa->instagram = $request->instagram;
                 $empresa->twitter = $request->twitter;
